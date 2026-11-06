@@ -80,6 +80,15 @@ class ProtocolTests(TestCase):
         self.assertIn('The board is the ticket tracker', opened['instructions'])
         self.assertNotIn('The board is the ticket tracker', closed.json()['result']['instructions'])
 
+    def test_the_examples_use_the_board_s_own_keys(self):
+        opened = call(self.client, 'initialize', {'protocolVersion': '2025-06-18'}).json()['result']
+        tools = {tool['name']: tool for tool in call(self.client, 'tools/list').json()['result']['tools']}
+
+        self.assertIn('its key (EX-123)', opened['instructions'])
+        self.assertEqual(
+            tools['get_ticket']['inputSchema']['properties']['key']['description'], 'The ticket key, e.g. EX-123.'
+        )
+
     def test_a_notification_gets_no_answer(self):
         response = call(self.client, 'notifications/initialized', message_id=None)
 

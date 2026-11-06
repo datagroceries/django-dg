@@ -1,6 +1,7 @@
 """The board's area for agents: its token scope, and its MCP tools, which run the views of its REST API
 (gilde.board.api). Registered with gilde.core in BoardConfig.ready()."""
 
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from gilde.board.api import (
@@ -19,7 +20,9 @@ from gilde.board.models import Column, Ticket
 from gilde.core.areas import Area
 from gilde.core.mcp import Tool
 
-KEY = {'type': 'string', 'description': 'The ticket key, e.g. T-123.'}
+# An example key in the board's own form, so an agent knows one when it sees one.
+EXAMPLE = f'{settings.GILDE_BOARD_KEY_PREFIX}-123'
+KEY = {'type': 'string', 'description': f'The ticket key, e.g. {EXAMPLE}.'}
 MENTION = '@-mentioning someone by their handle (@ann, as the people in a ticket list them) tells them about it.'
 TICKET_FIELDS = {
     'title': {'type': 'string', 'maxLength': 255, 'description': 'Required on create.'},
@@ -68,7 +71,7 @@ TOOLS = (
         TicketListCreateView,
         'GET',
         {
-            'q': {'type': 'string', 'description': 'A key (T-831, or 831), or words in the title or description.'},
+            'q': {'type': 'string', 'description': f'A key ({EXAMPLE}, or 123), or words in the title or description.'},
             'group': {'type': 'string', 'description': "A group's slug."},
             'category': {
                 'type': 'array',
@@ -212,7 +215,7 @@ AREA = Area(
     scope=SCOPE,
     label=_('Board'),
     permission='gilde_board.use',
-    instructions='The board is the ticket tracker: look a ticket up when someone mentions its key (T-123). '
+    instructions=f'The board is the ticket tracker: look a ticket up when someone mentions its key ({EXAMPLE}). '
     "A comment reaches the ticket's watchers at once.",
     tools=TOOLS,
 )
