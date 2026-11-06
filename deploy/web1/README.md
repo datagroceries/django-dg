@@ -98,6 +98,18 @@ sudo -u gilde pg_restore --clean --if-exists --dbname gilde /srv/gilde/backups/g
 `journalctl -u gilde` (Django's warnings and errors, and the notifications while there is no mail
 password), `journalctl -u gilde-backup` and `journalctl -u caddy`.
 
+## GitHub
+
+Commits on `main`, branches and pull requests that name a `G-` ticket show in its Code panel (the board's
+README, "GitHub"). The repository has a webhook to `https://gilde.datagroceries.com/gilde/board/github/webhook/`:
+JSON, the events Pushes, Pull requests and Branch or tag creation, and the secret that is
+`GILDE_BOARD_GITHUB_WEBHOOK_SECRET` in `/srv/gilde/.env`. It was made with a fresh secret written to both
+at once, never printed. The webhook's Recent deliveries on GitHub show each delivery and the answer; one
+refused while the site was down or not yet deployed can be redelivered there.
+
+There is no `GILDE_BOARD_GITHUB_TOKEN`: only `manage.py backfill_github` needs one, to read history from
+before the webhook, and the repository has none that names a ticket.
+
 ## Mail
 
 Notifications go out over SMTP through Hetzner's webhosting, from a mailbox of Gilde's own, which only
