@@ -1,4 +1,4 @@
-"""Fill the example project with a person to sign in as and a board to look at."""
+"""Fill the example project with a person to sign in as, a board and a wiki to look at."""
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group as UserGroup
@@ -6,6 +6,7 @@ from django.contrib.auth.models import Permission
 from django.core.management.base import BaseCommand
 
 from gilde.board.models import Column, Group, Relation, Ticket
+from gilde.wiki.models import Page
 
 DEMO_USER = 'demo'
 DEMO_PASSWORD = 'demo'
@@ -18,7 +19,10 @@ COLUMNS = (
 
 
 class Command(BaseCommand):
-    help = f'Make the user {DEMO_USER} (password {DEMO_PASSWORD}), a colleague, and a board with a few tickets.'
+    help = (
+        f'Make the user {DEMO_USER} (password {DEMO_PASSWORD}), a colleague, a board with a few tickets and a wiki '
+        'with a few pages.'
+    )
 
     def handle(self, *args, **options):
         users = get_user_model().objects
@@ -28,10 +32,12 @@ class Command(BaseCommand):
         ann = users.filter(username='ann').first() or users.create_user(
             'ann', 'ann@example.com', first_name='Ann', last_name='Smith'
         )
-        # Who may use the board is a permission, given here as a host project would: through a group.
+        # Who may use the board and the wiki is a permission each, given as a host project would: through a group.
         team, _ = UserGroup.objects.get_or_create(name='Team')
-        team.permissions.add(Permission.objects.get(content_type__app_label='gilde_board', codename='use'))
+        uses = Permission.objects.filter(content_type__app_label__in=('gilde_board', 'gilde_wiki'), codename='use')
+        team.permissions.add(*uses)
         ann.groups.add(team)
+        self.seed_wiki(demo)
         if Group.objects.exists():
             self.stdout.write('The board has groups already; nothing more to seed.')
             return
@@ -53,3 +59,35 @@ class Command(BaseCommand):
             tickets.append(ticket)
         Relation.objects.create(source=tickets[0], target=tickets[1], type=Relation.Type.BLOCKS)
         self.stdout.write(f'Seeded. Sign in at /admin/ as {DEMO_USER} with password {DEMO_PASSWORD}.')
+
+    def seed_wiki(self, author):
+        if Page.objects.exists():
+            return
+        engineering = Page.objects.create(title='Engineering', creator=author, position=1, body=ENGINEERING)
+        Page.objects.create(title='Deploying', parent=engineering, creator=author, position=1, body=DEPLOYING)
+        Page.objects.create(title='Onboarding', creator=author, position=2, body=ONBOARDING)
+
+
+ENGINEERING = """How we build the product, and the pages about each part of it.
+"""
+DEPLOYING = """## Before
+
+- The tests pass on the main branch.
+- The changelog says what changes.
+
+## Deploying
+
+1. Pull on the server.
+2. Install the requirements, migrate and collect the static files.
+3. Restart the service.
+
+## After
+
+Check the site, and the errors of the last ten minutes.
+"""
+ONBOARDING = """Welcome to the team. This page lists what to do in your first week.
+
+- [ ] Sign in to the board and the wiki.
+- [ ] Read how we work in Engineering.
+- [ ] Pick up a ticket with a colleague.
+"""

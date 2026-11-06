@@ -1,0 +1,24 @@
+{% extends 'gilde_wiki/_wiki.html' %}
+{% load i18n %}
+
+{% block page_title %}{% blocktranslate with title=page.title %}Editing {{ title }}{% endblocktranslate %}{% endblock %}
+
+{% block wiki_head %}{% include 'gilde_core/_editor_assets.html' %}{% endblock %}
+
+{% block main %}
+{% include 'gilde_wiki/_crumbs.html' with ancestors=page.ancestors last=page %}
+<form method="post">
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}<div class="alert alert-warning">{{ error }}</div>{% endfor %}
+  {{ form.original }}
+  <input type="text" name="{{ form.title.html_name }}" value="{{ form.title.value|default:'' }}" maxlength="255" required
+         class="form-control form-control-lg wk-title-input mb-2{% if form.title.errors %} is-invalid{% endif %}"
+         aria-label="{% translate 'Title' %}">
+  {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  <div class="gilde-editor">{{ form.body }}</div>
+  <div class="d-flex gap-2 mt-3">
+    <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
+    <a class="btn btn-outline-secondary" href="{{ page.get_absolute_url }}">{% translate "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'gilde_wiki/_wiki.html' %}
+{% load i18n %}
+
+{% block page_title %}{% translate "No such page" %}{% endblock %}
+
+{% block main %}
+{% include 'gilde_wiki/_crumbs.html' %}
+<h1 class="h3">{% translate "No such page yet" %}</h1>
+<p class="wk-muted">{% blocktranslate %}No page has the address <code>{{ path }}</code>. Start it?{% endblocktranslate %}</p>
+{% include 'gilde_wiki/_new_page_form.html' %}
+{% endblock %}

@@ -88,3 +88,32 @@ class ReferenceTests(SimpleTestCase):
         markdown.register(Shout)
 
         self.assertEqual(markdown.REFERENCES.count(Shout), 1)
+
+
+class DocumentTests(SimpleTestCase):
+    def test_a_document_has_its_headings_for_a_table_of_contents(self):
+        html, headings = markdown.render_document('# Title\n\n## Tom & Jerry\n\n### *Sub*\n\n## Tom & Jerry')
+
+        self.assertIn('<h2 id="h-tom-jerry">Tom &amp; Jerry</h2>', html)
+        self.assertEqual(
+            headings,
+            [
+                markdown.Heading(2, 'h-tom-jerry', 'Tom & Jerry'),
+                markdown.Heading(3, 'h-sub', 'Sub'),
+                markdown.Heading(2, 'h-tom-jerry_1', 'Tom & Jerry'),
+            ],
+        )
+
+    def test_other_text_has_no_ids_on_its_headings(self):
+        self.assertIn('<h2>Plan</h2>', markdown.render('## Plan'))
+
+    def test_raw_html_cannot_set_an_id(self):
+        html, _headings = markdown.render_document('<p id="login">Hi</p>')
+
+        self.assertNotIn('id="login"', html)
+
+    def test_raw_html_cannot_give_a_heading_an_id_of_its_own(self):
+        html, _headings = markdown.render_document('<h2 id="gilde-mention-people">[]</h2>\n\n## Plan')
+
+        self.assertNotIn('gilde-mention-people', html)
+        self.assertIn('<h2 id="h-plan">Plan</h2>', html)

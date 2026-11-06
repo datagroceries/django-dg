@@ -1,0 +1,23 @@
+{% extends 'gilde_wiki/_wiki.html' %}
+{% load i18n %}
+
+{% block page_title %}{% blocktranslate with title=page.title %}Moving {{ title }}{% endblocktranslate %}{% endblock %}
+
+{% block main %}
+{% include 'gilde_wiki/_crumbs.html' with last=page %}
+<h1 class="h3 mb-3">{% blocktranslate with title=page.title %}Move “{{ title }}”{% endblocktranslate %}</h1>
+<form method="post" class="wk-narrow">
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.parent.id_for_label }}">{{ form.parent.label }}</label>
+    {{ form.parent }}
+    {% for error in form.parent.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    <div class="form-text">{% translate "The pages under it go with it. Its old address keeps leading here." %}</div>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">{% translate "Move" %}</button>
+    <a class="btn btn-outline-secondary" href="{{ page.get_absolute_url }}">{% translate "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}

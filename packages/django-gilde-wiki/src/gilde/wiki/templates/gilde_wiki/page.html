@@ -1,0 +1,56 @@
+{% extends 'gilde_wiki/_wiki.html' %}
+{% load i18n humanize gilde_core %}
+
+{% block page_title %}{{ page.title }}{% endblock %}
+
+{% block main %}
+{% include 'gilde_wiki/_crumbs.html' %}
+<div class="wk-heading">
+  <h1>{{ page.title }}</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-sm btn-primary" href="{% url 'gilde_wiki:page_edit' page.path %}"><i class="bi bi-pencil"></i> {% translate "Edit" %}</a>
+    <div class="dropdown">
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% translate 'More' %}"><i class="bi bi-three-dots"></i></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-file-earmark-plus"></i> {% translate "New page under this one" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_move' page.path %}"><i class="bi bi-arrow-right-square"></i> {% translate "Move" %}</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          {% if children %}
+            <span class="dropdown-item disabled" title="{% translate 'Move or delete the pages under this page first.' %}"><i class="bi bi-trash"></i> {% translate "Delete" %}</span>
+          {% else %}
+            <form method="post" action="{% url 'gilde_wiki:page_delete' page.path %}"
+                  onsubmit="return confirm('{% translate "Delete this page? Its history stays." %}')">
+              {% csrf_token %}<button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash"></i> {% translate "Delete" %}</button>
+            </form>
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% if last_change %}
+  <p class="wk-muted small mb-4">
+    {% blocktranslate with person=last_changed_by when=last_change.history_date|naturaltime %}Last changed by {{ person }}, {{ when }}{% endblocktranslate %}{% if last_changed_via %} {{ last_changed_via }}{% endif %}
+  </p>
+{% endif %}
+
+<div class="wk-page">
+  <article class="wk-prose">
+    {% if page.body %}{{ html }}{% else %}<p class="wk-muted fst-italic">{% translate "This page is empty." %} <a href="{% url 'gilde_wiki:page_edit' page.path %}">{% translate "Write it" %}</a></p>{% endif %}
+  </article>
+  {% if headings %}
+    <aside class="wk-contents">
+      <div class="wk-panel-title">{% translate "On this page" %}</div>
+      <ul>{% for heading in headings %}<li class="wk-level-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.name }}</a></li>{% endfor %}</ul>
+    </aside>
+  {% endif %}
+</div>
+
+{% if children %}
+  <section class="wk-children">
+    <div class="wk-panel-title">{% translate "Pages under this one" %}</div>
+    <ul>{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
+  </section>
+{% endif %}
+{% endblock %}

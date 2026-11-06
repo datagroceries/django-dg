@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'gilde.core',
     'gilde.connect',
     'gilde.board',
+    'gilde.wiki',
     'project',
 ]
 

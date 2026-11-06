@@ -45,7 +45,7 @@ jobs:
       # The packages with their lower bounds only, as a project would install them, plus one Django.
       - run: >
           pip install -e packages/django-gilde-core -e packages/django-gilde-connect
-          -e packages/django-gilde-board pytest==9.2.0 pytest-django==4.14.0 "Django~=${{ matrix.django }}.0"
+          -e packages/django-gilde-board -e packages/django-gilde-wiki pytest==9.2.0 pytest-django==4.14.0 "Django~=${{ matrix.django }}.0"
       - run: python -m django --version
       - run: pytest -q
 

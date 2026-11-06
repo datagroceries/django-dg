@@ -1,0 +1,24 @@
+{% extends 'gilde_core/base.html' %}
+{% load i18n static gilde_wiki %}
+{% comment %}The wiki's layout: the tree of pages on the left, the page on the right.{% endcomment %}
+
+{% block title %}{% block page_title %}{% endblock %} · {% wiki_name %}{% endblock %}
+{% block container_class %}container-fluid{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'gilde_wiki/wiki.css' %}">
+{% block wiki_head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="row py-3">
+  <nav class="col-lg-3 col-xl-2 wk-sidebar" aria-label="{% translate 'Pages' %}">
+    <a class="wk-name" href="{% url 'gilde_wiki:home' %}"><i class="bi bi-journal-text"></i> {% wiki_name %}</a>
+    {% page_tree page %}
+    <a class="btn btn-sm btn-outline-secondary mt-3" href="{% url 'gilde_wiki:page_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New page" %}</a>
+  </nav>
+  <main class="col-lg-9 col-xl-10 wk-main">
+    {% block main %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

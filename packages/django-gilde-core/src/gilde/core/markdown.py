@@ -2,7 +2,8 @@
 
 `render(text)` turns Markdown into safe HTML: lists read the way GitHub reads them, tables, fenced code,
 "- [ ]" items as checkboxes, bare addresses as links, and nothing of whatever raw HTML the text holds
-(nh3 strips it).
+(nh3 strips it). `render_document(text)` does the same for a page of its own, such as a wiki page: with an
+anchor on each heading, and the headings for a table of contents.
 
 What an app recognises in text is a `Reference`, registered from its AppConfig.ready() with `register`:
 the board makes "see T-123" a link to that ticket and "@anna" a mention of that colleague. Every app's
@@ -10,18 +11,28 @@ Markdown shows them so while that app is installed, and as plain text when it is
 together without knowing each other.
 """
 
+import html as html_module
 import re
+import typing
 import xml.etree.ElementTree as ET
 
 import markdown
 import nh3
 from django.utils.safestring import SafeString, mark_safe
-from markdown.extensions import Extension
+from markdown.extensions import Extension, toc
 from markdown.preprocessors import Preprocessor
 from markdown.treeprocessors import Treeprocessor
 
 # Text in these is left as written: code, and what is a link already.
 SKIPPED_TAGS = {'a', 'code', 'pre'}
+# The headings a table of contents lists: not the title's level, nor the smallest.
+HEADING_LEVELS = '2-4'
+
+
+class Heading(typing.NamedTuple):
+    level: int
+    id: str
+    name: str
 
 
 class Reference(Treeprocessor):
@@ -161,13 +172,13 @@ class _GitHubLists(Extension):
         md.preprocessors.register(_ListPreprocessor(md), 'github_lists', 15)
 
 
-def render(text: str, *, references: bool = True) -> SafeString:
-    """`text` as HTML, with what the installed apps recognise marked up, unless `references` is False, as
-    on a public page whose visitors could not open what they name. nh3 strips whatever raw HTML the
-    Markdown let through and every class but the references' and the task item's, and makes every input
-    that is left a disabled checkbox."""
-    html = markdown.markdown(
-        text,
+def _anchor(value: str, separator: str) -> str:
+    # Prefixed, so that no heading's id can take the name of something on the page around it.
+    return f'h-{toc.slugify(value, separator)}'
+
+
+def _convert(text: str, references: bool, headings: bool) -> tuple[SafeString, list]:
+    md = markdown.Markdown(
         extensions=[
             'fenced_code',
             'tables',
@@ -178,18 +189,55 @@ def render(text: str, *, references: bool = True) -> SafeString:
             'pymdownx.tasklist',
             _GitHubLists(),
             *([_References()] if references else []),
+            *([toc.TocExtension(slugify=_anchor, toc_depth=HEADING_LEVELS)] if headings else []),
         ],
     )
+    html = md.convert(text)
     classes = {'li': {'task-list-item'}}
     for reference in REFERENCES if references else ():
         for tag, names in reference.classes.items():
             classes[tag] = classes.get(tag, set()) | names
-    return mark_safe(  # noqa: S308 - nh3 cleans it first
+    attributes = {**nh3.ALLOWED_ATTRIBUTES, 'input': {'checked'}}
+    if headings:
+        attributes |= {f'h{level}': {'id'} for level in range(1, 7)}
+    cleaned = mark_safe(  # noqa: S308 - nh3 cleans it first
         nh3.clean(
             html,
             tags=nh3.ALLOWED_TAGS | {'input'},
-            attributes={**nh3.ALLOWED_ATTRIBUTES, 'input': {'checked'}},
+            attributes=attributes,
             set_tag_attribute_values={'input': {'type': 'checkbox', 'disabled': ''}},
             allowed_classes=classes,
+            attribute_filter=_anchors_only,
         ),
     )
+    return cleaned, getattr(md, 'toc_tokens', [])
+
+
+def _anchors_only(tag: str, attribute: str, value: str) -> str | None:
+    """Ids are the headings' own, which _anchor made, not ones written in the text as raw HTML."""
+    if attribute == 'id' and not value.startswith('h-'):
+        return None
+    return value
+
+
+def render(text: str, *, references: bool = True) -> SafeString:
+    """`text` as HTML, with what the installed apps recognise marked up, unless `references` is False, as
+    on a public page whose visitors could not open what they name. nh3 strips whatever raw HTML the
+    Markdown let through and every class but the references' and the task item's, and makes every input
+    that is left a disabled checkbox."""
+    return _convert(text, references, headings=False)[0]
+
+
+def render_document(text: str, *, references: bool = True) -> tuple[SafeString, list[Heading]]:
+    """`text` as `render` makes it, with an id on each heading, and the headings of levels 2 to 4 for a
+    table of contents, in order."""
+    html, tokens = _convert(text, references, headings=True)
+    found = []
+
+    def walk(tokens):
+        for token in tokens:
+            found.append(Heading(token['level'], token['id'], html_module.unescape(token['name'])))
+            walk(token['children'])
+
+    walk(tokens)
+    return html, found

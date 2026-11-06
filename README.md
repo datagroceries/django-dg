@@ -11,7 +11,8 @@ Open-source Django apps that people and AI agents work on together. Each app ins
 Django project you already have, with its own login and its own users, and agents reach all of them
 through one MCP endpoint.
 
-The first app is **the board**, a kanban ticket tracker. A CMS comes next.
+The first app is **the board**, a kanban ticket tracker. **The wiki**, the team's own knowledge next to
+the board, is being built.
 
 ## What the board does
 
@@ -70,6 +71,7 @@ AI agents.
 |---|---|
 | [`django-gilde-board`](packages/django-gilde-board/) | The kanban ticket tracker. |
 | [`django-gilde-connect`](packages/django-gilde-connect/) | Connecting agents: personal tokens, OAuth so Claude connects with the endpoint's address alone, and a "Connect an agent" page. Not needed if your project's own API logins are enough for your agents. |
+| [`django-gilde-wiki`](packages/django-gilde-wiki/) | The wiki: pages in Markdown, in one tree. Being built. |
 | [`django-gilde-core`](packages/django-gilde-core/) | What the apps share: the one MCP endpoint, people, notifications, and the checks on every way in. Comes with every app. |
 
 Django 5.2 LTS and 6.x, Python 3.11 and newer, any database Django supports.

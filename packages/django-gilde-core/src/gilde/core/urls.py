@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.urls import path
 from django.views.i18n import JavaScriptCatalog, set_language
 
@@ -15,7 +16,9 @@ urlpatterns = [
     # The texts the apps' JavaScript shows, in the active language: gettext() and interpolate() there.
     path(
         'jsi18n/',
-        JavaScriptCatalog.as_view(packages=['gilde.core', 'gilde.connect', 'gilde.board']),
+        JavaScriptCatalog.as_view(
+            packages=[config.name for config in apps.get_app_configs() if config.name.startswith('gilde.')],
+        ),
         name='javascript_catalog',
     ),
     # The language switch in the header (gilde_core/base.html): Django's own view, which remembers the choice

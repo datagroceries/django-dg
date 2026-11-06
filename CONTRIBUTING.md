@@ -17,8 +17,9 @@ python3 -m venv .venv
 
 `example/` is a Django project to try the apps in, on SQLite, with the versions of Django and the other
 libraries it runs on pinned in `example/requirements.txt`; the packages themselves only set lower bounds.
-`seed` makes a board with a few tickets and the user `demo` with password `demo`, to sign in as at
-http://localhost:8000/admin/. The example follows your browser's language, English or Dutch.
+`seed` makes a board with a few tickets, a wiki with a few pages, and the user `demo` with password
+`demo`, to sign in as at http://localhost:8000/admin/. The example follows your browser's language,
+English or Dutch.
 
 ```bash
 .venv/bin/pytest -q                                  # every test
@@ -36,6 +37,7 @@ One repository, a package per app, each released to PyPI on its own:
   checks on every way in.
 - `packages/django-gilde-connect/`: connecting agents: OAuth for the Claude connector, personal tokens.
 - `packages/django-gilde-board/`: the kanban ticket tracker. How it is built: [docs/board.md](docs/board.md).
+- `packages/django-gilde-wiki/`: the wiki, being built.
 - `example/`: the Django project to develop in. `deploy/web1/`: Gilde's own instance.
 - `docs/`: the [integration guide](docs/integrating.md), the [decisions](docs/decisions.md) and why they
   were made, and [how to release](docs/releasing.md).

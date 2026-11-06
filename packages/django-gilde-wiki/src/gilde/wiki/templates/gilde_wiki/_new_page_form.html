@@ -1,0 +1,15 @@
+{% load i18n %}<form method="post" action="{% url 'gilde_wiki:page_create' %}" class="wk-narrow">
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+    {{ form.title }}
+    {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="{{ form.parent.id_for_label }}">{{ form.parent.label }}</label>
+    {{ form.parent }}
+    {% for error in form.parent.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+  </div>
+  <button type="submit" class="btn btn-primary">{% translate "Create and write" %}</button>
+</form>
