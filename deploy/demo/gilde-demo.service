@@ -1,0 +1,24 @@
+# The public demo on web1; copied to /etc/systemd/system/gilde-demo.service.
+[Unit]
+Description=Gilde's public demo (gunicorn)
+After=network.target
+
+[Service]
+User=gilde-demo
+Group=gilde-demo
+WorkingDirectory=/srv/gilde-demo/app/deploy/demo
+EnvironmentFile=/srv/gilde-demo/.env
+# One worker: the server is small, and SQLite writes one at a time anyway.
+ExecStart=/srv/gilde-demo/venv/bin/gunicorn demo.wsgi --bind 127.0.0.1:8003 --workers 1 --threads 4 --no-control-socket
+Restart=always
+
+# Read-only system; the app writes only its database and the uploads.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/gilde-demo/data /srv/gilde-demo/media
+MemoryMax=300M
+
+[Install]
+WantedBy=multi-user.target

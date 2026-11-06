@@ -1,0 +1,22 @@
+# Gilde's own instance on web1; copied to /etc/systemd/system/gilde.service.
+[Unit]
+Description=Gilde (gunicorn)
+After=network.target postgresql.service
+
+[Service]
+User=gilde
+Group=gilde
+WorkingDirectory=/srv/gilde/app/deploy/web1
+EnvironmentFile=/srv/gilde/.env
+ExecStart=/srv/gilde/venv/bin/gunicorn hq.wsgi --bind 127.0.0.1:8002 --workers 2 --threads 2 --no-control-socket
+Restart=always
+
+# Read-only system; the app writes only its uploads. The database is PostgreSQL's.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/gilde/media
+
+[Install]
+WantedBy=multi-user.target

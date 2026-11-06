@@ -1,0 +1,38 @@
+# Settings for working on the repository as a whole. Each package has its own pyproject.toml.
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["**/migrations/**"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+# Ruff's rules that fit this code. Left out on purpose: Q and COM812 (the formatter decides quotes and
+# commas), D and ANN (docstrings and type hints where they help, not on everything), PT (Django's
+# TestCase), CPY, EM and TRY003 (exceptions say what went wrong where they are raised), FBT (Django's own
+# APIs take booleans), PLR0911 (an early return often reads best).
+select = [
+    "E", "F", "W", "I", "UP", "B", "DJ", "RUF",
+    "SIM", "C4", "PIE", "RET", "PERF", "DTZ", "S", "T20", "ERA", "N", "A", "PTH", "TID", "ISC", "G",
+    "LOG", "PL",
+]
+ignore = ["PLR0911"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert, use made-up passwords and keys, and compare with literal numbers.
+"**/tests/**" = ["S101", "S105", "S106", "PLR2004"]
+# Django imports what needs the apps to be ready in AppConfig.ready().
+"**/apps.py" = ["PLC0415"]
+# Only for development: a fixed secret key and the demo user's password.
+"example/**" = ["S105"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["gilde", "project"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "project.settings"
+pythonpath = ["example"]
+testpaths = ["packages"]
+python_files = ["test_*.py", "tests.py"]

@@ -1,0 +1,106 @@
+{% extends 'gilde_core/base.html' %}
+{% load i18n static gilde_core %}
+
+{% block title %}{% translate "Try Gilde" %}{% endblock %}
+
+{% block content %}
+<div class="py-4 mx-auto" style="max-width: 40rem">
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <img src="{% static 'gilde_core/favicon.svg' %}" alt="" width="48" height="48">
+    <h1 class="mb-0">{% translate "Try Gilde" %}</h1>
+  </div>
+  <p class="lead">
+    {% blocktranslate trimmed %}
+      A kanban board that people and AI agents work on together, from Django apps you install in a project of
+      your own.
+    {% endblocktranslate %}
+  </p>
+
+  {% if user.is_authenticated %}
+    <p>{% blocktranslate with name=user|person_name trimmed %}You are <strong>{{ name }}</strong> here.{% endblocktranslate %}</p>
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <a class="btn btn-primary" href="{{ next }}">{% translate "Open the board" %}</a>
+      <a class="btn btn-outline-secondary" href="{% url 'gilde_connect:connect' %}">{% translate "Connect an agent" %}</a>
+    </div>
+  {% else %}
+    <p>
+      {% blocktranslate trimmed %}
+        Get an account of your own with one click: no email address, no password. A small team and a few
+        tickets are there already, with one ticket for you that suggests what to try.
+      {% endblocktranslate %}
+    </p>
+    <form method="post" action="{% url 'try_it' %}" class="mb-4">
+      {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn btn-primary btn-lg">{% translate "Try it" %}</button>
+    </form>
+  {% endif %}
+
+  <h2 class="h5">{% translate "Then connect Claude" %}</h2>
+  <p>
+    {% blocktranslate trimmed %}
+      In the Claude app or in Claude Code: one of the two is enough. You never type a username or a password
+      here: the demo knows you by the account this browser got from the button above.
+    {% endblocktranslate %}
+  </p>
+
+  <h3 class="h6 mt-3">{% translate "In claude.ai or Claude Desktop" %}</h3>
+  <ol>
+    <li>
+      {% blocktranslate trimmed %}
+        Open <strong>Settings › Connectors</strong> and choose <strong>Add custom connector</strong>. Name it
+        <em>Gilde demo</em>, paste this address, and leave the advanced settings empty:
+      {% endblocktranslate %}
+      <pre class="bg-body-tertiary p-2 rounded my-2"><code>{{ mcp_url }}</code></pre>
+    </li>
+    <li>
+      {% blocktranslate trimmed %}
+        Claude opens this site in your browser. Click <strong>Try it</strong> if you have no account here yet,
+        then <strong>Allow</strong>.
+      {% endblocktranslate %}
+    </li>
+    <li>
+      {% blocktranslate trimmed %}
+        Start a new chat and ask, for example: <em>"What is assigned to me on the board? Move my welcome ticket
+        to Done and say so in a comment."</em> Is another connector with the same tools on, such as a Gilde of
+        your own? Turn it off in that chat, so Claude knows which board you mean.
+      {% endblocktranslate %}
+    </li>
+  </ol>
+
+  <h3 class="h6 mt-3">{% translate "In Claude Code" %}</h3>
+  <ol>
+    <li>
+      {% translate "Run this once in a terminal:" %}
+      <pre class="bg-body-tertiary p-2 rounded my-2"><code>claude mcp add --transport http gilde-demo {{ mcp_url }}</code></pre>
+    </li>
+    <li>
+      {% blocktranslate trimmed %}
+        In Claude Code, type <code>/mcp</code>, choose <em>gilde-demo</em> and sign in: your browser opens this
+        site, where you click <strong>Try it</strong> if needed, then <strong>Allow</strong>.
+      {% endblocktranslate %}
+    </li>
+    <li>{% translate "Ask it the same as above." %}</li>
+  </ol>
+
+  <p>
+    {% blocktranslate trimmed %}
+      What Claude changes, the ticket's history shows as done by you, via Claude. Tomorrow morning the
+      connection is gone with the rest; remove the connector then, or connect it again.
+    {% endblocktranslate %}
+  </p>
+
+  <div class="alert alert-warning small">
+    <i class="bi bi-moon-stars me-1"></i>
+    {% blocktranslate trimmed %}
+      Other visitors see what you put here, and every night the demo starts again: your account, your tickets
+      and Claude's connection are gone the next morning. Put nothing personal or secret in it.
+    {% endblocktranslate %}
+  </div>
+
+  <p class="small text-muted">
+    {% blocktranslate trimmed %}
+      Gilde is open source, MIT licensed: <a href="https://github.com/gildehq/gilde">gildehq/gilde on GitHub</a>.
+    {% endblocktranslate %}
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+[project]
+name = "django-gilde-connect"
+version = "0.1.0.dev0"
+description = "Connect Claude and other AI agents to the Gilde apps: OAuth for the Claude connector, and personal tokens."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Jasper Cramwinckel" }]
+keywords = ["django", "mcp", "oauth", "claude", "connector", "ai agents"]
+dependencies = [
+    "django-gilde-core",
+    "Django>=5.2",
+    "django-oauth-toolkit>=3.4.1",
+    "djangorestframework",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Security",
+]
+
+[project.urls]
+Homepage = "https://github.com/gildehq/gilde"
+Source = "https://github.com/gildehq/gilde"
+Documentation = "https://github.com/gildehq/gilde/blob/main/docs/integrating.md"
+Changelog = "https://github.com/gildehq/gilde/blob/main/packages/django-gilde-connect/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gilde"]

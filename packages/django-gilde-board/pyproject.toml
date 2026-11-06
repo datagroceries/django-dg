@@ -1,0 +1,50 @@
+[project]
+name = "django-gilde-board"
+version = "0.1.0.dev0"
+description = "A kanban ticket tracker for Django that people and AI agents work on together."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Jasper Cramwinckel" }]
+keywords = ["django", "kanban", "ticket tracker", "issue tracker", "mcp", "ai agents"]
+dependencies = [
+    "django-gilde-core",
+    "Django>=5.2",
+    "django-simple-history",
+    "markdown",
+    "nh3",
+    "pymdown-extensions",
+    "requests",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Bug Tracking",
+    "Topic :: Office/Business :: Groupware",
+]
+
+[project.urls]
+Homepage = "https://github.com/gildehq/gilde"
+Source = "https://github.com/gildehq/gilde"
+Documentation = "https://github.com/gildehq/gilde/blob/main/docs/integrating.md"
+Changelog = "https://github.com/gildehq/gilde/blob/main/packages/django-gilde-board/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gilde"]

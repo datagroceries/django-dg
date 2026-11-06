@@ -1,0 +1,79 @@
+# Tests and ruff on every push and pull request: on every Django and Python version the packages support,
+# on SQLite as in the example project, and once on PostgreSQL, as Gilde's own instance runs.
+name: CI
+
+on:
+  push:
+  pull_request:
+  # The release workflow runs it before it publishes anything.
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - run: pip install ruff==0.17.3
+      - run: ruff check .
+      - run: ruff format --check .
+
+  tests:
+    name: Django ${{ matrix.django }}, Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        django: ['5.2', '6.0', '6.1']
+        python: ['3.12', '3.13', '3.14']
+        include:
+          # Django 6 needs Python 3.12 or newer; 5.2 is the one that still runs on 3.11.
+          - django: '5.2'
+            python: '3.11'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: '**/pyproject.toml'
+      # The packages with their lower bounds only, as a project would install them, plus one Django.
+      - run: >
+          pip install -e packages/django-gilde-core -e packages/django-gilde-connect
+          -e packages/django-gilde-board pytest==9.2.0 pytest-django==4.14.0 "Django~=${{ matrix.django }}.0"
+      - run: python -m django --version
+      - run: pytest -q
+
+  pinned-on-postgres:
+    name: The example's pinned versions, on PostgreSQL
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: gilde
+          POSTGRES_PASSWORD: gilde
+          POSTGRES_DB: gilde
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U gilde" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PASSWORD: gilde
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: |
+            requirements-dev.txt
+            example/requirements.txt
+      - run: pip install -r requirements-dev.txt "psycopg[binary]==3.3.8"
+      - run: python example/manage.py check
+      - run: pytest -q

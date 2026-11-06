@@ -1,0 +1,141 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-06 12:21+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Gilde\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/demo/welcome.html:4 templates/demo/welcome.html:10
+msgid "Try Gilde"
+msgstr "Probeer Gilde"
+
+#: templates/demo/welcome.html:13
+msgid ""
+"A kanban board that people and AI agents work on together, from Django apps "
+"you install in a project of your own."
+msgstr ""
+"Een kanbanbord waar mensen en AI-agents samen aan werken, uit Django-apps "
+"die je in je eigen project installeert."
+
+#: templates/demo/welcome.html:20
+#, python-format
+msgid "You are <strong>%(name)s</strong> here."
+msgstr "Je bent hier <strong>%(name)s</strong>."
+
+#: templates/demo/welcome.html:22
+msgid "Open the board"
+msgstr "Open het board"
+
+#: templates/demo/welcome.html:23
+msgid "Connect an agent"
+msgstr "Verbind een agent"
+
+#: templates/demo/welcome.html:27
+msgid ""
+"Get an account of your own with one click: no email address, no password. A "
+"small team and a few tickets are there already, with one ticket for you that "
+"suggests what to try."
+msgstr ""
+"Krijg met één klik een eigen account: geen e-mailadres, geen wachtwoord. Er "
+"is al een klein team met een paar tickets, en één ticket voor jou met dingen "
+"om te proberen."
+
+#: templates/demo/welcome.html:34
+msgid "Try it"
+msgstr "Probeer het"
+
+#: templates/demo/welcome.html:38
+msgid "Then connect Claude"
+msgstr "Verbind daarna Claude"
+
+#: templates/demo/welcome.html:40
+msgid ""
+"In the Claude app or in Claude Code: one of the two is enough. You never "
+"type a username or a password here: the demo knows you by the account this "
+"browser got from the button above."
+msgstr "In de Claude-app of in Claude Code: één van de twee is genoeg. Je typt hier nooit een gebruikersnaam of wachtwoord: de demo kent je aan het account dat deze browser kreeg met de knop hierboven."
+
+#: templates/demo/welcome.html:46
+msgid "In claude.ai or Claude Desktop"
+msgstr "In claude.ai of Claude Desktop"
+
+#: templates/demo/welcome.html:49
+msgid ""
+"Open <strong>Settings › Connectors</strong> and choose <strong>Add custom "
+"connector</strong>. Name it <em>Gilde demo</em>, paste this address, and "
+"leave the advanced settings empty:"
+msgstr "Open <strong>Settings › Connectors</strong> en kies <strong>Add custom connector</strong>. Noem hem <em>Gilde demo</em>, plak dit adres, en laat de geavanceerde instellingen (<em>Advanced settings</em>) leeg:"
+
+#: templates/demo/welcome.html:56
+msgid ""
+"Claude opens this site in your browser. Click <strong>Try it</strong> if you "
+"have no account here yet, then <strong>Allow</strong>."
+msgstr "Claude opent deze site in je browser. Klik op <strong>Probeer het</strong> als je hier nog geen account hebt, en dan op <strong>Toestaan</strong>."
+
+#: templates/demo/welcome.html:62
+msgid ""
+"Start a new chat and ask, for example: <em>\"What is assigned to me on the "
+"board? Move my welcome ticket to Done and say so in a comment.\"</em> Is "
+"another connector with the same tools on, such as a Gilde of your own? Turn "
+"it off in that chat, so Claude knows which board you mean."
+msgstr "Begin een nieuw gesprek en vraag bijvoorbeeld: <em>\"Wat staat er op mijn naam op het board? Zet mijn welkomstticket op Done en zeg dat in een reactie.\"</em> Staat er nog een connector met dezelfde tools aan, zoals een eigen Gilde? Zet die in dat gesprek uit, zodat Claude weet welk board je bedoelt."
+
+#: templates/demo/welcome.html:70
+msgid "In Claude Code"
+msgstr "In Claude Code"
+
+#: templates/demo/welcome.html:73
+msgid "Run this once in a terminal:"
+msgstr "Voer dit één keer uit in een terminal:"
+
+#: templates/demo/welcome.html:77
+msgid ""
+"In Claude Code, type <code>/mcp</code>, choose <em>gilde-demo</em> and sign "
+"in: your browser opens this site, where you click <strong>Try it</strong> if "
+"needed, then <strong>Allow</strong>."
+msgstr "Typ in Claude Code <code>/mcp</code>, kies <em>gilde-demo</em> en log in: je browser opent deze site, waar je zo nodig op <strong>Probeer het</strong> klikt, en dan op <strong>Toestaan</strong>."
+
+#: templates/demo/welcome.html:82
+msgid "Ask it the same as above."
+msgstr "Vraag het hetzelfde als hierboven."
+
+#: templates/demo/welcome.html:86
+msgid ""
+"What Claude changes, the ticket's history shows as done by you, via Claude. "
+"Tomorrow morning the connection is gone with the rest; remove the connector "
+"then, or connect it again."
+msgstr "Wat Claude verandert, toont de geschiedenis van het ticket als gedaan door jou, via Claude. Morgenochtend is de verbinding weg met de rest; verwijder de connector dan, of verbind hem opnieuw."
+
+#: templates/demo/welcome.html:94
+msgid ""
+"Other visitors see what you put here, and every night the demo starts again: "
+"your account, your tickets and Claude's connection are gone the next "
+"morning. Put nothing personal or secret in it."
+msgstr ""
+"Andere bezoekers zien wat je hier zet, en elke nacht begint de demo opnieuw: "
+"je account, je tickets en de verbinding met Claude zijn de volgende ochtend "
+"weg. Zet er niets persoonlijks of geheims in."
+
+#: templates/demo/welcome.html:101
+msgid ""
+"Gilde is open source, MIT licensed: <a href=\"https://github.com/gildehq/"
+"gilde\">gildehq/gilde on GitHub</a>."
+msgstr ""
+"Gilde is open source, met een MIT-licentie: <a href=\"https://github.com/"
+"gildehq/gilde\">gildehq/gilde op GitHub</a>."
+
+#: views.py:43
+msgid "The demo is full for today. It starts again tomorrow morning."
+msgstr "De demo is vol voor vandaag. Morgenochtend begint hij opnieuw."

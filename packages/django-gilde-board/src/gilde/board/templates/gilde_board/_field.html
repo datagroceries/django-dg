@@ -1,0 +1,12 @@
+<div class="mb-3">
+  {% if checkbox %}<div class="form-check">{{ widget }}{% endif %}
+  {% if field.label %}<label class="{% if not label %}visually-hidden{% elif checkbox %}form-check-label{% else %}form-label{% endif %}" for="{{ field.id_for_label }}">{{ field.label }}</label>{% endif %}
+  {% if not checkbox %}{{ widget }}{% endif %}
+  {% if field.errors %}
+    <div id="{{ field.auto_id }}_error">
+      {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+  {% endif %}
+  {% if help_text and field.help_text %}<div id="{{ field.auto_id }}_helptext" class="form-text">{{ field.help_text|safe }}</div>{% endif %}
+  {% if checkbox %}</div>{% endif %}
+</div>

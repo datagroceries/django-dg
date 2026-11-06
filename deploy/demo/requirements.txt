@@ -1,0 +1,7 @@
+# The public demo on web1. Installed from the repository's root, so the packages come from this checkout
+# and a deploy is a git pull.
+-e packages/django-gilde-core
+-e packages/django-gilde-connect
+-e packages/django-gilde-board
+-r ../../example/requirements.txt
+gunicorn==26.2.0

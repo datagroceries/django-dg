@@ -1,0 +1,50 @@
+{% comment %}
+The Gilde apps' own layout, so their pages work in any project, whatever its front end. A project that
+wants them inside its own layout overrides this template: put a gilde_core/base.html in its templates
+that extends its own base, loads Bootstrap 5 and Bootstrap Icons, shows Django's messages, and has the
+blocks title, extra_head, content, container_class and extra_scripts.
+{% endcomment %}{% load i18n static gilde_core %}{% get_current_language as LANGUAGE_CODE %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="icon" href="{% static 'gilde_core/favicon.svg' %}" type="image/svg+xml">
+    <link rel="icon" href="{% static 'gilde_core/favicon-32.png' %}" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="{% static 'gilde_core/apple-touch-icon-180.png' %}">
+    <link rel="stylesheet" href="{% static 'gilde_core/vendor/bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'gilde_core/vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+    <script src="{% static 'gilde_core/vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body>
+    <nav class="navbar border-bottom px-3 py-1 small">
+      <a class="link-secondary text-decoration-none" href="/"><i class="bi bi-arrow-left"></i> {{ request.get_host }}</a>
+      <div class="d-flex align-items-center gap-3">
+        {% gilde_languages as languages %}{% if languages %}
+          <form method="post" action="{% url 'gilde_core:set_language' %}" class="dropdown">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="button" class="btn btn-link btn-sm link-secondary text-decoration-none p-0 dropdown-toggle"
+                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% translate 'Language' %}">
+              <i class="bi bi-translate"></i> {{ LANGUAGE_CODE|upper }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% for code, name in languages %}
+                <li><button type="submit" name="language" value="{{ code }}" lang="{{ code }}"
+                            class="dropdown-item{% if code == LANGUAGE_CODE %} active{% endif %}">{{ name }}</button></li>
+              {% endfor %}
+            </ul>
+          </form>
+        {% endif %}
+        {% if user.is_authenticated %}<span class="navbar-text py-0">{{ user|person_name }}</span>{% endif %}
+      </div>
+    </nav>
+    <div class="{% block container_class %}container{% endblock %}">
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} mt-3">{{ message }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </div>
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>

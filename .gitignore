@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+build/
+.env
+*.sqlite3
+.DS_Store
+
+# The example project
+example/db.sqlite3
+example/media/
+
+# Jasper's own instructions for agents
+CLAUDE.local.md

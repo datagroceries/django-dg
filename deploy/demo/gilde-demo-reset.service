@@ -1,0 +1,16 @@
+# The demo's nightly fresh start; copied to /etc/systemd/system/, run by gilde-demo-reset.timer.
+[Unit]
+Description=Start Gilde's public demo again
+
+[Service]
+Type=oneshot
+User=gilde-demo
+Group=gilde-demo
+WorkingDirectory=/srv/gilde-demo/app/deploy/demo
+EnvironmentFile=/srv/gilde-demo/.env
+ExecStart=/srv/gilde-demo/venv/bin/python manage.py reset_demo
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/gilde-demo/data /srv/gilde-demo/media

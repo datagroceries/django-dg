@@ -1,0 +1,137 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-06 11:29+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Gilde\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: static/gilde_board/board.js:49
+#, javascript-format
+msgid "Moving the ticket failed (%s). The board will reload."
+msgstr ""
+"Het ticket verplaatsen is mislukt (%s). Het board wordt opnieuw geladen."
+
+#: static/gilde_board/board.js:69
+msgid "Title, then Enter · Esc to stop"
+msgstr "Titel, dan Enter · Esc om te stoppen"
+
+#: static/gilde_board/board.js:99
+#, javascript-format
+msgid "Creating the ticket failed: %s"
+msgstr "Het ticket aanmaken is mislukt: %s"
+
+#: static/gilde_board/card_assignee.js:43
+#, javascript-format
+msgid "Assigning the ticket failed (%s). The board will reload."
+msgstr ""
+"Het ticket toewijzen is mislukt (%s). Het board wordt opnieuw geladen."
+
+#: static/gilde_board/copy_link.js:13
+msgid "Copied"
+msgstr "Gekopieerd"
+
+#: static/gilde_board/editor.js:147
+msgid "Bold"
+msgstr "Vet"
+
+#: static/gilde_board/editor.js:148
+msgid "Italic"
+msgstr "Cursief"
+
+#: static/gilde_board/editor.js:149
+msgid "Heading"
+msgstr "Kop"
+
+#: static/gilde_board/editor.js:151
+msgid "Quote"
+msgstr "Citaat"
+
+#: static/gilde_board/editor.js:152
+msgid "List"
+msgstr "Lijst"
+
+#: static/gilde_board/editor.js:153
+msgid "Numbered list"
+msgstr "Genummerde lijst"
+
+#: static/gilde_board/editor.js:154
+msgid "Code"
+msgstr "Code"
+
+#: static/gilde_board/editor.js:155
+msgid "Link"
+msgstr "Link"
+
+#: static/gilde_board/editor.js:157
+msgid "Image"
+msgstr "Afbeelding"
+
+#: static/gilde_board/editor.js:160
+msgid "Preview"
+msgstr "Voorbeeld"
+
+#: static/gilde_board/peek.js:18
+msgid "Ticket quick view"
+msgstr "Snelle weergave van het ticket"
+
+#: static/gilde_board/selects.js:74
+msgid "No results found"
+msgstr "Niets gevonden"
+
+#: static/gilde_board/selects.js:88
+#, javascript-format
+msgid "Add %s…"
+msgstr "%s toevoegen…"
+
+#: static/gilde_board/selects.js:111
+msgid "No ticket found"
+msgstr "Geen ticket gevonden"
+
+#: static/gilde_board/ticket.js:40
+#, javascript-format
+msgid "Saving failed (HTTP %s). Your text is still in the editor."
+msgstr "Opslaan is mislukt (HTTP %s). Je tekst staat nog in de editor."
+
+#: static/gilde_board/ticket.js:90
+msgid "Saving…"
+msgstr "Opslaan…"
+
+#: static/gilde_board/ticket.js:103
+msgid "Saved"
+msgstr "Opgeslagen"
+
+#: static/gilde_board/ticket.js:108
+#, javascript-format
+msgid "Saving failed: %s. The page will reload."
+msgstr "Opslaan is mislukt: %s. De pagina wordt opnieuw geladen."
+
+#: static/gilde_board/ticket.js:140
+#, javascript-format
+msgid "Moving the ticket failed (%s). The page will reload."
+msgstr ""
+"Het ticket verplaatsen is mislukt (%s). De pagina wordt opnieuw geladen."
+
+#: static/gilde_board/ticket.js:155
+#, javascript-format
+msgid "Attaching %s file…"
+msgid_plural "Attaching %s files…"
+msgstr[0] "%s bestand toevoegen…"
+msgstr[1] "%s bestanden toevoegen…"
+
+#: static/gilde_board/ticket.js:163
+#, javascript-format
+msgid "Attaching %s failed (HTTP %s)."
+msgstr "%s toevoegen is mislukt (HTTP %s)."

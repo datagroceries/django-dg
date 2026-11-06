@@ -1,0 +1,10 @@
+# Copied to /etc/systemd/system/; enabled with `systemctl enable --now gilde-demo-reset.timer`.
+[Unit]
+Description=Start Gilde's public demo again every night
+
+[Timer]
+OnCalendar=*-*-* 04:00 Europe/Amsterdam
+Persistent=true
+
+[Install]
+WantedBy=timers.target

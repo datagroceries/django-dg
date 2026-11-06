@@ -1,0 +1,53 @@
+# Publishes one package to PyPI when its tag is pushed, such as django-gilde-board-v1.0.0, after every
+# test in ci.yml has passed. Through PyPI's trusted publishing: no token is stored. docs/releasing.md says how.
+name: Release
+
+on:
+  push:
+    tags: ['django-gilde-*-v*']
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - name: Find the package and check its version against the tag
+        id: package
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          package="${tag%-v*}"
+          version="${tag##*-v}"
+          test -d "packages/$package" || { echo "No package $package"; exit 1; }
+          declared=$(python -c "import tomllib; print(tomllib.load(open('packages/$package/pyproject.toml', 'rb'))['project']['version'])")
+          test "$declared" = "$version" || { echo "pyproject.toml says $declared, the tag $version"; exit 1; }
+          echo "path=packages/$package" >> "$GITHUB_OUTPUT"
+      - run: pip install build==1.6.1 twine==7.0.0
+      - run: python -m build --outdir dist ${{ steps.package.outputs.path }}
+      - run: twine check --strict dist/*
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

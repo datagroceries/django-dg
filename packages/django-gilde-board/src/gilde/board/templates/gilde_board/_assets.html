@@ -1,0 +1,11 @@
+{% load static gilde_board %}
+{% ticket_theme %}
+<script src="{% url 'gilde_core:javascript_catalog' %}"></script>
+<script src="{% static 'gilde_board/vendor/htmx/htmx.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'gilde_board/vendor/tom-select/tom-select.bootstrap5.min.css' %}">
+<link rel="stylesheet" href="{% static 'gilde_board/tickets.css' %}">
+<script src="{% static 'gilde_board/vendor/tom-select/tom-select.complete.min.js' %}"></script>
+<script src="{% static 'gilde_board/selects.js' %}" defer></script>
+<script src="{% static 'gilde_board/shortcuts.js' %}" data-new-ticket-url="{% url 'gilde_board:ticket_create' %}" defer></script>
+<script src="{% static 'gilde_board/peek.js' %}" defer></script>
+<script src="{% static 'gilde_board/copy_link.js' %}" defer></script>

@@ -1,0 +1,311 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-06 11:29+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Gilde\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps.py:8
+msgid "Connected agents"
+msgstr "Verbonden agents"
+
+#: models.py:27
+msgid "Until revoked"
+msgstr "Tot ingetrokken"
+
+#: models.py:27
+msgid "30 days"
+msgstr "30 dagen"
+
+#: models.py:27
+msgid "90 days"
+msgstr "90 dagen"
+
+#: models.py:27
+msgid "A year"
+msgstr "Een jaar"
+
+#: models.py:35
+msgid "What uses it, e.g. \"Claude Code on my laptop\"."
+msgstr "Wat het gebruikt, bijvoorbeeld \"Claude Code op mijn laptop\"."
+
+#: models.py:37
+msgid "The areas the token opens."
+msgstr "De apps die het token opent."
+
+#: models.py:39
+msgid "Empty: until revoked."
+msgstr "Leeg: tot het wordt ingetrokken."
+
+#: models.py:45
+msgid "API token"
+msgstr "API-token"
+
+#: templates/gilde_connect/authorize.html:4
+#: templates/gilde_connect/authorize.html:12
+#, python-format
+msgid "Connect %(name)s"
+msgstr "%(name)s verbinden"
+
+#: templates/gilde_connect/authorize.html:9
+msgid "Cannot connect"
+msgstr "Verbinden lukt niet"
+
+#: templates/gilde_connect/authorize.html:13
+#, python-format
+msgid "%(name)s asks to act as you, %(person)s, in:"
+msgstr "%(name)s vraagt om als jou, %(person)s, te werken in:"
+
+#: templates/gilde_connect/authorize.html:16
+msgid ""
+"It reaches only what you may use yourself, and loses an app the moment you "
+"do. You can disconnect it at any time under Connect an agent."
+msgstr ""
+"Het kan alleen bij wat je zelf mag gebruiken, en verliest een app zodra jij "
+"die verliest. Je kunt het altijd loskoppelen onder Verbind een agent."
+
+#: templates/gilde_connect/authorize.html:20
+#, python-format
+msgid "After allowing, you go back to <strong>%(host)s</strong>."
+msgstr "Na toestaan ga je terug naar <strong>%(host)s</strong>."
+
+#: templates/gilde_connect/authorize.html:27
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: templates/gilde_connect/authorize.html:28
+msgid "Allow"
+msgstr "Toestaan"
+
+#: templates/gilde_connect/connect.html:4
+#: templates/gilde_connect/connect.html:8
+msgid "Connect an agent"
+msgstr "Verbind een agent"
+
+#: templates/gilde_connect/connect.html:10
+msgid ""
+"An agent such as Claude works here as you: it reaches only what you may use "
+"yourself, and loses an app the moment you do. What it changes says so in the"
+" history."
+msgstr ""
+"Een agent zoals Claude werkt hier als jou: hij kan alleen bij wat je zelf "
+"mag gebruiken, en verliest een app zodra jij die verliest. Wat hij "
+"verandert, staat zo in de geschiedenis."
+
+#: templates/gilde_connect/connect.html:17
+msgid "Claude: claude.ai, Desktop and mobile"
+msgstr "Claude: claude.ai, Desktop en mobiel"
+
+#: templates/gilde_connect/connect.html:20
+msgid ""
+"In Claude, open <strong>Settings › Connectors</strong>, choose <strong>Add "
+"custom connector</strong>, and paste this address. Claude then asks you to "
+"sign in here and allow it."
+msgstr ""
+"Open in Claude <strong>Settings › Connectors</strong>, kies <strong>Add "
+"custom connector</strong> en plak dit adres. Claude vraagt je dan om hier in"
+" te loggen en het toe te staan."
+
+#: templates/gilde_connect/connect.html:27
+#: templates/gilde_connect/token_created.html:17
+msgid "Copied"
+msgstr "Gekopieerd"
+
+#: templates/gilde_connect/connect.html:28
+#: templates/gilde_connect/token_created.html:19
+msgid "Copy"
+msgstr "Kopiëren"
+
+#: templates/gilde_connect/connect.html:33
+msgid ""
+"Claude reaches this site from Anthropic's servers, so only when it is on the"
+" internet over HTTPS. On an internal network, use Claude Code instead."
+msgstr ""
+"Claude bereikt deze site vanaf de servers van Anthropic, dus alleen als hij "
+"via HTTPS op internet staat. Gebruik op een intern netwerk Claude Code."
+
+#: templates/gilde_connect/connect.html:45
+msgid ""
+"Run this once, then <code>/mcp</code> in Claude Code to sign in here in your"
+" browser:"
+msgstr ""
+"Voer dit één keer uit, en daarna <code>/mcp</code> in Claude Code om hier in"
+" je browser in te loggen:"
+
+#: templates/gilde_connect/connect.html:51
+msgid "Connected apps"
+msgstr "Verbonden apps"
+
+#: templates/gilde_connect/connect.html:57
+#, python-format
+msgid "signed in %(date)s"
+msgstr "ingelogd op %(date)s"
+
+#: templates/gilde_connect/connect.html:60
+#, python-format
+msgid "Disconnect %(name)s? It stops working at once."
+msgstr "%(name)s loskoppelen? Het werkt dan meteen niet meer."
+
+#: templates/gilde_connect/connect.html:63
+msgid "Disconnect"
+msgstr "Loskoppelen"
+
+#: templates/gilde_connect/connect.html:67
+msgid "No app has signed in as you yet."
+msgstr "Er heeft nog geen app als jou ingelogd."
+
+#: templates/gilde_connect/connect.html:72
+msgid "Personal tokens"
+msgstr "Persoonlijke tokens"
+
+#: templates/gilde_connect/connect.html:74
+msgid ""
+"For scripts, CI and agents that cannot sign in the way Claude does. A "
+"program sends the token with every request as <code>Authorization: Bearer "
+"&lt;token&gt;</code>. Make one per program, so you can revoke it on its own."
+msgstr ""
+"Voor scripts, CI en agents die niet kunnen inloggen zoals Claude. Een "
+"programma stuurt het token bij elk verzoek mee als <code>Authorization: "
+"Bearer &lt;token&gt;</code>. Maak er één per programma, zodat je het los "
+"kunt intrekken."
+
+#: templates/gilde_connect/connect.html:82
+msgid "Your tokens"
+msgstr "Je tokens"
+
+#: templates/gilde_connect/connect.html:90
+msgid "expired"
+msgstr "verlopen"
+
+#: templates/gilde_connect/connect.html:90
+msgid "stopped: unused for three months"
+msgstr "gestopt: drie maanden niet gebruikt"
+
+#: templates/gilde_connect/connect.html:90
+#, python-format
+msgid "expires %(date)s"
+msgstr "verloopt op %(date)s"
+
+#: templates/gilde_connect/connect.html:90
+msgid "until revoked"
+msgstr "tot ingetrokken"
+
+#: templates/gilde_connect/connect.html:91
+#, python-format
+msgid "last used %(date)s"
+msgstr "laatst gebruikt op %(date)s"
+
+#: templates/gilde_connect/connect.html:91
+msgid "never used"
+msgstr "nooit gebruikt"
+
+#: templates/gilde_connect/connect.html:95
+msgid "Revoke this token? Whatever uses it stops working at once."
+msgstr "Dit token intrekken? Wat het gebruikt, werkt dan meteen niet meer."
+
+#: templates/gilde_connect/connect.html:98
+msgid "Revoke"
+msgstr "Intrekken"
+
+#: templates/gilde_connect/connect.html:102
+msgid "You have no tokens yet."
+msgstr "Je hebt nog geen tokens."
+
+#: templates/gilde_connect/connect.html:108
+msgid "New token"
+msgstr "Nieuw token"
+
+#: templates/gilde_connect/connect.html:112
+msgid "What uses it"
+msgstr "Wat het gebruikt"
+
+#: templates/gilde_connect/connect.html:114
+msgid "The nightly report script"
+msgstr "Het nachtelijke rapportscript"
+
+#: templates/gilde_connect/connect.html:115
+msgid "What it may open"
+msgstr "Wat het mag openen"
+
+#: templates/gilde_connect/connect.html:122
+msgid "How long it lives"
+msgstr "Hoe lang het geldig is"
+
+#: templates/gilde_connect/connect.html:126
+msgid "Make token"
+msgstr "Token maken"
+
+#: templates/gilde_connect/connect.html:132
+msgid "A connection or a token stops after three months without use."
+msgstr "Een verbinding of token stopt na drie maanden zonder gebruik."
+
+#: templates/gilde_connect/no_access.html:4
+#: templates/gilde_connect/no_access.html:8
+msgid "Nothing to connect to"
+msgstr "Niets om mee te verbinden"
+
+#: templates/gilde_connect/no_access.html:10
+msgid ""
+"You may not use any of the apps here yet, so an agent could do nothing as "
+"you. Ask whoever runs this site to let you in, then connect again."
+msgstr ""
+"Je mag hier nog geen enkele app gebruiken, dus een agent kan niets als jou "
+"doen. Vraag de beheerder van deze site om je toegang te geven, en verbind "
+"dan opnieuw."
+
+#: templates/gilde_connect/token_created.html:4
+msgid "Token made"
+msgstr "Token gemaakt"
+
+#: templates/gilde_connect/token_created.html:10
+#, python-format
+msgid ""
+"Copy this key now: it is not stored and cannot be shown again. Anyone who "
+"has it can act as you on %(areas)s until it is revoked or expires."
+msgstr ""
+"Kopieer deze sleutel nu: hij wordt niet bewaard en kan niet opnieuw getoond "
+"worden. Iedereen die hem heeft, kan als jou werken in %(areas)s tot hij is "
+"ingetrokken of verloopt."
+
+#: templates/gilde_connect/token_created.html:23
+msgid ""
+"Keep it where your program keeps its secrets, never in code or a message you"
+" share. A program sends it with every request as the header "
+"<code>Authorization: Bearer &lt;key&gt;</code>. To give Claude Code the "
+"tools of every app here:"
+msgstr ""
+"Bewaar hem waar je programma zijn geheimen bewaart, nooit in code of een "
+"bericht dat je deelt. Een programma stuurt hem bij elk verzoek mee als de "
+"header <code>Authorization: Bearer &lt;key&gt;</code>. Zo geef je Claude "
+"Code de tools van elke app hier:"
+
+#: templates/gilde_connect/token_created.html:30
+msgid "Done"
+msgstr "Klaar"
+
+#: views.py:62
+msgid "Give the token a name, at least one area and a lifetime."
+msgstr "Geef het token een naam, minstens één app en een geldigheidsduur."
+
+#: views.py:75
+#, python-format
+msgid "Revoked \"%(name)s\". Whatever used it can no longer get in."
+msgstr "\"%(name)s\" ingetrokken. Wat het gebruikte, komt er niet meer in."
+
+#: views.py:87
+#, python-format
+msgid "Disconnected %(name)s. It can no longer act as you."
+msgstr "%(name)s losgekoppeld. Het kan niet meer als jou werken."

@@ -1,0 +1,13 @@
+{% load i18n %}
+{# Editing one's own comment or reply, under it, in the Markdown editor it was written in. #}
+<details class="tk-reply-form tk-comment-edit">
+  <summary><i class="bi bi-pencil"></i> {% translate "Edit" %}</summary>
+  <form method="post" class="tk-editor">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="edit_comment">
+    <input type="hidden" name="comment" value="{{ comment.pk }}">
+    <textarea name="body" class="form-control form-control-sm mb-2" rows="{% if comment.parent_id %}3{% else %}8{% endif %}" data-markdown-editor="lazy">{{ comment.body }}</textarea>
+    <button type="submit" class="btn btn-sm btn-primary">{% translate "Save" %}</button>
+    <button type="button" class="btn btn-sm btn-link" data-tk-edit-cancel>{% translate "Cancel" %}</button>
+  </form>
+</details>
