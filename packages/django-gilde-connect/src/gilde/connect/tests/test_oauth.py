@@ -155,6 +155,54 @@ class FlowTests(TestCase):
         self.assertContains(response, 'Nothing to connect to', status_code=403)
 
 
+VSCODE = 'https://vscode.dev/oauth/client-metadata.json'
+# VS Code's Client ID Metadata Document, as it publishes it.
+VSCODE_DOCUMENT = {
+    'client_name': 'Visual Studio Code',
+    'grant_types': ['authorization_code', 'refresh_token', 'urn:ietf:params:oauth:grant-type:device_code'],
+    'response_types': ['code'],
+    'token_endpoint_auth_method': 'none',
+    'application_type': 'native',
+    'client_id': VSCODE,
+    'redirect_uris': ['http://127.0.0.1:33418/', 'https://vscode.dev/redirect'],
+}
+
+
+@mock.patch.dict(areas.AREAS, {'notes': NOTES}, clear=True)
+class ClientHostTests(TestCase):
+    """Which clients may sign in by their own URL: Claude's and VS Code's, not just anyone's."""
+
+    def setUp(self):
+        self.client.force_login(person('auth.view_group', username='anna'))
+
+    def authorize(self, client_id: str, redirect_uri: str):
+        challenge = base64.urlsafe_b64encode(hashlib.sha256(b'verifier' * 6).digest()).rstrip(b'=').decode()
+        return self.client.get(
+            reverse('oauth2_provider:authorize'),
+            {
+                'response_type': 'code',
+                'client_id': client_id,
+                'redirect_uri': redirect_uri,
+                'code_challenge': challenge,
+                'code_challenge_method': 'S256',
+            },
+        )
+
+    def test_vs_code_may_connect(self):
+        with mock.patch.object(SafeMetadataFetcher, 'fetch', return_value=(VSCODE_DOCUMENT, 300)):
+            page = self.authorize(VSCODE, 'http://127.0.0.1:33418/')
+
+        self.assertContains(page, 'Connect Visual Studio Code')
+
+    def test_a_client_from_another_host_is_told_what_to_use_instead(self):
+        page = self.authorize('https://lookalike.example.com/client.json', 'https://lookalike.example.com/back')
+
+        self.assertContains(
+            page, 'The app from <strong>lookalike.example.com</strong> may not connect', status_code=400
+        )
+        self.assertContains(page, f'href="{reverse("gilde_connect:connect")}"', status_code=400)
+
+
 class ClientDocumentTests(TestCase):
     def test_grants_not_offered_are_dropped_from_a_client_s_document(self):
         claude = {'client_name': 'Claude', 'grant_types': ['authorization_code', 'refresh_token', 'jwt-bearer']}

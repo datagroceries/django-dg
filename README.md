@@ -37,7 +37,8 @@ The first app is **the board**, a kanban ticket tracker. A CMS comes next.
 - **Agents work as the people who connect them.** An agent reaches only what its person may use, and
   every change it makes says so in the history. No accounts for agents, no shared keys.
 - **Connecting an agent is easy.** Any MCP client connects with a personal token. Claude (claude.ai,
-  Claude Desktop, Claude Code) needs only the endpoint's address and a sign-in with your own login.
+  Claude Desktop, Claude Code) and VS Code need only the endpoint's address and a sign-in with your own
+  login.
   Projects with API logins of their own (DRF tokens, JWT, an OAuth server) can let those in instead.
 - **Yours.** MIT licensed, no service to sign up for, and the data stays in your own database. The
   pages bring their own layout and assets, so they work behind a firewall and load nothing from

@@ -18,7 +18,7 @@ from urllib.parse import urlparse
 from django.shortcuts import render
 from django.urls import path, reverse
 from oauth2_provider import views
-from oauth2_provider.cimd import SafeMetadataFetcher
+from oauth2_provider.cimd import HostAllowlistCIMDPermission, SafeMetadataFetcher
 from oauth2_provider.scopes import BaseScopes
 from oauth2_provider.settings import oauth2_settings
 
@@ -71,6 +71,16 @@ class AuthorizationView(views.AuthorizationView):
         if request.user.is_authenticated and not areas.scopes_for(request.user):
             return render(request, 'gilde_connect/no_access.html', status=403)
         return super().dispatch(request, *args, **kwargs)
+
+    def error_response(self, error, application, **kwargs):
+        """A client that names itself by a URL on a host not allowed here is told so, and what to use
+        instead, rather than the toolkit's "Invalid client_id parameter value"."""
+        client_id = self.request.GET.get('client_id', '')
+        if client_id.startswith('https://') and not HostAllowlistCIMDPermission().has_permission(
+            self.request, client_id
+        ):
+            kwargs['refused_host'] = urlparse(client_id).hostname
+        return super().error_response(error, application, **kwargs)
 
     def get_context_data(self, **kwargs):
         requested = kwargs.get('scopes') or list(areas.AREAS)

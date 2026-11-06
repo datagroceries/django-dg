@@ -48,6 +48,14 @@
   </div>
 
   <div class="card mb-3">
+    <div class="card-header fw-semibold"><i class="bi bi-code-square me-1"></i> {% translate "VS Code (Copilot in agent mode)" %}</div>
+    <div class="card-body small">
+      <p class="mb-2">{% blocktranslate trimmed %}Put this in <code>.vscode/mcp.json</code> and start the server: VS Code asks you to sign in here in your browser.{% endblocktranslate %}</p>
+      <pre class="bg-body-tertiary p-2 rounded mb-0"><code>{"servers": {"gilde": {"type": "http", "url": "{{ mcp_url }}"}}}</code></pre>
+    </div>
+  </div>
+
+  <div class="card mb-3">
     <div class="card-header fw-semibold"><i class="bi bi-plug me-1"></i> {% translate "Connected apps" %}</div>
     <div class="card-body">
       {% for connection in connections %}

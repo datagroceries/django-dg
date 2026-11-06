@@ -37,6 +37,7 @@ class TokenPageTests(TestCase):
         )
 
         self.assertContains(page, 'value="notes"')
+        self.assertContains(page, '{"servers": {"gilde": {"type": "http", "url": "http://testserver/gilde/mcp"}}}')
         self.assertNotContains(page, 'value="secrets"')
         token = ApiToken.objects.get()
         self.assertEqual(

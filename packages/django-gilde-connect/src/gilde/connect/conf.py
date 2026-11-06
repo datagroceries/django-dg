@@ -1,6 +1,6 @@
-"""django-oauth-toolkit's settings for the Claude connector: the authorization-code flow with PKCE
-only, for public clients that name themselves by a Client ID Metadata Document on an allowed host, as
-every Claude client does, with rotated refresh tokens and only a hash of each token stored (RFC 9700).
+"""django-oauth-toolkit's settings for signing in agents: the authorization-code flow with PKCE only,
+for public clients that name themselves by a Client ID Metadata Document on an allowed host, as every
+Claude client and VS Code do, with rotated refresh tokens and only a hash of each token stored (RFC 9700).
 After Eddy Grid's connector, which runs on these in production.
 
 A project that sets `OAUTH2_PROVIDER` itself keeps what it sets; these fill in the rest.
@@ -20,12 +20,13 @@ DEFAULTS = {
     'ALLOWED_REDIRECT_URI_SCHEMES': ['https', 'http'],
     'ALLOW_LOCALHOST_LOOPBACK': True,
     # Client ID Metadata Documents: a client names itself by a URL whose document the toolkit fetches,
-    # so the Claude apps connect with the MCP endpoint's address alone. Only from these hosts: anyone
-    # else could otherwise register by URL. No dynamic client registration.
+    # so the Claude apps and VS Code connect with the MCP endpoint's address alone. Only from these
+    # hosts, those of well-known clients: anyone else could otherwise register by URL, and ask people to
+    # let a lookalike act as them. No dynamic client registration. Other clients use a personal token.
     'CIMD_ENABLED': True,
     'CIMD_METADATA_FETCHER': 'gilde.connect.oauth.OfferedGrantsMetadataFetcher',
     'CIMD_REGISTRATION_PERMISSION_CLASSES': ('oauth2_provider.cimd.HostAllowlistCIMDPermission',),
-    'CIMD_ALLOWED_HOSTS': ['claude.ai', '.claude.ai', '.claude.com', '.anthropic.com'],
+    'CIMD_ALLOWED_HOSTS': ['claude.ai', '.claude.ai', '.claude.com', '.anthropic.com', 'vscode.dev'],
     'COMPLIANT_BCP_RFC9700_IMPLICIT_GRANT': True,
     'COMPLIANT_BCP_RFC9700_PASSWORD_GRANT': True,
     'COMPLIANT_BCP_RFC9700_PKCE_METHOD': True,

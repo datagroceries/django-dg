@@ -7,7 +7,17 @@
 <div class="py-4 mx-auto" style="max-width: 32rem">
 {% if error %}
   <h1 class="h3 mb-3">{% translate "Cannot connect" %}</h1>
-  <div class="alert alert-danger">{{ error.description|default:error.error }}</div>
+  {% if refused_host %}
+    <div class="alert alert-danger">
+      {% url 'gilde_connect:connect' as connect_url %}
+      {% blocktranslate trimmed with host=refused_host %}
+        The app from <strong>{{ host }}</strong> may not connect by signing in here. Make a personal token
+        for it under <a href="{{ connect_url }}">Connect an agent</a> instead.
+      {% endblocktranslate %}
+    </div>
+  {% else %}
+    <div class="alert alert-danger">{{ error.description|default:error.error }}</div>
+  {% endif %}
 {% else %}
   <h1 class="h3 mb-3">{% blocktranslate with name=application.name %}Connect {{ name }}{% endblocktranslate %}</h1>
   <p>{% blocktranslate trimmed with name=application.name person=user|person_name %}{{ name }} asks to act as you, {{ person }}, in:{% endblocktranslate %}</p>

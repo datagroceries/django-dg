@@ -4,11 +4,11 @@ Connect Claude and other AI agents to the Gilde apps, as the person who connects
 project that has its own API logins or OAuth server can leave it out and name those instead. See
 [docs/integrating.md](https://github.com/gildehq/gilde/blob/main/docs/integrating.md).
 
-- **The Claude connector.** claude.ai, Claude Desktop, mobile and Claude Code connect with the address of
-  the MCP endpoint alone, then sign in through the project's own login and allow the apps. An OAuth
-  authorization server on [django-oauth-toolkit](https://django-oauth-toolkit.readthedocs.io/), set up
-  as the Claude clients need it (`conf.py`): PKCE only, Client ID Metadata Documents from Claude's hosts,
-  no dynamic registration, rotated refresh tokens, only hashes stored.
+- **The Claude connector.** claude.ai, Claude Desktop, mobile and Claude Code, and VS Code too, connect
+  with the address of the MCP endpoint alone, then sign in through the project's own login and allow the
+  apps. An OAuth authorization server on [django-oauth-toolkit](https://django-oauth-toolkit.readthedocs.io/),
+  set up as the Claude clients need it (`conf.py`): PKCE only, Client ID Metadata Documents from Claude's
+  hosts and vscode.dev, no dynamic registration, rotated refresh tokens, only hashes stored.
 - **Personal tokens**, for scripts, CI and agents that cannot sign in that way: named, limited to the apps
   ticked, `gilde_`-prefixed, shown once, stored as a hash.
 - **One page, "Connect an agent"** (`gilde/connect/`): how to connect Claude and Claude Code, every
@@ -56,7 +56,7 @@ connect does for each:
   first authorization server it lists. (Core does this.)
 - Client registration by Client ID Metadata Document, used when the server advertises
   `client_id_metadata_document_supported` and `none` as a token endpoint auth method, or else dynamic
-  client registration. (CIMD only, from Claude's hosts.)
+  client registration. (CIMD only, from Claude's hosts and vscode.dev.)
 - PKCE S256, form-encoded token requests, rotated refresh tokens, `invalid_grant` for a dead refresh token,
   answers within 10 seconds.
 - Callbacks: `https://claude.ai/api/mcp/auth_callback` for the Claude apps, and any-port loopback on both

@@ -219,8 +219,12 @@ them, under the same rules as the pages. How a program gets in depends on what y
   whatever it is, and to allow it.
 - **Claude Code**: `claude mcp add --transport http gilde https://<your site>/gilde/mcp`, then `/mcp` to
   sign in in the browser.
-- **Anything else** (scripts, CI, agents without OAuth): a personal token, made on the same page, named
-  and limited to the apps ticked, sent as `Authorization: Bearer gilde_…`.
+- **VS Code** (Copilot in agent mode): the endpoint as an `http` server in `.vscode/mcp.json`; starting it
+  signs in in the browser the same way.
+- **Anything else** (Cursor, scripts, CI, agents without OAuth): a personal token, made on the same page,
+  named and limited to the apps ticked, sent as `Authorization: Bearer gilde_…`. Signing in is open only
+  to these well-known clients: any other could register by its own address and ask people to let a
+  lookalike act as them.
 
 The page lists every connected app and token, each revocable. A connection or a token stops when it is
 revoked, after three months unused, or when its person may no longer use the app. The Claude apps reach
