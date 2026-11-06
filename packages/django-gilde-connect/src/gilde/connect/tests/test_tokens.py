@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.test import APIClient
 
@@ -14,8 +15,9 @@ from gilde.connect.models import ApiToken
 from gilde.core import areas
 from gilde.core.tests import person
 
-# Two areas with permissions every project has: the notes for everyone here, the secrets for nobody.
-NOTES = areas.Area(scope='notes', label='Notes', permission='auth.view_group', instructions='Notes.')
+# Two areas with permissions every project has: the notes for everyone here, the secrets for nobody. Their
+# labels are translatable, as the apps' are.
+NOTES = areas.Area(scope='notes', label=gettext_lazy('Notes'), permission='auth.view_group', instructions='Notes.')
 SECRETS = areas.Area(scope='secrets', label='Secrets', permission='auth.delete_group', instructions='Secrets.')
 
 
@@ -43,6 +45,7 @@ class TokenPageTests(TestCase):
         key = made.context['key']
         self.assertEqual(token.key_hash, ApiToken.hash(key))
         self.assertContains(made, f'--header "Authorization: Bearer {key}"')
+        self.assertContains(made, 'Notes')
         self.assertNotContains(self.client.get(reverse('gilde_connect:connect')), key)
 
     def test_an_area_the_person_may_not_use_is_refused(self):

@@ -84,4 +84,4 @@ class ApiToken(models.Model):
         return ' '.join(self.scopes)
 
     def get_scopes_display(self) -> str:
-        return ', '.join(areas.AREAS[scope].label for scope in self.scopes if scope in areas.AREAS)
+        return ', '.join(str(areas.AREAS[scope].label) for scope in self.scopes if scope in areas.AREAS)
