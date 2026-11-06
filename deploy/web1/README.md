@@ -32,7 +32,7 @@ install -d -o gilde -g gilde -m 700 /srv/gilde/backups
 sudo -u postgres createuser gilde
 sudo -u postgres createdb --owner gilde gilde
 sudo -u gilde -H ssh-keygen -t ed25519 -N '' -C 'web1 gilde deploy key' -f /srv/gilde/.ssh/id_ed25519
-# add the .pub as a read-only deploy key, from the laptop:
+# add the .pub as a read-only deploy key, from the laptop (the organisation must allow deploy keys):
 #   gh repo deploy-key add <file> --repo gildehq/gilde --title 'web1 (read-only)'
 # GitHub's host key, checked against `gh api meta --jq .ssh_key_fingerprints`
 ssh-keyscan -t ed25519 github.com | sudo -u gilde tee /srv/gilde/.ssh/known_hosts
