@@ -92,3 +92,24 @@ class MayUseRequiredTests(TestCase):
     def test_someone_signed_in_who_may_not_is_refused(self):
         with self.assertRaises(PermissionDenied):
             self.get(self.outsider)
+
+
+class Speaks(People):
+    """A project that keeps its people's language somewhere of its own."""
+
+    def language(self, user):
+        return {'nl-reader': 'nl', 'fr-reader': 'fr'}.get(user.username)
+
+
+@override_settings(LANGUAGES=[('en', 'English'), ('nl', 'Dutch')], LANGUAGE_CODE='en')
+class LanguageTests(TestCase):
+    def test_the_project_s_language_by_default(self):
+        self.assertEqual(people.language(person(username='anna')), 'en')
+
+    @override_settings(GILDE_PEOPLE='gilde.core.tests.test_people.Speaks')
+    def test_the_language_the_project_says(self):
+        self.assertEqual(people.language(person(username='nl-reader')), 'nl')
+
+    @override_settings(GILDE_PEOPLE='gilde.core.tests.test_people.Speaks')
+    def test_the_project_s_own_for_a_language_it_does_not_offer(self):
+        self.assertEqual(people.language(person(username='fr-reader')), 'en')

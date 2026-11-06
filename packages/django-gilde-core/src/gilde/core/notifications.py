@@ -13,14 +13,17 @@ without it, the message goes out in the request. Someone no channel reaches is l
 others still hear about it.
 """
 
+import functools
 import logging
 import smtplib
+from collections import defaultdict
 
 import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import send_mail
 from django.db import transaction
+from django.utils import translation
 
 try:
     from django.tasks import task  # Django 6
@@ -45,12 +48,21 @@ class UnreachableError(Exception):
     """A channel cannot reach this person, now: the next channel is tried."""
 
 
-def notify(users, summary: str, url: str, quote: str = ''):
+def notify(users, summary, url: str, quote: str = ''):
     """Tell `users` that `summary` ("Ann commented on T-12 Fix the login"), with a link to `url` and
-    the text it is about, if any, once the current transaction is committed."""
-    emails = sorted({address for user in users if user.is_active and (address := people.email(user))})
-    if emails:
-        transaction.on_commit(lambda: send_notification.enqueue(emails, summary, url, quote))
+    the text it is about, if any, once the current transaction is committed.
+
+    Each person reads it in their own language (people.language): `summary` is a function that says it
+    in the active language, called once for each language among them.
+    """
+    by_language = defaultdict(set)
+    for user in users:
+        if user.is_active and (address := people.email(user)):
+            by_language[people.language(user)].add(address)
+    for language, emails in by_language.items():
+        with translation.override(language):
+            text = summary()
+        transaction.on_commit(functools.partial(send_notification.enqueue, sorted(emails), text, url, quote))
 
 
 def channels() -> list[str]:

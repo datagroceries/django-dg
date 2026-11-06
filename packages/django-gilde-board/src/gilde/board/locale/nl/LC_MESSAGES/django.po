@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 12:49+0000\n"
+"POT-Creation-Date: 2026-11-06 13:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -320,37 +320,37 @@ msgstr "Branch"
 msgid "Pull request"
 msgstr "Pull request"
 
-#: notifications.py:79
+#: notifications.py:71
 #, python-format
 msgid "%(person)s assigned %(ticket)s to you"
 msgstr "%(person)s heeft %(ticket)s aan je toegewezen"
 
-#: notifications.py:90
+#: notifications.py:81
 #, python-format
 msgid "%(person)s mentioned you in %(ticket)s"
 msgstr "%(person)s noemde je in %(ticket)s"
 
-#: notifications.py:105
+#: notifications.py:95
 #, python-format
 msgid "%(person)s mentioned you on %(ticket)s"
 msgstr "%(person)s noemde je bij %(ticket)s"
 
-#: notifications.py:106
+#: notifications.py:96
 #, python-format
 msgid "%(person)s commented on %(ticket)s"
 msgstr "%(person)s reageerde op %(ticket)s"
 
-#: notifications.py:113
+#: notifications.py:103
 #, python-format
 msgid "%(person)s moved %(ticket)s to %(column)s"
 msgstr "%(person)s zette %(ticket)s in %(column)s"
 
-#: notifications.py:125
+#: notifications.py:112
 #, python-format
 msgid "%(person)s blocked %(ticket)s"
 msgstr "%(person)s blokkeerde %(ticket)s"
 
-#: notifications.py:127
+#: notifications.py:112
 #, python-format
 msgid "%(person)s unblocked %(ticket)s"
 msgstr "%(person)s deblokkeerde %(ticket)s"

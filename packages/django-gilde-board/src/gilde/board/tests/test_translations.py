@@ -10,7 +10,15 @@ from rest_framework.test import APIClient
 from gilde.board.models import Relation, Ticket, Watcher
 from gilde.board.tests import member
 from gilde.board.tests.test_tickets import TicketTestCase
+from gilde.core.people import People
 from gilde.core.tests import TEST_AUTHENTICATION, issue
+
+
+class DutchBob(People):
+    """A project that knows Bob reads Dutch."""
+
+    def language(self, user):
+        return 'nl' if user.username == 'bob' else None
 
 
 @override_settings(LANGUAGE_CODE='nl')
@@ -68,6 +76,10 @@ class NotificationLanguageTests(TicketTestCase):
         [call] = task.enqueue.call_args_list
         return call.args[1]
 
+    def summaries(self, task) -> dict:
+        """Each message's summary, by who it went to."""
+        return {tuple(call.args[0]): call.args[1] for call in task.enqueue.call_args_list}
+
     @override_settings(LANGUAGE_CODE='nl', GILDE_AUTHENTICATION_CLASSES=TEST_AUTHENTICATION)
     def test_in_the_project_s_language_even_from_the_english_api(self, task):
         ticket = self.make_ticket('Factuur')
@@ -90,3 +102,21 @@ class NotificationLanguageTests(TicketTestCase):
             )
 
         self.assertEqual(self.summary(task), f'Anna Tester blocked {ticket}')
+
+    @override_settings(GILDE_PEOPLE='gilde.board.tests.test_translations.DutchBob')
+    def test_each_person_in_the_language_the_project_says(self, task):
+        ticket = self.make_ticket('Invoice')
+        carol = member(username='carol', email='carol@example.com', first_name='Carol', last_name='Singer')
+        Watcher.objects.create(ticket=ticket, user=self.bob)
+        Watcher.objects.create(ticket=ticket, user=carol)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(ticket.get_absolute_url(), {'action': 'comment', 'body': 'Done'})
+
+        self.assertEqual(
+            self.summaries(task),
+            {
+                ('bob@example.com',): f'Anna Tester reageerde op {ticket}',
+                ('carol@example.com',): f'Anna Tester commented on {ticket}',
+            },
+        )

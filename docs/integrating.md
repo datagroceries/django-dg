@@ -119,6 +119,7 @@ Gilde sees your users through one class, `gilde.core.people.People`. Its default
 | `handle(user)` | what follows the @ in a mention: the username, lowercased, with "-" for characters a handle cannot hold (`anna@example.com` becomes `anna-example.com`) |
 | `email(user)` | the field your model names as its email field, or None |
 | `avatar_url(user, size)` | None, so people show as their initials |
+| `language(user)` | a `language` field on your user model, if it has one; else None, so notifications are in `LANGUAGE_CODE` |
 
 These defaults use only what Django's own `AbstractBaseUser` promises. A user model with a single `name`
 field and email sign-in, as cookiecutter-django makes, works without code. People without an email
@@ -181,9 +182,10 @@ Django's `LocaleMiddleware`, which takes the browser's language and remembers a 
 middleware, Gilde's own layout has a language switch in its top bar, offering the languages of your
 `LANGUAGES` that Gilde speaks too; set `LANGUAGES`, or it offers every one Gilde has. Gilde ships English
 and Dutch; another language is one more `.po` file per package. The REST API and the MCP tools stay
-English whatever the language, as they are for programs and agents. Notifications are in
-`LANGUAGE_CODE`, whatever language the change was made in: Django keeps no language per person, so the
-project's is the one its people share.
+English whatever the language, as they are for programs and agents. A notification is in the language
+of the person it goes to, whatever language the change was made in: Django keeps no language per person,
+so it is what your `People` class's `language(user)` says (below), and `LANGUAGE_CODE` when it says
+nothing.
 
 Gilde's pages bring their own layout, `gilde_core/base.html`: Bootstrap 5 and Bootstrap Icons, a thin
 bar with a link back to your site, and Django's messages. They work whatever your front end is, and all

@@ -6,9 +6,9 @@ use an app are its people: they can be assigned and @-mentioned there.
 
 How the apps see a person comes from one class, `People`. A host project changes what differs in a
 subclass and names it in `GILDE_PEOPLE`, as allauth's adapters do: who may use an app, someone's name,
-their @-handle, their email address, their image. The defaults assume nothing about the user model
-beyond what Django's own `AbstractBaseUser` has: a username, and an email field only when the model
-names one.
+their @-handle, their email address, their image, the language to write to them in. The defaults assume
+nothing about the user model beyond what Django's own `AbstractBaseUser` has: a username, and an email
+field only when the model names one.
 """
 
 import functools
@@ -22,6 +22,7 @@ from django.core.signals import setting_changed
 from django.db.models import QuerySet
 from django.dispatch import receiver
 from django.utils.module_loading import import_string
+from django.utils.translation import get_supported_language_variant
 
 from gilde.core import history
 
@@ -97,6 +98,11 @@ class People:
         """The URL of the person's image at least `size` pixels square, or None to show their initials."""
         return None
 
+    def language(self, user) -> str | None:
+        """The language to write to the person in, such as "nl", or None for the project's (LANGUAGE_CODE).
+        By default a `language` field on the user model, when it has one; Django itself keeps none."""
+        return (user.language or None) if _has_field(user, 'language') else None
+
 
 @functools.cache
 def _people() -> People:  # cleared when the setting changes, as in tests
@@ -143,6 +149,15 @@ def email(user) -> str | None:
 
 def avatar_url(user, size: int) -> str | None:
     return _people().avatar_url(user, size)
+
+
+def language(user) -> str:
+    """The language to write to the person in: theirs, when the project has it in LANGUAGES, else the
+    project's."""
+    try:
+        return get_supported_language_variant(_people().language(user) or settings.LANGUAGE_CODE)
+    except LookupError:
+        return settings.LANGUAGE_CODE
 
 
 def by_handle(scope: str) -> dict:
