@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 11:32+0000\n"
+"POT-Creation-Date: 2026-11-06 12:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -102,7 +102,7 @@ msgstr "haalde \"%(relation)s\" weg"
 msgid "created the ticket"
 msgstr "maakte het ticket aan"
 
-#: apps.py:8 conf.py:17 mcp.py:213
+#: apps.py:8 conf.py:17 mcp.py:216
 msgid "Board"
 msgstr "Board"
 
@@ -319,6 +319,41 @@ msgstr "Branch"
 #: models.py:366
 msgid "Pull request"
 msgstr "Pull request"
+
+#: notifications.py:79
+#, python-format
+msgid "%(person)s assigned %(ticket)s to you"
+msgstr "%(person)s heeft %(ticket)s aan je toegewezen"
+
+#: notifications.py:90
+#, python-format
+msgid "%(person)s mentioned you in %(ticket)s"
+msgstr "%(person)s noemde je in %(ticket)s"
+
+#: notifications.py:105
+#, python-format
+msgid "%(person)s mentioned you on %(ticket)s"
+msgstr "%(person)s noemde je bij %(ticket)s"
+
+#: notifications.py:106
+#, python-format
+msgid "%(person)s commented on %(ticket)s"
+msgstr "%(person)s reageerde op %(ticket)s"
+
+#: notifications.py:113
+#, python-format
+msgid "%(person)s moved %(ticket)s to %(column)s"
+msgstr "%(person)s zette %(ticket)s in %(column)s"
+
+#: notifications.py:125
+#, python-format
+msgid "%(person)s blocked %(ticket)s"
+msgstr "%(person)s blokkeerde %(ticket)s"
+
+#: notifications.py:127
+#, python-format
+msgid "%(person)s unblocked %(ticket)s"
+msgstr "%(person)s deblokkeerde %(ticket)s"
 
 #: templates/gilde_board/_assignee_options.html:3
 msgid "Unassign"

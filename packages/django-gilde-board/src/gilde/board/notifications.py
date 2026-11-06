@@ -3,9 +3,17 @@
 The views call these after a change; nothing here listens to model signals, so bulk changes notify
 nobody. Nobody is told about their own change, and a message goes out only
 once the change is committed.
+
+Messages are in the project's language (LANGUAGE_CODE), whatever language the page or the API that made
+the change was in: Django keeps no language per person, so that is the one the people share.
 """
 
+import functools
 import re
+
+from django.conf import settings
+from django.utils import translation
+from django.utils.translation import gettext as _
 
 from gilde.board.conf import SCOPE
 from gilde.board.models import Column, Ticket, Watcher
@@ -42,11 +50,21 @@ def _send(users, actor, summary: str, url: str, quote: str = ''):
     notifications.notify([user for user in users if user.pk != actor.pk], summary, url, quote)
 
 
+def _in_project_language(function):
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        with translation.override(settings.LANGUAGE_CODE):
+            return function(*args, **kwargs)
+
+    return wrapper
+
+
 def _watchers(ticket: Ticket, *excluded) -> list:
     excluded_ids = {user.pk for user in excluded if user is not None}
     return [watcher.user for watcher in ticket.watchers.select_related('user') if watcher.user_id not in excluded_ids]
 
 
+@_in_project_language
 def ticket_created(request, ticket: Ticket):
     watch(ticket, ticket.creator)
     if ticket.assignee:
@@ -54,23 +72,26 @@ def ticket_created(request, ticket: Ticket):
     text_written(request, ticket, '', ticket.description)
 
 
+@_in_project_language
 def assigned(request, ticket: Ticket):
     """Tell the new assignee, who also starts watching."""
     watch(ticket, ticket.assignee)
-    _send(
-        [ticket.assignee], request.user, f'{people.name(request.user)} assigned {ticket} to you', _url(request, ticket)
-    )
+    summary = _('%(person)s assigned %(ticket)s to you') % {'person': people.name(request.user), 'ticket': ticket}
+    _send([ticket.assignee], request.user, summary, _url(request, ticket))
 
 
+@_in_project_language
 def text_written(request, ticket: Ticket, before: str, after: str, anchor: str = ''):
     """Tell the people @-mentioned in `after` and not already in `before`, who also start watching;
     their link goes to `anchor` on the ticket's page, when given."""
     before_ids = {user.pk for user in mentioned_users(before)}
     new = [user for user in mentioned_users(after) if user.pk not in before_ids]
     watch(ticket, *new)
-    _send(new, request.user, f'{people.name(request.user)} mentioned you in {ticket}', _url(request, ticket, anchor))
+    summary = _('%(person)s mentioned you in %(ticket)s') % {'person': people.name(request.user), 'ticket': ticket}
+    _send(new, request.user, summary, _url(request, ticket, anchor))
 
 
+@_in_project_language
 def commented(request, comment):
     """Tell the people @-mentioned in the comment, and everyone else watching the ticket."""
     ticket, author = comment.ticket, comment.author
@@ -80,18 +101,28 @@ def commented(request, comment):
     quote = _snippet(comment.body)
     # Straight to the comment, not the top of a long ticket.
     url = _url(request, ticket, f'#comment-{comment.pk}')
-    _send(mentioned, author, f'{people.name(author)} mentioned you on {ticket}', url, quote)
-    _send(_watchers(ticket, *mentioned), author, f'{people.name(author)} commented on {ticket}', url, quote)
+    names = {'person': people.name(author), 'ticket': ticket}
+    _send(mentioned, author, _('%(person)s mentioned you on %(ticket)s') % names, url, quote)
+    _send(_watchers(ticket, *mentioned), author, _('%(person)s commented on %(ticket)s') % names, url, quote)
 
 
+@_in_project_language
 def moved(request, ticket: Ticket, *, was_done: bool):
     """Tell the watchers when a ticket enters a done column."""
     if ticket.column.category == Column.Category.DONE and not was_done:
-        summary = f'{people.name(request.user)} moved {ticket} to {ticket.column}'
+        summary = _('%(person)s moved %(ticket)s to %(column)s') % {
+            'person': people.name(request.user),
+            'ticket': ticket,
+            'column': ticket.column,
+        }
         _send(_watchers(ticket), request.user, summary, _url(request, ticket))
 
 
+@_in_project_language
 def blocked(request, ticket: Ticket, reason: str):
-    what = 'blocked' if ticket.is_blocked else 'unblocked'
-    summary = f'{people.name(request.user)} {what} {ticket}'
+    names = {'person': people.name(request.user), 'ticket': ticket}
+    if ticket.is_blocked:
+        summary = _('%(person)s blocked %(ticket)s') % names
+    else:
+        summary = _('%(person)s unblocked %(ticket)s') % names
     _send(_watchers(ticket), request.user, summary, _url(request, ticket), _snippet(reason))

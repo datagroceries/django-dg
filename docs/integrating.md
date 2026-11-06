@@ -181,7 +181,9 @@ Django's `LocaleMiddleware`, which takes the browser's language and remembers a 
 middleware, Gilde's own layout has a language switch in its top bar, offering the languages of your
 `LANGUAGES` that Gilde speaks too; set `LANGUAGES`, or it offers every one Gilde has. Gilde ships English
 and Dutch; another language is one more `.po` file per package. The REST API and the MCP tools stay
-English whatever the language, as they are for programs and agents, and so do the notifications for now.
+English whatever the language, as they are for programs and agents. Notifications are in
+`LANGUAGE_CODE`, whatever language the change was made in: Django keeps no language per person, so the
+project's is the one its people share.
 
 Gilde's pages bring their own layout, `gilde_core/base.html`: Bootstrap 5 and Bootstrap Icons, a thin
 bar with a link back to your site, and Django's messages. They work whatever your front end is, and all

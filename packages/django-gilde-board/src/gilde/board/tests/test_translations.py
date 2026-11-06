@@ -1,10 +1,14 @@
-"""Tests for the board in another language: the pages follow the project's, the API stays English."""
+"""Tests for the board in another language: the pages follow the project's, the API stays English, and
+notifications are in the project's language whatever the page or the API was in."""
+
+from unittest import mock
 
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from gilde.board.models import Relation, Ticket
+from gilde.board.models import Relation, Ticket, Watcher
+from gilde.board.tests import member
 from gilde.board.tests.test_tickets import TicketTestCase
 from gilde.core.tests import TEST_AUTHENTICATION, issue
 
@@ -51,3 +55,38 @@ class DutchTests(TicketTestCase):
 
         self.assertEqual(refused.status_code, 400)
         self.assertNotIn('bestaat', refused.content.decode())
+
+
+@mock.patch('gilde.core.notifications.send_notification')
+class NotificationLanguageTests(TicketTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.bob = member(username='bob', email='bob@example.com', first_name='Bob', last_name='Builder')
+
+    def summary(self, task) -> str:
+        [call] = task.enqueue.call_args_list
+        return call.args[1]
+
+    @override_settings(LANGUAGE_CODE='nl', GILDE_AUTHENTICATION_CLASSES=TEST_AUTHENTICATION)
+    def test_in_the_project_s_language_even_from_the_english_api(self, task):
+        ticket = self.make_ticket('Factuur')
+        Watcher.objects.create(ticket=ticket, user=self.bob)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {issue(self.user)}')
+
+        with self.captureOnCommitCallbacks(execute=True):
+            client.post(f'/gilde/board/api/tickets/{ticket.key}/comments/', {'body': 'Klaar'}, format='json')
+
+        self.assertEqual(self.summary(task), f'Anna Tester reageerde op {ticket}')
+
+    def test_not_in_the_language_of_the_page_it_was_made_on(self, task):
+        ticket = self.make_ticket('Invoice')
+        Watcher.objects.create(ticket=ticket, user=self.bob)
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(
+                ticket.get_absolute_url(), {'action': 'block', 'reason': 'Waiting'}, HTTP_ACCEPT_LANGUAGE='nl'
+            )
+
+        self.assertEqual(self.summary(task), f'Anna Tester blocked {ticket}')
