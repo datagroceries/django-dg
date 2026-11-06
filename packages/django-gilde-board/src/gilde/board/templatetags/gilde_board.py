@@ -1,17 +1,12 @@
 import zlib
 
-import markdown
-import nh3
 from django import forms, template
 from django.conf import settings
 from django.forms.formsets import BaseFormSet
 from django.utils.html import format_html, json_script
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from gilde.board.conf import SCOPE
-from gilde.board.markdown_lists import ListExtension
-from gilde.board.ticket_links import TicketLinkExtension
 from gilde.core import people
 
 register = template.Library()
@@ -33,7 +28,7 @@ def mention_people():
     """The colleagues an @-mention reaches, as JSON for the editor's autocomplete: each with the handle that
     reaches them, as notifications.mentioned_users reads it."""
     found = [{'handle': handle, 'name': people.name(user)} for handle, user in people.by_handle(SCOPE).items()]
-    return json_script(found, 'tk-mention-people')
+    return json_script(found, 'gilde-mention-people')
 
 
 @register.filter
@@ -48,37 +43,6 @@ def person(user, fallback: str = '—') -> str:
 def person_short(user) -> str:
     """What a small card has room for of a user's name."""
     return people.short_name(user)
-
-
-@register.filter
-def render_markdown(text: str) -> str:
-    """Render ticket Markdown to HTML, with ticket keys as links, @-mentions marked and "- [ ]" items as
-    checkboxes, as in the editor's preview. nh3 strips whatever raw HTML the Markdown let through and
-    every class but the mention's and the task item's, and makes every input that is left a disabled
-    checkbox."""
-    html = markdown.markdown(
-        text,
-        extensions=[
-            'fenced_code',
-            'tables',
-            'sane_lists',
-            'nl2br',
-            'pymdownx.magiclink',
-            'pymdownx.tilde',
-            'pymdownx.tasklist',
-            ListExtension(),
-            TicketLinkExtension(),
-        ],
-    )
-    return mark_safe(  # noqa: S308 - nh3 cleans it first
-        nh3.clean(
-            html,
-            tags=nh3.ALLOWED_TAGS | {'input'},
-            attributes={**nh3.ALLOWED_ATTRIBUTES, 'input': {'checked'}},
-            set_tag_attribute_values={'input': {'type': 'checkbox', 'disabled': ''}},
-            allowed_classes={'span': {'tk-mention'}, 'li': {'task-list-item'}},
-        ),
-    )
 
 
 @register.simple_tag

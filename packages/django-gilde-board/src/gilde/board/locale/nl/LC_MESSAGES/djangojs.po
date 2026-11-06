@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 11:29+0000\n"
+"POT-Creation-Date: 2026-11-06 16:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -36,52 +36,11 @@ msgstr "Het ticket aanmaken is mislukt: %s"
 #: static/gilde_board/card_assignee.js:43
 #, javascript-format
 msgid "Assigning the ticket failed (%s). The board will reload."
-msgstr ""
-"Het ticket toewijzen is mislukt (%s). Het board wordt opnieuw geladen."
+msgstr "Het ticket toewijzen is mislukt (%s). Het board wordt opnieuw geladen."
 
 #: static/gilde_board/copy_link.js:13
 msgid "Copied"
 msgstr "Gekopieerd"
-
-#: static/gilde_board/editor.js:147
-msgid "Bold"
-msgstr "Vet"
-
-#: static/gilde_board/editor.js:148
-msgid "Italic"
-msgstr "Cursief"
-
-#: static/gilde_board/editor.js:149
-msgid "Heading"
-msgstr "Kop"
-
-#: static/gilde_board/editor.js:151
-msgid "Quote"
-msgstr "Citaat"
-
-#: static/gilde_board/editor.js:152
-msgid "List"
-msgstr "Lijst"
-
-#: static/gilde_board/editor.js:153
-msgid "Numbered list"
-msgstr "Genummerde lijst"
-
-#: static/gilde_board/editor.js:154
-msgid "Code"
-msgstr "Code"
-
-#: static/gilde_board/editor.js:155
-msgid "Link"
-msgstr "Link"
-
-#: static/gilde_board/editor.js:157
-msgid "Image"
-msgstr "Afbeelding"
-
-#: static/gilde_board/editor.js:160
-msgid "Preview"
-msgstr "Voorbeeld"
 
 #: static/gilde_board/peek.js:18
 msgid "Ticket quick view"

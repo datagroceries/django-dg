@@ -117,17 +117,8 @@ img.tk-avatar { object-fit: cover; background: var(--bs-secondary-bg); }
 .tk-assignee:hover .tk-assignee-name { text-decoration: underline; }
 .tk-assignee-none { font-size: 1rem; color: var(--bs-tertiary-color); }
 .tk-assignee-none:hover { color: var(--bs-emphasis-color); }
-/* The list of colleagues under an @ being typed in a Markdown editor (editor.js). */
-.tk-mention-menu { position: absolute; z-index: 1060; min-width: 15rem; margin: 0; padding: .25rem 0; list-style: none;
-                   background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: .375rem;
-                   box-shadow: 0 4px 12px rgba(0, 0, 0, .12); font-size: .875rem; }
-.tk-mention-menu li { display: flex; justify-content: space-between; gap: .75rem; padding: .25rem .65rem; cursor: pointer; }
-.tk-mention-menu li.active, .tk-mention-menu li:hover { background: var(--bs-secondary-bg); }
-.tk-mention-handle { color: var(--bs-secondary-color); }
-/* An @handle that reaches a colleague, marked in the editor while it is written (editor.js). No padding: it
-   would shift the cursor. */
-.CodeMirror .cm-tk-mention { font-weight: 600; color: var(--tk-in-progress); background: var(--bs-secondary-bg);
-                             border-radius: .2rem; }
+/* An @handle being written, in the board's colour for mentions (gilde_core/editor.css marks it). */
+.gilde-editor .CodeMirror .cm-gilde-mention { color: var(--tk-in-progress); }
 /* The one assignee picker of the board, placed below the card's assignee that was clicked. */
 .tk-assignee-picker { position: absolute; z-index: 1040; width: 15rem; }
 .tk-insert { position: absolute; top: -.7rem; left: 50%; transform: translateX(-50%); z-index: 2; display: none;
@@ -243,20 +234,6 @@ img.tk-avatar { object-fit: cover; background: var(--bs-secondary-bg); }
 .tk-icon-button { border: 0; background: none; padding: 0 .2rem; color: var(--bs-secondary-color); line-height: 1; }
 .tk-icon-button:hover { color: var(--bs-body-color); }
 
-/* The Markdown editor, matched to the page */
-.tk-editor .EasyMDEContainer .editor-toolbar { border-color: var(--bs-border-color); border-radius: .5rem .5rem 0 0; padding: 2px 4px; opacity: 1; }
-.tk-editor .EasyMDEContainer .CodeMirror { border-color: var(--bs-border-color); border-radius: 0 0 .5rem .5rem; font-size: .9rem;
-                                          background: var(--bs-body-bg); color: var(--bs-body-color); }
-.tk-editor .editor-toolbar button { color: var(--bs-secondary-color); }
-.tk-editor .editor-toolbar button.active, .tk-editor .editor-toolbar button:hover { background: var(--bs-tertiary-bg); border-color: transparent; }
-.tk-editor .editor-preview { background: var(--bs-body-bg); }
-/* CodeMirror draws its cursor black and its selection light grey; in dark mode both would vanish or glare. */
-.tk-editor .CodeMirror-cursor { border-left-color: var(--bs-body-color); }
-[data-bs-theme="dark"] .tk-editor .CodeMirror-selected,
-[data-bs-theme="dark"] .tk-editor .CodeMirror-focused .CodeMirror-selected { background: rgba(var(--bs-primary-rgb), .35); }
-[data-bs-theme="dark"] .tk-editor .CodeMirror-line::selection,
-[data-bs-theme="dark"] .tk-editor .CodeMirror-line > span::selection,
-[data-bs-theme="dark"] .tk-editor .CodeMirror-line > span > span::selection { background: rgba(var(--bs-primary-rgb), .35); }
 /* A link to one comment: copied from its header, and highlighted when the page opens on it. */
 .tk-comment-copy { border: 0; background: none; padding: 0 .1rem; line-height: 1; color: var(--bs-secondary-color); }
 .tk-comment-copy:hover { color: var(--bs-emphasis-color); }

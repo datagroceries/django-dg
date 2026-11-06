@@ -1,0 +1,24 @@
+/* The Gilde apps' Markdown editor (editor.js), matched to the page. Put the editor in a .gilde-editor. */
+.gilde-editor .EasyMDEContainer .editor-toolbar { border-color: var(--bs-border-color); border-radius: .5rem .5rem 0 0; padding: 2px 4px; opacity: 1; }
+.gilde-editor .EasyMDEContainer .CodeMirror { border-color: var(--bs-border-color); border-radius: 0 0 .5rem .5rem; font-size: .9rem;
+                                             background: var(--bs-body-bg); color: var(--bs-body-color); }
+.gilde-editor .editor-toolbar button { color: var(--bs-secondary-color); }
+.gilde-editor .editor-toolbar button.active, .gilde-editor .editor-toolbar button:hover { background: var(--bs-tertiary-bg); border-color: transparent; }
+.gilde-editor .editor-preview { background: var(--bs-body-bg); }
+/* CodeMirror draws its cursor black and its selection light grey; in dark mode both would vanish or glare. */
+.gilde-editor .CodeMirror-cursor { border-left-color: var(--bs-body-color); }
+[data-bs-theme="dark"] .gilde-editor .CodeMirror-selected,
+[data-bs-theme="dark"] .gilde-editor .CodeMirror-focused .CodeMirror-selected { background: rgba(var(--bs-primary-rgb), .35); }
+[data-bs-theme="dark"] .gilde-editor .CodeMirror-line::selection,
+[data-bs-theme="dark"] .gilde-editor .CodeMirror-line > span::selection,
+[data-bs-theme="dark"] .gilde-editor .CodeMirror-line > span > span::selection { background: rgba(var(--bs-primary-rgb), .35); }
+
+/* The list of colleagues under an @ being typed. */
+.gilde-mention-menu { position: absolute; z-index: 1060; min-width: 15rem; margin: 0; padding: .25rem 0; list-style: none;
+                      background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: .375rem;
+                      box-shadow: 0 4px 12px rgba(0, 0, 0, .12); font-size: .875rem; }
+.gilde-mention-menu li { display: flex; justify-content: space-between; gap: .75rem; padding: .25rem .65rem; cursor: pointer; }
+.gilde-mention-menu li.active, .gilde-mention-menu li:hover { background: var(--bs-secondary-bg); }
+.gilde-mention-handle { color: var(--bs-secondary-color); }
+/* An @handle that reaches a colleague, marked while it is written. No padding: it would shift the cursor. */
+.CodeMirror .cm-gilde-mention { font-weight: 600; color: var(--bs-primary); background: var(--bs-secondary-bg); border-radius: .2rem; }

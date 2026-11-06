@@ -104,8 +104,8 @@ extension; the address without the name, which older text links to, still works.
   that text meanwhile, the save is refused and names them; changes to other fields never get in the
   way.
 - A ticket key in any Markdown text links to that ticket, with its title on hover, and an `@jasper`
-  that names a colleague shows as a mention, with their name on hover (`ticket_links.py`); keys and
-  handles that name nobody, or sit in code, stay text.
+  that names a colleague shows as a mention, with their name on hover (`ticket_links.py`, references in core's
+  Markdown, so in other Gilde apps too); keys and handles that name nobody, or sit in code, stay text.
 - On the board: a new ticket starts in a column, from the "+" at its head (`c` takes the first
   column's); a "+" between cards opens a title field in place (Enter adds, Esc stops). The search
   filters the board as it is typed; Enter on a key (`T-12`, or its number alone) or a

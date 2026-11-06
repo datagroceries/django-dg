@@ -12,6 +12,9 @@ dependencies = [
     "Django>=5.2",
     "django-simple-history",
     "djangorestframework",
+    "markdown",
+    "nh3",
+    "pymdown-extensions",
     "requests",
 ]
 classifiers = [

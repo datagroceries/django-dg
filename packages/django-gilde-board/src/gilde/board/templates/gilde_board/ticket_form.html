@@ -24,7 +24,7 @@
         <input type="text" name="{{ form.title.html_name }}" value="{{ form.title.value|default:'' }}" maxlength="255" required
                class="form-control form-control-lg tk-title mb-2{% if form.title.errors %} is-invalid{% endif %}" placeholder="{% translate 'Ticket title' %}" autofocus>
         {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        <div class="tk-editor">{% field form.description label=False help_text=False %}</div>
+        <div class="gilde-editor">{% field form.description label=False help_text=False %}</div>
       </div>
       <div class="col-lg-4">
         <aside class="tk-panel">

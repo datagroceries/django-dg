@@ -2,7 +2,7 @@
 {# Editing one's own comment or reply, under it, in the Markdown editor it was written in. #}
 <details class="tk-reply-form tk-comment-edit">
   <summary><i class="bi bi-pencil"></i> {% translate "Edit" %}</summary>
-  <form method="post" class="tk-editor">
+  <form method="post" class="gilde-editor">
     {% csrf_token %}
     <input type="hidden" name="action" value="edit_comment">
     <input type="hidden" name="comment" value="{{ comment.pk }}">

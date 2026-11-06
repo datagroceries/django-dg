@@ -1,11 +1,14 @@
-// Turns a textarea[data-markdown-editor] into an EasyMDE editor. The stored value is the plain
-// Markdown the user typed; pasted or dropped images are uploaded to the URL on the nearest
-// [data-upload-url] ancestor and inserted as a Markdown image. A textarea marked "lazy" waits for
-// window.tkMarkdownEditor(textarea), because an editor built while hidden renders blank.
+// The Gilde apps' Markdown editor (gilde_core/_editor_assets.html). Turns a textarea[data-markdown-editor]
+// into an EasyMDE editor. The stored value is the plain Markdown the user typed; pasted or dropped images
+// are uploaded to the URL on the nearest [data-upload-url] ancestor and inserted as a Markdown image. A
+// textarea marked "lazy" waits for window.gildeMarkdownEditor(textarea), because an editor built while
+// hidden renders blank.
 
-// @-mentions: "@" and the start of a handle, first or last name lists the colleagues it may mean
-// (mention_people); ↑/↓ choose, Enter or Tab fill in the handle that reaches them, Esc closes. Not in code.
-const mentionPeople = JSON.parse(document.getElementById('tk-mention-people').textContent);
+// @-mentions, when the page lists the people they may reach as JSON in #gilde-mention-people: "@" and the
+// start of a handle, first or last name lists the colleagues it may mean; ↑/↓ choose, Enter or Tab fill in
+// the handle that reaches them, Esc closes. Not in code.
+const mentionList = document.getElementById('gilde-mention-people');
+const mentionPeople = mentionList ? JSON.parse(mentionList.textContent) : [];
 // "@" and what follows it up to the cursor, where a mention can start: not inside a word or an email address.
 const MENTION_BEFORE_CURSOR = /(?:^|[^\w@.])@([\w.-]*)$/;
 const mentionHandles = new Set(mentionPeople.map((person) => person.handle));
@@ -20,7 +23,7 @@ const mentionOverlay = {
       const handle = found[1].replace(/\.+$/, '');
       if (mentionHandles.has(handle.toLowerCase())) {
         stream.backUp(found[1].length - handle.length);
-        return 'tk-mention';
+        return 'gilde-mention';
       }
       return null;
     }
@@ -35,7 +38,7 @@ const mentionOverlay = {
 function attachMentions(cm) {
   cm.addOverlay(mentionOverlay);
   const menu = document.createElement('ul');
-  menu.className = 'tk-mention-menu';
+  menu.className = 'gilde-mention-menu';
   menu.hidden = true;
   document.body.append(menu);
   let matches = [];
@@ -58,7 +61,7 @@ function attachMentions(cm) {
       const name = document.createElement('span');
       name.textContent = person.name;
       const handle = document.createElement('span');
-      handle.className = 'tk-mention-handle';
+      handle.className = 'gilde-mention-handle';
       handle.textContent = `@${person.handle}`;
       item.append(name, handle);
       // On mousedown, so the editor keeps its focus and its cursor.
@@ -122,7 +125,7 @@ function attachMentions(cm) {
   });
 }
 
-window.tkMarkdownEditor = (textarea) => {
+window.gildeMarkdownEditor = (textarea) => {
   if (textarea.easyMDE) {
     return textarea.easyMDE;
   }
@@ -160,8 +163,10 @@ window.tkMarkdownEditor = (textarea) => {
       { name: 'preview', action: EasyMDE.togglePreview, className: 'bi bi-eye', title: gettext('Preview'), noDisable: true },
     ],
   });
-  attachMentions(textarea.easyMDE.codemirror);
+  if (mentionPeople.length) {
+    attachMentions(textarea.easyMDE.codemirror);
+  }
   return textarea.easyMDE;
 };
 
-document.querySelectorAll('textarea[data-markdown-editor]:not([data-markdown-editor="lazy"])').forEach(window.tkMarkdownEditor);
+document.querySelectorAll('textarea[data-markdown-editor]:not([data-markdown-editor="lazy"])').forEach(window.gildeMarkdownEditor);

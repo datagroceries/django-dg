@@ -6,7 +6,7 @@ from django.apps import apps
 from django.conf import settings
 from django.utils.translation import get_language_info
 
-from gilde.core import people
+from gilde.core import markdown, people
 
 register = template.Library()
 
@@ -16,6 +16,12 @@ def person_name(user) -> str:
     """A user's name as the Gilde apps show it (gilde.core.people), not their username, which may be an
     email address."""
     return people.name(user)
+
+
+@register.filter
+def render_markdown(text: str) -> str:
+    """Markdown as every Gilde app shows it (gilde.core.markdown)."""
+    return markdown.render(text)
 
 
 @functools.cache

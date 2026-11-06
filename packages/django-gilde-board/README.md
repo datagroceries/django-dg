@@ -62,14 +62,14 @@ image when the project's `People` gives one, and initials otherwise (`gilde.core
 JavaScript's texts through Django's JavaScript catalog (`gilde/jsi18n/`). The API and the MCP tools stay
 English.
 
-**Front end.** Bootstrap 5.3.8 and Bootstrap Icons 1.13.1, from Gilde's base template, plus htmx 1.9.8,
-EasyMDE 2.21.0 (editor), SortableJS 1.15.7 (drag and drop) and Tom Select 2.6.2 (searchable and
+**Front end.** Bootstrap 5.3.8, Bootstrap Icons 1.13.1 and the Markdown editor (EasyMDE 2.21.0)
+from core, plus htmx 1.9.8, SortableJS 1.15.7 (drag and drop) and Tom Select 2.6.2 (searchable and
 multi-selects). All ship in the packages (`static/*/vendor/`, each with its licence), not from a CDN, so
 the pages work offline, on an internal network and under a strict Content Security Policy, and no third
 party sees who visits them. Form fields get their
-Bootstrap layout from the board's own `field` tag, so the project needs no form package. Markdown is rendered with `markdown` and sanitised with `nh3`. Lists are
-read as GitHub and the editor's preview read them (`markdown_lists.py`): one right under a line of text
-starts there, and an item indented by two spaces is nested.
+Bootstrap layout from the board's own `field` tag, so the project needs no form package. Markdown is rendered
+by core (`gilde.core.markdown`), as in every Gilde app; the board adds its ticket keys and @-mentions to it
+(`ticket_links.py`), so they show in the other apps' Markdown too.
 
 ## Notifications
 
@@ -81,7 +81,7 @@ starts there, and an item indented by two spaces is nested.
   it on or off on the ticket page.
 - `@jasper` mentions the person whose handle is `jasper`. In every Markdown editor,
   `@` and the start of a handle, first or last name lists the people it may mean, and a pick fills in
-  the handle that reaches them (`editor.js`, from the `mention_people` tag); not inside code. While it is
+  the handle that reaches them (core's `editor.js`, from the board's `mention_people` tag); not inside code. While it is
   written, each `@handle` that reaches someone is marked, so a typo shows before saving.
 - Nobody hears about their own change. Only the views notify (`notifications.py`), never a model
   signal, so bulk changes stay quiet.

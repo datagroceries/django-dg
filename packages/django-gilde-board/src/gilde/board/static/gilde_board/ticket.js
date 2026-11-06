@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     editable.setAttribute('data-editing', '');
     const textarea = editable.querySelector('textarea[data-markdown-editor="lazy"]');
     if (textarea) {
-      window.tkMarkdownEditor(textarea).codemirror.focus();
+      window.gildeMarkdownEditor(textarea).codemirror.focus();
     } else {
       editable.querySelector('input[type=text]')?.focus();
     }
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const textarea = details.querySelector('textarea[data-markdown-editor="lazy"]');
     details.addEventListener('toggle', () => {
       if (textarea && details.open) {
-        window.tkMarkdownEditor(textarea).codemirror.focus();
+        window.gildeMarkdownEditor(textarea).codemirror.focus();
       }
     });
     // Cancel puts the comment's own text back, for the next time the editor opens.

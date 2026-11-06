@@ -60,7 +60,9 @@ One repository, a package per app, each released to PyPI on its own:
 ## Conventions
 
 - English everywhere: code, comments, docs and commit messages. Texts people see are marked for
-  translation, and the Dutch translation is updated with them (`makemessages`, `compilemessages`).
+  translation, and the Dutch translation is updated with them (`makemessages`, `compilemessages`). Run
+  them from an app's folder as `python -P -m django …`, so that core's own `markdown.py` does not hide
+  the library of that name.
 - A line in the `CHANGELOG.md` of each package a change touches, under "Unreleased".
 - A decision that shapes Gilde is a dated entry in [docs/decisions.md](docs/decisions.md). One that no
   longer holds keeps its text, with a note saying what replaced it.

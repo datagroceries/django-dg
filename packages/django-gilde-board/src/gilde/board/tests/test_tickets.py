@@ -10,9 +10,10 @@ from django.utils import timezone
 from gilde.board.activity import build_feed
 from gilde.board.forms import fingerprint
 from gilde.board.models import RANK_GAP, Attachment, Column, Comment, Group, Label, Relation, Ticket, Watcher
-from gilde.board.templatetags.gilde_board import avatar, render_markdown
+from gilde.board.templatetags.gilde_board import avatar
 from gilde.board.tests import member
 from gilde.core.people import People
+from gilde.core.templatetags.gilde_core import render_markdown
 
 
 class FirstNamePeople(People):
@@ -667,48 +668,6 @@ class BoardTests(TicketTestCase):
         self.assertNotContains(their_board, 'Made by me')
 
 
-class MarkdownTests(TestCase):
-    def test_raw_html_is_stripped(self):
-        html = render_markdown('Hi <script>alert(1)</script> <img src=x onerror=alert(1)>')
-
-        self.assertNotIn('<script', html)
-        self.assertNotIn('onerror', html)
-
-    def test_a_bare_url_becomes_a_link(self):
-        self.assertIn('<a href="https://sentry.io/x"', render_markdown('See https://sentry.io/x'))
-
-    def test_a_list_right_under_a_line_is_a_list_as_on_github(self):
-        html = render_markdown('Steps:\n- one\n- two\n\nThen:\n1. first')
-
-        self.assertIn('<p>Steps:</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>', html)
-        self.assertIn('<ol>\n<li>first</li>\n</ol>', html)
-
-    def test_an_item_indented_by_two_spaces_is_nested_as_on_github(self):
-        html = render_markdown('- one\n  - sub\n    - deeper\n- two')
-
-        self.assertIn('<li>one<ul>\n<li>sub<ul>\n<li>deeper</li>', html)
-        self.assertIn('</ul>\n</li>\n<li>two</li>', html)
-
-    def test_a_dash_in_code_stays_code(self):
-        html = render_markdown('Run:\n```\nls\n- not an item\n```')
-
-        self.assertIn('<pre><code>ls\n- not an item\n</code></pre>', html)
-        self.assertNotIn('<li>', html)
-
-    def test_a_task_list_item_shows_a_checkbox_as_in_the_preview(self):
-        html = render_markdown('Todo:\n- [ ] open\n- [x] done')
-
-        self.assertInHTML('<li class="task-list-item"><input type="checkbox" disabled> open</li>', html)
-        self.assertInHTML('<li class="task-list-item"><input type="checkbox" disabled checked> done</li>', html)
-
-    def test_a_raw_input_can_only_be_a_disabled_checkbox(self):
-        html = render_markdown('<input type="text" value="x" onfocus="alert(1)" autofocus>')
-
-        self.assertInHTML('<input type="checkbox" disabled>', html)
-        self.assertNotIn('text', html)
-        self.assertNotIn('onfocus', html)
-
-
 class AttachmentTests(TicketTestCase):
     def test_an_html_file_is_served_as_a_download(self):
         ticket = self.make_ticket()
@@ -769,7 +728,7 @@ class AvatarTests(TicketTestCase):
     def test_the_editors_know_whom_a_mention_reaches(self):
         # Without a handle nobody is reached by a mention, so nobody is offered for one.
         member(username='nameless')
-        people = '<script id="tk-mention-people" type="application/json">[{"handle": "anna", "name": "Anna Tester"}]'
+        people = '<script id="gilde-mention-people" type="application/json">[{"handle": "anna", "name": "Anna Tester"}]'
 
         self.assertContains(self.client.get(self.make_ticket().get_absolute_url()), people)
         self.assertContains(self.client.get(reverse('gilde_board:ticket_create')), people)

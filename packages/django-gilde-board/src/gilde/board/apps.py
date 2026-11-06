@@ -14,6 +14,9 @@ class BoardConfig(AppConfig):
         # Here rather than at the top: the tools import the models, which are not ready before this.
         from gilde.board import checks  # noqa: F401 - registers the system checks
         from gilde.board.mcp import AREA
-        from gilde.core import areas
+        from gilde.board.ticket_links import Mentions, TicketLinks
+        from gilde.core import areas, markdown
 
         areas.register(AREA)
+        markdown.register(TicketLinks)
+        markdown.register(Mentions)
