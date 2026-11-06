@@ -11,10 +11,23 @@ To run it on a laptop, from this folder:
 import os
 import pathlib
 
+import sentry_sdk
+
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 HOME = pathlib.Path(os.environ.get('GILDE_DEMO_HOME', '/srv/gilde-demo'))
 
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
+# Errors go to Sentry (project gilde, organisation datagroceries, its US region) once SENTRY_DSN is in
+# /srv/gilde-demo/.env. No personal data: no request bodies, which hold tickets and comments, and no IP
+# addresses, cookies or user details (send_default_pii).
+if os.environ.get('SENTRY_DSN'):
+    sentry_sdk.init(
+        dsn=os.environ['SENTRY_DSN'],
+        environment='demo',
+        send_default_pii=False,
+        max_request_body_size='never',
+    )
 DEBUG = os.environ.get('DJANGO_DEBUG') == '1'
 ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if DEBUG else ['demo.gildehq.com']
 CSRF_TRUSTED_ORIGINS = ['https://demo.gildehq.com']

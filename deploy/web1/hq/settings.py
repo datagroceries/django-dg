@@ -4,10 +4,23 @@ Gilde outside the example project. How it runs is in README.md next to this proj
 import os
 import pathlib
 
+import sentry_sdk
+
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 HOME = pathlib.Path('/srv/gilde')
 
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
+# Errors go to Sentry (project gilde, organisation datagroceries, its US region) once SENTRY_DSN is in
+# /srv/gilde/.env. No personal data: no request bodies, which hold tickets and comments, and no IP
+# addresses, cookies or user details (send_default_pii).
+if os.environ.get('SENTRY_DSN'):
+    sentry_sdk.init(
+        dsn=os.environ['SENTRY_DSN'],
+        environment='production',
+        send_default_pii=False,
+        max_request_body_size='never',
+    )
 DEBUG = False
 ALLOWED_HOSTS = ['gilde.datagroceries.com']
 CSRF_TRUSTED_ORIGINS = ['https://gilde.datagroceries.com']

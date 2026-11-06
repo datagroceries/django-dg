@@ -5,4 +5,5 @@
 -e packages/django-gilde-board
 -r ../../example/requirements.txt
 gunicorn==26.2.0
+sentry-sdk==2.73.0
 psycopg[binary]==3.3.8

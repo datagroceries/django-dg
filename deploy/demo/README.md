@@ -21,7 +21,7 @@ but apart from it: its own system user, service and SQLite database.
 | --- | --- |
 | `/srv/gilde-demo/app` | A clone of Gilde's own instance's clone, `/srv/gilde/app`, so it needs no deploy key of its own |
 | `/srv/gilde-demo/venv` | The virtualenv, with the packages installed editable from the clone |
-| `/srv/gilde-demo/.env` | `DJANGO_SECRET_KEY`, made on the server; mode 600 |
+| `/srv/gilde-demo/.env` | `DJANGO_SECRET_KEY`, made on the server, and `SENTRY_DSN`; mode 600 |
 | `/srv/gilde-demo/data` | The SQLite database |
 | `/srv/gilde-demo/static`, `/srv/gilde-demo/media` | `collectstatic`'s output, served by Caddy; the uploads |
 
@@ -82,4 +82,5 @@ every visitor of the day out.
 ## Logs
 
 `journalctl -u gilde-demo`, and `journalctl -u gilde-demo-reset` for the nights; `systemctl list-timers
-gilde-demo-reset` shows when it last and next runs.
+gilde-demo-reset` shows when it last and next runs. Errors also go to Sentry, project `gilde`,
+environment `demo`, as for Gilde's own instance.
