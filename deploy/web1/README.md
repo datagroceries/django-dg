@@ -10,7 +10,7 @@ server, as an SSH alias.
 | --- | --- |
 | `/srv/gilde/app` | A clone of this repository, through a read-only GitHub deploy key (`/srv/gilde/.ssh/id_ed25519`, "web1 (read-only)" under the repository's Deploy keys) |
 | `/srv/gilde/venv` | The virtualenv, with the packages installed editable from the clone |
-| `/srv/gilde/.env` | `DJANGO_SECRET_KEY`, made on the server; `EMAIL_HOST` and `EMAIL_HOST_USER`, the SMTP server and Gilde's mailbox; and `EMAIL_HOST_PASSWORD`, the mailbox's password, put there by Jasper; mode 600 |
+| `/srv/gilde/.env` | `DJANGO_SECRET_KEY`, made on the server; `EMAIL_HOST` and `EMAIL_HOST_USER`, the SMTP server and Gilde's mailbox; `EMAIL_HOST_PASSWORD`, the mailbox's password, put there by Jasper; and `GILDE_BOARD_GITHUB_WEBHOOK_SECRET`, shared with the repository's webhook; mode 600 |
 | `/srv/gilde/static`, `/srv/gilde/media` | `collectstatic`'s output, served by Caddy; uploaded attachments |
 | `/srv/gilde/backups` | The nightly dumps, 14 days |
 | PostgreSQL 18, database `gilde` | Owned by the role `gilde`, reached through the socket as the system user `gilde`, without a password |

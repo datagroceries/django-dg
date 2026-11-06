@@ -115,3 +115,7 @@ LOGGING = {
 
 GILDE_BOARD_KEY_PREFIX = 'G'
 GILDE_BOARD_DISPLAY_TIMEZONE = 'Europe/Amsterdam'
+# Commits, branches and pull requests that name a ticket show on it. GitHub's webhook proves itself with
+# the secret in /srv/gilde/.env; without one, the board accepts no delivery.
+GILDE_BOARD_GITHUB_REPOSITORY = 'gildehq/gilde'
+GILDE_BOARD_GITHUB_WEBHOOK_SECRET = os.environ.get('GILDE_BOARD_GITHUB_WEBHOOK_SECRET', '')
