@@ -83,6 +83,21 @@ systemctl restart gilde
 The service and Caddy files are copied by hand when they change. `check --deploy` warns that only
 superusers may use the board until a group gets its permission (`dg.W003`).
 
+## The move to DataGroceries (7 November 2026)
+
+Gilde became DataGroceries (docs/decisions.md). The data moved from the database `gilde`, on the old app
+labels, to `datagroceries`: dumped with the old code (`dumpdata --natural-foreign --natural-primary`, without
+content types, permissions, sessions and the admin log), relabelled `gilde_*` → `dg_*`, loaded with
+`SIMPLE_HISTORY_ENABLED=False` (or loading a ticket writes a history record of its own over the dumped ones),
+the sequences reset with `sqlsequencereset`, and every model's count compared. The settings in `.env` went
+from `GILDE_*` to `DG_*`.
+
+Kept until the new setup has run a while: the database `gilde`, `/srv/gilde/backups/before-rename.sql`, and
+`/srv/gilde/rename/` with the dumps and the Caddy sites as they were. gilde.datagroceries.com keeps serving
+until Claude is reconnected to hq.datagroceries.com (`gilde.caddy`); OAuth clients registered on the old
+address no longer sign in there, as the address they check now ends in `/dg/`. The server's own names (the
+user, folders and services) stay `gilde`.
+
 ## Backups
 
 [gilde-backup.timer](gilde-backup.timer) runs [gilde-backup.service](gilde-backup.service) at 03:30: a
