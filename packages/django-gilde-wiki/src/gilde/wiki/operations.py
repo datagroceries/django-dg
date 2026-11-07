@@ -29,12 +29,25 @@ def write(request, page: Page, title: str, body: str):
 
 def move(request, page: Page, parent: Page | None):
     """Put the page, with everything under it, last under `parent`, or at the top."""
-    if parent == page.parent:
-        return
+    if parent != page.parent:
+        arrange(request, page, parent)
+
+
+def arrange(request, page: Page, parent: Page | None, before: Page | None = None):
+    """Put the page, with everything under it, under `parent`, or at the top, just before `before`, one
+    of the pages there, or after them all. Only a page that changes parent gets a history record: the
+    order of pages is not kept in their history."""
     with transaction.atomic():
-        page.parent = parent
-        page.position = _last_position(parent)
-        page.save()
+        siblings = list(Page.objects.filter(parent=parent).exclude(pk=page.pk))
+        siblings.insert(siblings.index(before) if before in siblings else len(siblings), page)
+        for position, sibling in enumerate(siblings, start=1):
+            sibling.position = position
+        Page.objects.bulk_update([sibling for sibling in siblings if sibling.pk != page.pk], ['position'])
+        if page.parent_id != (parent.pk if parent else None):
+            page.parent = parent
+            page.save()
+        else:
+            Page.objects.filter(pk=page.pk).update(position=page.position)
 
 
 def delete(request, page: Page):

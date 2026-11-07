@@ -47,10 +47,20 @@
   {% endif %}
 </div>
 
-{% if children %}
-  <section class="wk-children">
-    <div class="wk-panel-title">{% translate "Pages under this one" %}</div>
-    <ul>{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
-  </section>
+{% if children or backlinks %}
+  <div class="wk-related">
+    {% if children %}
+      <section>
+        <div class="wk-panel-title">{% translate "Pages under this one" %}</div>
+        <ul>{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
+      </section>
+    {% endif %}
+    {% if backlinks %}
+      <section>
+        <div class="wk-panel-title">{% translate "Pages that link here" %}</div>
+        <ul>{% for linking in backlinks %}<li><a href="{{ linking.get_absolute_url }}">{{ linking.title }}</a></li>{% endfor %}</ul>
+      </section>
+    {% endif %}
+  </div>
 {% endif %}
 {% endblock %}

@@ -1,15 +1,18 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from gilde.core import markdown, people
 from gilde.wiki import operations
 from gilde.wiki.conf import SCOPE
-from gilde.wiki.forms import MoveForm, NewPageForm, PageForm, fingerprint
+from gilde.wiki.forms import ArrangeForm, MoveForm, NewPageForm, PageForm, fingerprint
 from gilde.wiki.models import FormerPath, Page
+from gilde.wiki.templatetags.gilde_wiki import tree_context
 
 wiki_required = people.may_use_required(SCOPE)
 
@@ -67,6 +70,7 @@ def page(request, path):
         'headings': headings if len(headings) >= CONTENTS_FROM else [],
         'ancestors': found.ancestors(),
         'children': found.children.all(),
+        'backlinks': Page.objects.filter(links__target=found).exclude(pk=found.pk).order_by('title').distinct(),
         'last_change': last_change,
         'last_changed_by': _name(_changed_by(found, last_change)),
         'last_changed_via': _via(last_change),
@@ -75,10 +79,11 @@ def page(request, path):
 
 
 def _missing(request, path):
-    """The address of no page: an offer to start it, under the page the address goes through, if any."""
+    """The address of no page: an offer to start it, under the page the address goes through, if any,
+    with the title a link to it gave, or else one from the address."""
     parent_path, _slash, slug = path.rpartition('/')
     parent = Page.objects.filter(path=parent_path).first() if parent_path else None
-    title = slug.replace('-', ' ').strip().capitalize()
+    title = request.GET.get('title') or slug.replace('-', ' ').strip().capitalize()
     form = NewPageForm(initial={'title': title, 'parent': parent.pk if parent else None})
     return render(request, 'gilde_wiki/missing.html', {'form': form, 'path': path}, status=404)
 
@@ -143,3 +148,18 @@ def page_delete(request, path):
         return redirect(deleted)
     messages.success(request, _('“%(title)s” is deleted.') % {'title': deleted.title})
     return redirect(deleted.parent or 'gilde_wiki:home')
+
+
+@wiki_required
+@require_POST
+def tree_arrange(request):
+    """A page dragged in the tree. The answer is the tree as it is now, and where the page shown, `current`,
+    is now, as dragging it or a page above it moves it."""
+    form = ArrangeForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({'errors': [error for errors in form.errors.values() for error in errors]}, status=400)
+    page = form.cleaned_data['page']
+    operations.arrange(request, page, form.cleaned_data['parent'], form.cleaned_data['before'])
+    current = Page.objects.filter(pk=request.POST.get('current') or None).first()
+    tree = render_to_string('gilde_wiki/_tree.html', tree_context(current, also_open=page), request)
+    return JsonResponse({'tree': tree, 'url': current.get_absolute_url() if current else None})

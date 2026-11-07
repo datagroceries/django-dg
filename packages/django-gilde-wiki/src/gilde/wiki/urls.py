@@ -9,6 +9,7 @@ app_name = 'gilde_wiki'
 urlpatterns = [
     path('', views.home, name='home'),
     path('-/new/', views.page_create, name='page_create'),
+    path('-/arrange/', views.tree_arrange, name='tree_arrange'),
     path('<path:path>/-/edit/', views.page_edit, name='page_edit'),
     path('<path:path>/-/move/', views.page_move, name='page_move'),
     path('<path:path>/-/delete/', views.page_delete, name='page_delete'),

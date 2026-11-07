@@ -83,3 +83,24 @@ class MoveForm(forms.Form):
         moved.parent = data.get('parent')
         moved.clean()
         return data
+
+
+class ArrangeForm(forms.Form):
+    """A page dragged in the tree: under `parent`, or at the top, before `before`, or after the pages
+    there."""
+
+    page = forms.ModelChoiceField(Page.objects.all())
+    parent = forms.ModelChoiceField(Page.objects.all(), required=False)
+    before = forms.ModelChoiceField(Page.objects.all(), required=False)
+
+    def clean(self):
+        data = super().clean()
+        page, parent, before = data.get('page'), data.get('parent'), data.get('before')
+        if page is None:
+            return data
+        if before is not None and (before == page or before.parent_id != (parent.pk if parent else None)):
+            raise forms.ValidationError(_('That place is not in the tree.'))
+        moved = Page.objects.get(pk=page.pk)
+        moved.parent = parent
+        moved.clean()
+        return data

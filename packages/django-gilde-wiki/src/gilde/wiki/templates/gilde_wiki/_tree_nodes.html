@@ -2,11 +2,11 @@
   <li>
     {% if node.children %}
       <details{% if node.page.pk in open_ids %} open{% endif %}>
-        <summary><a href="{{ node.page.get_absolute_url }}"{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}</a></summary>
+        <summary><a href="{{ node.page.get_absolute_url }}" data-page="{{ node.page.pk }}"{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}</a></summary>
         <ul>{% include 'gilde_wiki/_tree_nodes.html' with nodes=node.children %}</ul>
       </details>
     {% else %}
-      <a href="{{ node.page.get_absolute_url }}"{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}</a>
+      <a href="{{ node.page.get_absolute_url }}" data-page="{{ node.page.pk }}"{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}</a>
     {% endif %}
   </li>
 {% endfor %}

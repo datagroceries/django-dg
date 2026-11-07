@@ -88,6 +88,7 @@ Check the site, and the errors of the last ten minutes.
 ONBOARDING = """Welcome to the team. This page lists what to do in your first week.
 
 - [ ] Sign in to the board and the wiki.
-- [ ] Read how we work in Engineering.
+- [ ] Read how we work in [[Engineering]], and how a release goes out in [[Deploying]].
+- [ ] Add yourself to [[Who is who]].
 - [ ] Pick up a ticket with a colleague.
 """

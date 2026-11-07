@@ -11,7 +11,9 @@ class WikiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
 
     def ready(self):
-        from gilde.core import areas
+        from gilde.core import areas, markdown
+        from gilde.wiki.links import PageLinks
         from gilde.wiki.mcp import AREA
 
         areas.register(AREA)
+        markdown.register(PageLinks)

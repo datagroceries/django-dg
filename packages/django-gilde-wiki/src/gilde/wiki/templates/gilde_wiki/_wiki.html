@@ -14,11 +14,19 @@
 <div class="row py-3">
   <nav class="col-lg-3 col-xl-2 wk-sidebar" aria-label="{% translate 'Pages' %}">
     <a class="wk-name" href="{% url 'gilde_wiki:home' %}"><i class="bi bi-journal-text"></i> {% wiki_name %}</a>
-    {% page_tree page %}
+    <div class="wk-tree-holder" data-arrange-url="{% url 'gilde_wiki:tree_arrange' %}" data-current="{{ page.pk|default:'' }}"
+         data-failed="{% translate 'Moving the page failed. The page will reload.' %}">
+      {% csrf_token %}
+      {% page_tree page %}
+    </div>
     <a class="btn btn-sm btn-outline-secondary mt-3" href="{% url 'gilde_wiki:page_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New page" %}</a>
   </nav>
   <main class="col-lg-9 col-xl-10 wk-main">
     {% block main %}{% endblock %}
   </main>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'gilde_wiki/tree.js' %}"></script>
 {% endblock %}

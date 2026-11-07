@@ -38,6 +38,11 @@ class PageQuerySet(models.QuerySet):
         return roots
 
 
+def slug_of(title: str) -> str:
+    """The slug a title gives, empty when it has no letters or digits."""
+    return slugify(title)[:SLUG_LENGTH].strip('-')
+
+
 def flatten(nodes: list[Node], depth: int = 0):
     """(page, depth) for each page of the tree, in the order the tree shows them."""
     for node in nodes:
@@ -50,7 +55,8 @@ class Page(models.Model):
 
     Its address is its `path`, the slugs of its ancestors and its own: "engineering/deploying". Saving
     keeps the slug after the title and the paths of the page and everything under it up to date; the
-    addresses they had before keep leading to them (FormerPath).
+    addresses they had before keep leading to them (FormerPath), and links to them in other pages follow
+    (gilde.wiki.links).
     """
 
     parent = models.ForeignKey(
@@ -69,7 +75,7 @@ class Page(models.Model):
         help_text='The title as the end of the address, unique among the pages beside it.',
     )
     path = models.CharField(max_length=PATH_LENGTH, unique=True, editable=False)
-    body = models.TextField(_('text'), blank=True, default='', help_text=_('Markdown.'))
+    body = models.TextField(_('text'), blank=True, default='', help_text=_('Markdown. [[Page title]] links to a page.'))
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='gilde_wiki_created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -86,6 +92,8 @@ class Page(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
+        from gilde.wiki import links  # noqa: PLC0415 - links imports this module
+
         with transaction.atomic():
             before = Page.objects.filter(pk=self.pk).values_list('path', flat=True).first() if self.pk else None
             self.slug = self._free_slug()
@@ -93,8 +101,17 @@ class Page(models.Model):
             # A page now at an address another one had takes it over.
             FormerPath.objects.filter(path=self.path).delete()
             super().save(*args, **kwargs)
-            if before and before != self.path:
-                self._move_descendants(before)
+            if before == self.path:
+                links.record(self)
+                return
+            moved = self._move_descendants(before) if before else {}
+            # Links to the moved pages follow them, from the links as they were recorded before.
+            rewritten = links.follow(moved)
+            if self.pk in rewritten:
+                self.body = Page.objects.values_list('body', flat=True).get(pk=self.pk)
+            else:
+                links.record(self)
+            links.refresh({self.slug} | set(Page.objects.filter(pk__in=moved).values_list('slug', flat=True)))
 
     def get_absolute_url(self):
         return reverse('gilde_wiki:page', args=[self.path])
@@ -123,7 +140,7 @@ class Page(models.Model):
     def _free_slug(self) -> str:
         """The title as a slug, with -2, -3 and so on when a page beside this one has it already. A page
         keeps its slug while its title gives the same one."""
-        base = slugify(self.title)[:SLUG_LENGTH].strip('-') or 'page'
+        base = slug_of(self.title) or 'page'
         taken = set(Page.objects.filter(parent=self.parent_id).exclude(pk=self.pk).values_list('slug', flat=True))
         if self.slug and re.fullmatch(rf'{re.escape(base)}(-\d+)?', self.slug) and self.slug not in taken:
             return self.slug
@@ -134,10 +151,11 @@ class Page(models.Model):
             slug = f'{base[: SLUG_LENGTH - len(suffix)]}{suffix}'
         return slug
 
-    def _move_descendants(self, before: str):
+    def _move_descendants(self, before: str) -> dict[int, str]:
         """After the page's address changed from `before`: the same for the pages under it, and every
-        old address keeps leading to its page."""
+        old address keeps leading to its page. The old addresses of this page and those under it, by id."""
         moved = list(Page.objects.filter(path__startswith=f'{before}/'))
+        old_paths = {self.pk: before} | {page.pk: page.path for page in moved}
         FormerPath.objects.update_or_create(path=before, defaults={'page': self})
         for page in moved:
             old = page.path
@@ -146,6 +164,7 @@ class Page(models.Model):
         FormerPath.objects.filter(path__in=[page.path for page in moved]).delete()
         # Their own place in the tree did not change, so no history record of their own.
         Page.objects.bulk_update(moved, ['path'])
+        return old_paths
 
 
 class FormerPath(models.Model):
@@ -157,3 +176,19 @@ class FormerPath(models.Model):
 
     def __str__(self):
         return f'{self.path} → {self.page.path}'
+
+
+class Link(models.Model):
+    """A link in a page's text to a page of the wiki, "[[Deploying]]", by the address it names
+    (`reference`), and the page that is, if any: what a page lists as the pages that link to it, and
+    what follows a page to its new address."""
+
+    source = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='links')
+    reference = models.CharField(max_length=PATH_LENGTH)
+    target = models.ForeignKey(Page, on_delete=models.SET_NULL, null=True, blank=True, related_name='backlinks')
+
+    class Meta:
+        constraints = (models.UniqueConstraint(fields=('source', 'reference'), name='gilde_wiki_link_once'),)
+
+    def __str__(self):
+        return f'{self.source.path} → {self.reference}'

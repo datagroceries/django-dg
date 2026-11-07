@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 00:38+0100\n"
+"POT-Creation-Date: 2026-11-07 09:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -33,27 +33,35 @@ msgstr "Onder"
 msgid "Title"
 msgstr "Titel"
 
-#: models.py:62
+#: forms.py:102
+msgid "That place is not in the tree."
+msgstr "Die plek staat niet in de boom."
+
+#: links.py:100 templates/gilde_wiki/missing.html:8
+msgid "No such page yet"
+msgstr "Deze pagina bestaat nog niet"
+
+#: models.py:68
 msgid "under"
 msgstr "onder"
 
-#: models.py:65
+#: models.py:71
 msgid "title"
 msgstr "titel"
 
-#: models.py:72
+#: models.py:78
 msgid "text"
 msgstr "tekst"
 
-#: models.py:72
-msgid "Markdown."
-msgstr "Markdown."
+#: models.py:78
+msgid "Markdown. [[Page title]] links to a page."
+msgstr "Markdown. [[Paginatitel]] linkt naar een pagina."
 
-#: models.py:114
+#: models.py:131
 msgid "A page cannot go under itself or a page under it."
 msgstr "Een pagina kan niet onder zichzelf of onder een pagina eronder."
 
-#: models.py:118
+#: models.py:135
 msgid ""
 "This page would be too deep in the tree, or its title too long, for an "
 "address."
@@ -61,7 +69,7 @@ msgstr ""
 "Deze pagina komt te diep in de boom, of haar titel is te lang, voor een "
 "adres."
 
-#: operations.py:43 templates/gilde_wiki/page.html:20
+#: operations.py:56 templates/gilde_wiki/page.html:20
 msgid "Move or delete the pages under this page first."
 msgstr "Verplaats of verwijder eerst de pagina's onder deze pagina."
 
@@ -77,7 +85,12 @@ msgstr "Nog geen pagina's."
 msgid "Pages"
 msgstr "Pagina's"
 
-#: templates/gilde_wiki/_wiki.html:19 templates/gilde_wiki/home.html:17
+#: templates/gilde_wiki/_wiki.html:19
+msgid "Moving the page failed. The page will reload."
+msgstr ""
+"Het verplaatsen van de pagina is mislukt. De pagina wordt opnieuw geladen."
+
+#: templates/gilde_wiki/_wiki.html:23 templates/gilde_wiki/home.html:17
 #: templates/gilde_wiki/page_create.html:4
 #: templates/gilde_wiki/page_create.html:8
 msgid "New page"
@@ -102,10 +115,6 @@ msgstr ""
 #: templates/gilde_wiki/missing.html:4
 msgid "No such page"
 msgstr "Pagina bestaat niet"
-
-#: templates/gilde_wiki/missing.html:8
-msgid "No such page yet"
-msgstr "Deze pagina bestaat nog niet"
 
 #: templates/gilde_wiki/missing.html:9
 #, python-format
@@ -153,9 +162,13 @@ msgstr "Begin met schrijven"
 msgid "On this page"
 msgstr "Op deze pagina"
 
-#: templates/gilde_wiki/page.html:52
+#: templates/gilde_wiki/page.html:54
 msgid "Pages under this one"
 msgstr "Pagina's hieronder"
+
+#: templates/gilde_wiki/page.html:60
+msgid "Pages that link here"
+msgstr "Pagina's die hierheen linken"
 
 #: templates/gilde_wiki/page_edit.html:4
 #, python-format
@@ -185,16 +198,16 @@ msgstr "“%(title)s” verplaatsen"
 msgid "The pages under it go with it. Its old address keeps leading here."
 msgstr "De pagina's eronder gaan mee. Het oude adres blijft hierheen leiden."
 
-#: views.py:31
+#: views.py:42
 msgid "Someone"
 msgstr "Iemand"
 
-#: views.py:37
+#: views.py:48
 #, python-format
 msgid "via %(name)s"
 msgstr "via %(name)s"
 
-#: views.py:106
+#: views.py:119
 #, python-format
 msgid ""
 "%(who)s saved this page while you were editing it. Your text is still here: "
@@ -205,7 +218,10 @@ msgstr ""
 "nog: open de pagina in een ander tabblad om die van hen te zien, voeg de "
 "twee samen en sla opnieuw op om die van hen te vervangen."
 
-#: views.py:136
+#: views.py:149
 #, python-format
 msgid "“%(title)s” is deleted."
 msgstr "“%(title)s” is verwijderd."
+
+#~ msgid "Markdown."
+#~ msgstr "Markdown."
