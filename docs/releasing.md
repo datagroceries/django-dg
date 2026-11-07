@@ -6,7 +6,8 @@ through PyPI's trusted publishing: no PyPI token is stored anywhere.
 ## Once, per package
 
 On PyPI, under the account that will own the packages: *Your projects › Publishing › Add a new pending
-publisher*, for each of `django-gilde-core`, `django-gilde-connect` and `django-gilde-board`:
+publisher*, for each of `django-gilde-core`, `django-gilde-connect`, `django-gilde-board` and
+`django-gilde-wiki`:
 
 | Field | Value |
 |---|---|

@@ -37,7 +37,7 @@ One repository, a package per app, each released to PyPI on its own:
   checks on every way in.
 - `packages/django-gilde-connect/`: connecting agents: OAuth for the Claude connector, personal tokens.
 - `packages/django-gilde-board/`: the kanban ticket tracker. How it is built: [docs/board.md](docs/board.md).
-- `packages/django-gilde-wiki/`: the wiki, being built.
+- `packages/django-gilde-wiki/`: the wiki. How it is built: [docs/wiki.md](docs/wiki.md).
 - `example/`: the Django project to develop in. `deploy/web1/`: Gilde's own instance.
 - `docs/`: the [integration guide](docs/integrating.md), the [decisions](docs/decisions.md) and why they
   were made, and [how to release](docs/releasing.md).
@@ -57,7 +57,7 @@ One repository, a package per app, each released to PyPI on its own:
   to have a feature another way.
 - **Be sparing with features.** A new one answers a need many share, is built the way the app already
   works, and is agreed in an issue before it is built. Each app has principles of its own on top: the
-  board's are in [docs/board.md](docs/board.md).
+  board's are in [docs/board.md](docs/board.md), the wiki's in [docs/wiki.md](docs/wiki.md).
 
 ## Conventions
 

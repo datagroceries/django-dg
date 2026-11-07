@@ -1,7 +1,7 @@
 # Gilde on web1
 
-Gilde's own instance, at https://gilde.datagroceries.com: Jasper's tickets on the board, with Claude
-connected. The first installation outside the example project, on PostgreSQL. It runs on web1, a small
+Gilde's own instance, at https://gilde.datagroceries.com: Jasper's tickets on the board and the wiki,
+with Claude connected. The first installation outside the example project, on PostgreSQL. It runs on web1, a small
 Hetzner Cloud server with Ubuntu 26.04, next to other sites, behind Caddy. The server itself is described
 in its own documentation, which is not public; here is only what is Gilde's. `ssh web1` below is the
 server, as an SSH alias.

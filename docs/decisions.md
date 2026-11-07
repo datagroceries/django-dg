@@ -111,6 +111,8 @@ settings below ("Django first", and "Fitting into any Django project"). Handles 
 
 ## 2026-11-06: The second app is the CMS, and Gilde's website runs on it
 
+*No longer holds: the wiki came second, and the CMS waits (2026-11-07, below).*
+
 - **The CMS comes second**, before the wiki and the other ideas: Gilde's own website runs on it from the
   start, which shows the CMS working and is the second app that tests whether apps install on their own
   and work together through core. The wiki is for a team's own knowledge, edited live; a public site
@@ -181,3 +183,19 @@ Claude still connects with one URL. Worked out in a design proposal, tried in a 
   may later colour its own. On dark backgrounds, `#c7d2fe` and `#fbbf24`.
 - The files are in `brand/`: the mark for light and dark backgrounds, the avatar for GitHub and PyPI
   (with a 500 px PNG), and the favicons, which Gilde's own layout uses.
+
+## 2026-11-07: The wiki comes second; the CMS waits
+
+- **The wiki is the second app** (G-17), for a team's own knowledge next to its board. The CMS (G-18) went
+  to the Icebox on 6 November: with its content model and its look both in code, our own would largely
+  rebuild Wagtail, so when it is picked up the first question is whether Wagtail with a Gilde layer for
+  agents is the better route. Its design is on G-18.
+- **One tree of pages, addresses that follow it.** No spaces or books beside the pages: a page with pages
+  under it is one. An address is a page's place, and an old one keeps leading to its page.
+- **Links between pages are written as people name pages**, `[[Engineering/Deploying]]`, absolute or
+  relative as with folders, and are rewritten when a page moves, so a link stays readable and right. They
+  are a reference in core's Markdown, so a ticket can link to a page too.
+- **What a second app needed moved to core**: attachments, @-mentions, the writing help, the notification
+  helpers, what the REST APIs share, and `backlinks`, the registry through which a ticket lists the wiki
+  pages that name it. Each app keeps its own tables for comments, watchers and files.
+- How it is built: [wiki.md](wiki.md).

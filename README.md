@@ -11,8 +11,8 @@ Open-source Django apps that people and AI agents work on together. Each app ins
 Django project you already have, with its own login and its own users, and agents reach all of them
 through one MCP endpoint.
 
-The first app is **the board**, a kanban ticket tracker. **The wiki**, the team's own knowledge next to
-the board, is being built.
+The apps are **the board**, a kanban ticket tracker, and **the wiki**, the team's own knowledge next to
+it.
 
 ## What the board does
 
@@ -30,6 +30,18 @@ the board, is being built.
 - **A REST API and MCP tools** for working on tickets as on the pages: everything but deleting, uploading
   attachments, and making groups and columns.
 
+## What the wiki does
+
+- **Pages in one tree**: a page with pages under it is what elsewhere is a space or a folder. Addresses
+  follow the tree, and a page renamed or moved keeps its old address leading to it.
+- **Links between pages**, `[[Engineering/Deploying]]`, also from a ticket's text, that follow a page when
+  it moves. A page lists the pages that link to it, and a ticket the pages that name it.
+- **History**: every version kept, with who made it and through which agent; two versions side by side,
+  and an old one brought back.
+- **Comments, @-mentions and watchers**, images and files, search, translations, and pages downloaded as
+  Markdown.
+- **A REST API and MCP tools** for everything the pages do but uploading and downloading files.
+
 ## Why Gilde
 
 - **It fits into your Django project.** A few lines in your settings and one URL include. Your login,
@@ -45,8 +57,8 @@ the board, is being built.
   pages bring their own layout and assets, so they work behind a firewall and load nothing from
   elsewhere.
 
-Gilde is for teams that build on Django, want their tracker inside their own project, and work with
-AI agents.
+Gilde is for teams that build on Django, want their tracker and their wiki inside their own project, and
+work with AI agents.
 
 ## Design principles
 
@@ -71,7 +83,7 @@ AI agents.
 |---|---|
 | [`django-gilde-board`](packages/django-gilde-board/) | The kanban ticket tracker. |
 | [`django-gilde-connect`](packages/django-gilde-connect/) | Connecting agents: personal tokens, OAuth so Claude connects with the endpoint's address alone, and a "Connect an agent" page. Not needed if your project's own API logins are enough for your agents. |
-| [`django-gilde-wiki`](packages/django-gilde-wiki/) | The wiki: pages in Markdown, in one tree. Being built. |
+| [`django-gilde-wiki`](packages/django-gilde-wiki/) | The wiki: pages in Markdown, in one tree. |
 | [`django-gilde-core`](packages/django-gilde-core/) | What the apps share: the one MCP endpoint, people, notifications, and the checks on every way in. Comes with every app. |
 
 Django 5.2 LTS and 6.x, Python 3.11 and newer, any database Django supports.
@@ -107,7 +119,7 @@ logins, notifications, and moving your tickets over from another tracker.
 
 Young, and used for its own development: Gilde's own tickets are on a Gilde board, which people and
 agents work on together. What was decided and why is in [docs/decisions.md](docs/decisions.md). More apps
-are planned, starting with a CMS, then perhaps a wiki and a helpdesk.
+may follow, such as a CMS and a helpdesk.
 
 ## Contact and contributing
 

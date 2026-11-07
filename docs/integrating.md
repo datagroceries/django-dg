@@ -46,10 +46,10 @@ PostgreSQL too. Until 1.0, anything may change.
 ## Installing
 
 ```bash
-pip install django-gilde-board django-gilde-connect
+pip install django-gilde-board django-gilde-wiki django-gilde-connect
 ```
 
-That brings `django-gilde-core`, Django REST framework, django-simple-history and django-oauth-toolkit
+Take the apps you want: the board, the wiki or both. That brings `django-gilde-core`, Django REST framework, django-simple-history and django-oauth-toolkit
 with it. `django-gilde-connect` lets Claude and other agents connect; leave it out if your project has
 its own API logins and you need no Claude apps (see "Agents and the API").
 
@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'gilde.core',
     'gilde.connect',
     'gilde.board',
+    'gilde.wiki',
 ]
 ```
 
@@ -75,7 +76,7 @@ urlpatterns = [
 
 The include mounts every installed Gilde app and the shared endpoints under the prefix you choose:
 
-- the board at `gilde/board/`;
+- the board at `gilde/board/`, the wiki at `gilde/wiki/`;
 - the MCP endpoint at `gilde/mcp`;
 - with connect, the "Connect an agent" page and the OAuth endpoints at `gilde/connect/`.
 
@@ -94,16 +95,16 @@ Gilde also needs these from Django's usual setup, and `check` tells you if one i
 ## Who may use what
 
 Who may use an app is a Django permission of that app's. For the board it is "Can use the board",
-`gilde_board.use`. You grant it like any other permission:
+`gilde_board.use`; for the wiki "Can use the wiki", `gilde_wiki.use`. You grant it like any other permission:
 
 1. In the admin, make a group, say "Team".
-2. Give that group the permission "Can use the board".
+2. Give that group the permission "Can use the board", and "Can use the wiki".
 3. Put people in the group.
 
-Superusers have every permission. Until a group or a person gets it, nobody else may use the board, and
+Superusers have every permission. Until a group or a person gets it, nobody else may use the app, and
 `manage.py check` warns about that.
 
-The people who may use the board are its people: they can be assigned and @-mentioned there. Losing
+The people who may use an app are its people: they can be assigned and @-mentioned there. Losing
 the permission ends their access at once, on the pages and for every token or connected agent.
 
 ## Your users
@@ -290,6 +291,14 @@ A message goes out as a task once the change is committed:
 | `GILDE_BOARD_DISPLAY_TIMEZONE` | `TIME_ZONE` | the timezone the pages show times in |
 | `GILDE_BOARD_COLORS` | see `conf.py` | the colours of the column categories, of blocked tickets, and the accents that tell labels and people apart |
 | `GILDE_BOARD_GITHUB_REPOSITORY`, `_TOKEN`, `_WEBHOOK_SECRET` | empty | link code in a GitHub repository to the tickets it mentions: see the [board's README](../packages/django-gilde-board/README.md#github) |
+
+## The wiki's settings
+
+| Setting | Default | |
+|---|---|---|
+| `GILDE_WIKI_NAME` | `'Wiki'` | what the wiki is called on its pages |
+
+The wiki's pages offer the languages of your project's `LANGUAGES` for a page and its translations.
 
 ## What `manage.py check` tells you
 
