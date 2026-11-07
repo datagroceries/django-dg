@@ -82,7 +82,8 @@ def opens(request, scope: str) -> bool:
     `scope` (space-separated area names, as OAuth tokens and Gilde's personal tokens have), covers it."""
     if not request.user.is_authenticated or scope not in areas.scopes_for(request.user):
         return False
-    granted = getattr(request.auth, 'scope', None)
+    # A page's request, signed in with a session, has no `auth`, and so no token to narrow it.
+    granted = getattr(getattr(request, 'auth', None), 'scope', None)
     return not isinstance(granted, str) or scope in granted.split()
 
 

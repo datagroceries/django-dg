@@ -32,7 +32,7 @@ class PageQuerySet(models.QuerySet):
     def tree(self) -> list[Node]:
         """These pages as a tree, from one query: the pages without a parent among them, each with the
         pages under it, in their order."""
-        pages = list(self.only('id', 'parent_id', 'title', 'path', 'position'))
+        pages = list(self.only('id', 'parent_id', 'title', 'path', 'position', 'language'))
         nodes = {page.pk: Node(page) for page in pages}
         roots = []
         for page in pages:

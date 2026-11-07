@@ -1,6 +1,6 @@
 from django.urls import path
 
-from gilde.wiki import views
+from gilde.wiki import api, views
 
 app_name = 'gilde_wiki'
 
@@ -13,6 +13,18 @@ urlpatterns = [
     path('-/export/', views.wiki_export, name='wiki_export'),
     path('-/arrange/', views.tree_arrange, name='tree_arrange'),
     path('-/files/<int:pk>/<str:name>', views.attachment, name='attachment'),
+    # The REST API (api.py). A page's own parts come after "-/", as on the pages, so no page's address
+    # can be taken for one; the page itself comes last.
+    path('-/api/pages/', api.PageListCreateView.as_view(), name='api_pages'),
+    path('-/api/pages/<path:path>/-/history/', api.PageHistoryView.as_view(), name='api_page_history'),
+    path('-/api/pages/<path:path>/-/history/<int:version>/', api.PageVersionView.as_view(), name='api_page_version'),
+    path('-/api/pages/<path:path>/-/comments/', api.PageCommentsView.as_view(), name='api_page_comments'),
+    path(
+        '-/api/pages/<path:path>/-/comments/<int:comment_id>/', api.PageCommentView.as_view(), name='api_page_comment'
+    ),
+    path('-/api/pages/<path:path>/-/watch/', api.PageWatchView.as_view(), name='api_page_watch'),
+    path('-/api/pages/<path:path>/-/translations/', api.PageTranslationsView.as_view(), name='api_page_translations'),
+    path('-/api/pages/<path:path>/', api.PageDetailView.as_view(), name='api_page'),
     path('<path:path>/-/edit/', views.page_edit, name='page_edit'),
     path('<path:path>/-/move/', views.page_move, name='page_move'),
     path('<path:path>/-/delete/', views.page_delete, name='page_delete'),

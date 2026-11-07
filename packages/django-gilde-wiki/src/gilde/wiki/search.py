@@ -12,6 +12,8 @@ from django.db.models import Q
 from django.utils.html import escape
 from django.utils.safestring import SafeString, mark_safe
 
+from gilde.core.backlinks import Backlink
+from gilde.wiki.links import CODE_RE
 from gilde.wiki.models import Page
 
 MAX_WORDS = 10
@@ -67,3 +69,10 @@ def snippet(text: str, words: list[str]) -> SafeString:
     ellipsis_after = '…' if start + SNIPPET_LENGTH < len(plain) else ''
     # Every piece is escaped above.
     return mark_safe(f'{ellipsis_before}{"".join(marked)}{ellipsis_after}')  # noqa: S308
+
+
+def naming(name: str) -> list[Backlink]:
+    """The pages that name `name`, such as a ticket's key, as a word outside code (gilde.core.backlinks)."""
+    word = re.compile(rf'(?<![\w-]){re.escape(name)}(?![\w-])')
+    pages = Page.objects.filter(body__icontains=name).only('id', 'title', 'path', 'body').order_by('title')
+    return [Backlink(page.title, page.get_absolute_url()) for page in pages if word.search(CODE_RE.sub('', page.body))]

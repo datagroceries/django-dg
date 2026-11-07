@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 10:38+0100\n"
+"POT-Creation-Date: 2026-11-07 10:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -17,9 +17,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: apps.py:8 conf.py:10 mcp.py:11
+#: apps.py:8 conf.py:10 mcp.py:204
 msgid "Wiki"
 msgstr "Wiki"
+
+#: apps.py:22
+msgid "Wiki pages"
+msgstr "Wikipagina's"
 
 #: forms.py:26
 msgid "At the top"
@@ -507,16 +511,43 @@ msgstr ""
 "Typ woorden in het vak boven de pagina's: de pagina's die ze allemaal "
 "bevatten, staan dan hier."
 
-#: views.py:46
+#: versions.py:20
 msgid "Someone"
 msgstr "Iemand"
 
-#: views.py:52
+#: versions.py:26
 #, python-format
 msgid "via %(name)s"
 msgstr "via %(name)s"
 
-#: views.py:139
+#: versions.py:36
+msgid "Created"
+msgstr "Gemaakt"
+
+#: versions.py:39
+#, python-format
+msgid "Brought back the version of %(when)s"
+msgstr "De versie van %(when)s teruggezet"
+
+#: versions.py:42
+#, python-format
+msgid "Renamed to “%(title)s”"
+msgstr "Hernoemd naar “%(title)s”"
+
+#: versions.py:44
+msgid "Text changed"
+msgstr "Tekst gewijzigd"
+
+#: versions.py:47
+#, python-format
+msgid "Moved under “%(title)s”"
+msgstr "Verplaatst naar onder “%(title)s”"
+
+#: versions.py:47
+msgid "Moved to the top"
+msgstr "Naar boven verplaatst"
+
+#: views.py:120
 #, python-format
 msgid ""
 "%(who)s saved this page while you were editing it. Your text is still here: "
@@ -527,53 +558,26 @@ msgstr ""
 "nog: open de pagina in een ander tabblad om die van hen te zien, voeg de "
 "twee samen en sla opnieuw op om die van hen te vervangen."
 
-#: views.py:169
+#: views.py:150
 #, python-format
 msgid "“%(title)s” is deleted."
 msgstr "“%(title)s” is verwijderd."
 
-#: views.py:195
-msgid "Created"
-msgstr "Gemaakt"
-
-#: views.py:198
-#, python-format
-msgid "Brought back the version of %(when)s"
-msgstr "De versie van %(when)s teruggezet"
-
-#: views.py:201
-#, python-format
-msgid "Renamed to “%(title)s”"
-msgstr "Hernoemd naar “%(title)s”"
-
-#: views.py:203
-msgid "Text changed"
-msgstr "Tekst gewijzigd"
-
-#: views.py:206
-#, python-format
-msgid "Moved under “%(title)s”"
-msgstr "Verplaatst naar onder “%(title)s”"
-
-#: views.py:206
-msgid "Moved to the top"
-msgstr "Naar boven verplaatst"
-
-#: views.py:277
+#: views.py:225
 #, python-format
 msgid "The version of %(when)s is back."
 msgstr "De versie van %(when)s is teruggezet."
 
-#: views.py:298
+#: views.py:246
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
 
-#: views.py:331
+#: views.py:279
 msgid "A comment needs text."
 msgstr "Een reactie heeft tekst nodig."
 
-#: views.py:347
+#: views.py:295
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."
 

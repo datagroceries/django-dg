@@ -10,7 +10,7 @@
   {% for version in versions %}
     <li>
       <div>
-        <span class="fw-semibold">{{ version.by }}</span>{% if version.via %} <span class="wk-muted">{{ version.via }}</span>{% endif %}
+        <span class="fw-semibold">{{ version.name }}</span>{% if version.via %} <span class="wk-muted">{{ version.via }}</span>{% endif %}
         <span class="wk-muted">· {{ version.record.history_date|date:"SHORT_DATETIME_FORMAT" }}</span>
         {% if forloop.first %}<span class="badge text-bg-secondary ms-1">{% translate "Now" %}</span>{% endif %}
       </div>

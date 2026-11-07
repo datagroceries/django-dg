@@ -35,7 +35,7 @@ from gilde.board.forms import (
     fingerprint,
 )
 from gilde.board.models import KEY_RE, Attachment, CodeReference, Column, Comment, Group, Label, Relation, Ticket
-from gilde.core import attachments, people
+from gilde.core import attachments, backlinks, people
 
 board_required = people.may_use_required(SCOPE)
 
@@ -598,6 +598,7 @@ def ticket_detail(request, key):
             'open_blockers': ticket.open_blockers(),
             'block_reason': ticket.comments.filter(sets_blocked=True).last() if ticket.is_blocked else None,
             'attachments': ticket.attachments.all(),
+            'named_in': backlinks.find(request, ticket.key),
             # Pull requests first, then branches, then commits; newest first within each.
             'code_references': sorted(
                 ticket.code_references.all(),

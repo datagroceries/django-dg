@@ -12,6 +12,7 @@ from gilde.board.forms import fingerprint
 from gilde.board.models import RANK_GAP, Attachment, Column, Comment, Group, Label, Relation, Ticket, Watcher
 from gilde.board.templatetags.gilde_board import avatar
 from gilde.board.tests import member
+from gilde.core import backlinks
 from gilde.core.people import People
 from gilde.core.templatetags.gilde_core import render_markdown
 
@@ -666,6 +667,35 @@ class BoardTests(TicketTestCase):
         self.assertNotContains(mine, 'Made by a colleague')
         self.assertContains(their_board, 'Made by a colleague')
         self.assertNotContains(their_board, 'Made by me')
+
+
+class NamedInTests(TicketTestCase):
+    """What names a ticket in another app's text (gilde.core.backlinks), as the wiki's pages do."""
+
+    def setUp(self):
+        super().setUp()
+        self.ticket = self.make_ticket()
+
+    def register(self, scope):
+        def find(name):
+            return [backlinks.Backlink(f'Notes on {name}', '/notes/')] if name == self.ticket.key else []
+
+        source = backlinks.Source(scope, 'Notes', find)
+        backlinks.register(source)
+        self.addCleanup(backlinks.SOURCES.remove, source)
+
+    def test_the_ticket_lists_the_places_that_name_it(self):
+        self.register('board')
+
+        response = self.client.get(self.ticket.get_absolute_url())
+
+        self.assertContains(response, '<div class="tk-panel-title">Notes</div>', html=True)
+        self.assertContains(response, f'<a href="/notes/">Notes on {self.ticket.key}</a>', html=True)
+
+    def test_an_area_the_person_may_not_use_shows_nothing(self):
+        self.register('wiki')
+
+        self.assertNotContains(self.client.get(self.ticket.get_absolute_url()), 'Notes on')
 
 
 class AttachmentTests(TicketTestCase):

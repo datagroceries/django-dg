@@ -18,7 +18,8 @@ from gilde.board import notifications, operations
 from gilde.board.conf import SCOPE
 from gilde.board.forms import BlockForm, CommentForm, RelationForm
 from gilde.board.models import KEY_RE, Column, Comment, Group, Relation, Ticket
-from gilde.core import people
+from gilde.core import backlinks, people
+from gilde.core.api import form_errors, person, validated
 from gilde.core.authentication import GildeAuthentication, HasTokenScope
 
 LIST_LIMIT = 50
@@ -71,24 +72,6 @@ class CommentEditSerializer(serializers.Serializer):
     body = serializers.CharField(allow_blank=True, help_text='The whole new text, Markdown.')
 
 
-def _validated(serializer_class, request, **kwargs):
-    """The request body, checked by `serializer_class`, refusing fields it does not know."""
-    serializer = serializer_class(data=request.data, **kwargs)
-    unknown = sorted(set(request.data) - set(serializer.fields))
-    if unknown:
-        raise ValidationError({'unknown_fields': unknown})
-    serializer.is_valid(raise_exception=True)
-    return serializer.validated_data
-
-
-def _form_errors(form):
-    """A page form's errors as a 400; errors not tied to a field come under "detail"."""
-    errors = form.errors.get_json_data()
-    return ValidationError(
-        {('detail' if name == '__all__' else name): [e['message'] for e in field] for name, field in errors.items()},
-    )
-
-
 def _find(key: str, queryset=None) -> Ticket:
     """The ticket with this key."""
     queryset = queryset if queryset is not None else Ticket.objects.all()
@@ -97,12 +80,6 @@ def _find(key: str, queryset=None) -> Ticket:
     if ticket is None:
         raise NotFound(f'No ticket {key}.')
     return ticket
-
-
-def _person(user) -> dict | None:
-    """A person as the API shows them: by their handle, as @-mentions name them, with their email address
-    beside it when they have one."""
-    return {'name': people.name(user), 'handle': people.handle(user), 'email': people.email(user)} if user else None
 
 
 def _named(value: str):
@@ -161,7 +138,7 @@ def _summary(request, ticket: Ticket) -> dict:
         'group': ticket.column.group.slug,
         'column': ticket.column.name,
         'category': ticket.column.category,
-        'assignee': _person(ticket.assignee),
+        'assignee': person(ticket.assignee),
         'size': ticket.size,
         'labels': [label.name for label in ticket.labels.all()],
         'is_blocked': ticket.is_blocked,
@@ -175,7 +152,7 @@ def _comment(comment: Comment) -> dict:
     return {
         'id': comment.pk,
         'kind': kind,
-        'author': _person(comment.author),
+        'author': person(comment.author),
         'created_at': comment.created_at,
         'body': comment.body,
     }
@@ -189,7 +166,7 @@ def _detail(request, ticket: Ticket) -> dict:
     return {
         **_summary(request, ticket),
         'description': ticket.description,
-        'creator': _person(ticket.creator),
+        'creator': person(ticket.creator),
         'open_blockers': [blocker.key for blocker in ticket.open_blockers()],
         'relations': [
             {'kind': kind, 'key': other.key, 'title': other.title, 'category': other.column.category}
@@ -199,7 +176,7 @@ def _detail(request, ticket: Ticket) -> dict:
             {**_comment(comment), 'replies': [_comment(reply) for reply in comment.replies.all()]}
             for comment in comments
         ],
-        'watchers': [_person(watcher.user) for watcher in ticket.watchers.select_related('user')],
+        'watchers': [person(watcher.user) for watcher in ticket.watchers.select_related('user')],
         'attachments': [
             {'name': attachment.name, 'url': request.build_absolute_uri(attachment.get_absolute_url())}
             for attachment in ticket.attachments.all()
@@ -215,6 +192,12 @@ def _detail(request, ticket: Ticket) -> dict:
                 'url': reference.url,
             }
             for reference in ticket.code_references.all()
+        ],
+        # What names the ticket in the other Gilde apps, such as wiki pages.
+        'named_in': [
+            {'kind': str(source.label), 'title': place.title, 'url': request.build_absolute_uri(place.url)}
+            for source, places in backlinks.find(request, ticket.key)
+            for place in places
         ],
     }
 
@@ -287,7 +270,7 @@ class TicketListCreateView(TicketApiView):
         )
 
     def post(self, request):
-        data = _validated(TicketCreateSerializer, request)
+        data = validated(TicketCreateSerializer, request)
         with transaction.atomic():
             column = _column(_group(data.get('group')), data.get('column'))
             if column is None:
@@ -312,7 +295,7 @@ class TicketDetailView(TicketApiView):
         return Response(_detail_of(request, _find(key)))
 
     def patch(self, request, key):
-        data = _validated(TicketFieldsSerializer, request, partial=True)
+        data = validated(TicketFieldsSerializer, request, partial=True)
         with transaction.atomic():
             ticket = _find(key, Ticket.objects.select_for_update().select_related('column__group'))
             group = _group(data.get('group'))
@@ -340,14 +323,14 @@ class TicketDetailView(TicketApiView):
 
 class TicketCommentsView(TicketApiView):
     def post(self, request, key):
-        data = _validated(CommentSerializer, request)
+        data = validated(CommentSerializer, request)
         ticket = _find(key)
         form = CommentForm(
             {'body': data['body'], 'parent': data.get('parent')},
             instance=Comment(ticket=ticket, author=request.user),
         )
         if not form.is_valid():
-            raise _form_errors(form)
+            raise form_errors(form)
         return Response(_comment(operations.add_comment(request, form)), status=status.HTTP_201_CREATED)
 
 
@@ -361,7 +344,7 @@ class TicketCommentView(TicketApiView):
             raise NotFound(f'No comment {comment_id} on {ticket.key}.')
         if comment.author_id != request.user.pk:
             raise PermissionDenied('Only its author can edit a comment.')
-        body = _validated(CommentEditSerializer, request)['body'].strip()
+        body = validated(CommentEditSerializer, request)['body'].strip()
         # A comment that blocked or unblocked the ticket may go without a reason, as when it was made.
         if not body and comment.sets_blocked is None:
             raise ValidationError({'body': ['A comment needs text.']})
@@ -371,16 +354,16 @@ class TicketCommentView(TicketApiView):
 
 class TicketRelationsView(TicketApiView):
     def post(self, request, key):
-        data = _validated(RelationSerializer, request)
+        data = validated(RelationSerializer, request)
         ticket = _find(key)
         form = RelationForm({'kind': data['kind'], 'other': data['ticket']}, ticket=ticket)
         if not form.is_valid():
-            raise _form_errors(form)
+            raise form_errors(form)
         form.relation.save()
         return Response(_detail_of(request, ticket), status=status.HTTP_201_CREATED)
 
     def delete(self, request, key):
-        data = _validated(RelationSerializer, request)
+        data = validated(RelationSerializer, request)
         ticket, other = _find(key), _find(data['ticket'])
         relation_type, reversed_ = RelationForm.KINDS[data['kind']]
         source, target = (other, ticket) if reversed_ else (ticket, other)
@@ -399,7 +382,7 @@ class TicketRelationsView(TicketApiView):
 
 class TicketBlockView(TicketApiView):
     def post(self, request, key):
-        data = _validated(BlockSerializer, request)
+        data = validated(BlockSerializer, request)
         with transaction.atomic():
             ticket = _find(key, Ticket.objects.select_for_update())
             if data['blocked'] == ticket.is_blocked:
@@ -407,7 +390,7 @@ class TicketBlockView(TicketApiView):
                 raise ValidationError({'blocked': [f'{ticket.key} is already {state}.']})
             form = BlockForm({'reason': data['reason']}, ticket=ticket)
             if not form.is_valid():
-                raise _form_errors(form)
+                raise form_errors(form)
             operations.toggle_blocked(request, ticket, form.cleaned_data['reason'])
         return Response(_detail_of(request, ticket))
 

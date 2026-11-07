@@ -21,3 +21,8 @@
   downloaded as Markdown, with its images and the links between the pages kept.
 - A language per page, and translations beside it that link to each other and say when the page they
   translate changed after them.
+- A REST API and MCP tools for everything the pages do but uploading files and downloading: finding,
+  reading, writing, moving and deleting pages, their history, comments, watching and translations. A
+  change to a page's text may say the version it started from, and is refused when the page changed
+  since.
+- A ticket lists the wiki pages that name its key, while the board is installed too.

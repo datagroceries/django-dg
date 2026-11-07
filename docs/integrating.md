@@ -209,7 +209,9 @@ Leave every other Gilde template alone; they change between versions.
 ## Agents and the API
 
 Every app has a REST API and tools on the one MCP endpoint, and both act as the person who connected
-them, under the same rules as the pages. How a program gets in depends on what your project has.
+them, under the same rules as the pages: the board's API at `gilde/board/api/tickets/`, the wiki's at
+`gilde/wiki/-/api/pages/`, and their tools, such as `search_tickets` and `get_page`, at `gilde/mcp`. How
+a program gets in depends on what your project has.
 
 **The Claude connector, with `django-gilde-connect`.** Everyone finds a "Connect an agent" page at
 `gilde/connect/`, linked from each app, which says how:

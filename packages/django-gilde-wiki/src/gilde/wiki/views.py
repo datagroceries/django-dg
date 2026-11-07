@@ -6,12 +6,11 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from django.utils import formats, timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from gilde.core import attachments, markdown, people
-from gilde.wiki import export, operations, search
+from gilde.wiki import export, operations, search, versions
 from gilde.wiki.compare import side_by_side
 from gilde.wiki.conf import SCOPE
 from gilde.wiki.forms import ArrangeForm, CommentForm, MoveForm, NewPageForm, PageForm, TranslateForm, fingerprint
@@ -32,24 +31,6 @@ def _page(path: str) -> Page:
 def _last_change(page: Page):
     """The newest history record of the page, which says who last changed it, when, and how."""
     return page.history.select_related('history_user').first()
-
-
-def _changed_by(page: Page, record):
-    """Who made the change `record` holds. A page made outside a request, as by a script, has no one in
-    its first record, but has its creator."""
-    if record is None:
-        return None
-    return record.history_user or (page.creator if record.history_type == '+' else None)
-
-
-def _name(user) -> str:
-    return people.name(user) if user else _('Someone')
-
-
-def _via(record) -> str:
-    """The history keeps "via Claude Code on my laptop" in English; it shows in the reader's language."""
-    reason = (record.history_change_reason or '') if record else ''
-    return _('via %(name)s') % {'name': reason.removeprefix('via ')} if reason.startswith('via ') else ''
 
 
 @wiki_required
@@ -84,8 +65,8 @@ def page(request, path):
         'attachments': found.attachments.all(),
         'backlinks': Page.objects.filter(links__target=found).exclude(pk=found.pk).order_by('title').distinct(),
         'last_change': last_change,
-        'last_changed_by': _name(_changed_by(found, last_change)),
-        'last_changed_via': _via(last_change),
+        'last_changed_by': versions.name(versions.changed_by(found, last_change)),
+        'last_changed_via': versions.via(last_change),
         'comments': _comments(found),
         'comment_form': CommentForm(page=found),
         'watchers': [watcher.user for watcher in found.watchers.select_related('user')],
@@ -139,7 +120,7 @@ def page_edit(request, path):
                     '%(who)s saved this page while you were editing it. Your text is still here: open the page '
                     'in another tab to see theirs, put the two together, and save again to replace theirs.'
                 )
-                % {'who': _name(_last_change(stored).history_user)},
+                % {'who': versions.name(_last_change(stored).history_user)},
             )
             # The next save is made knowing what it replaces.
             form.data = form.data.copy()
@@ -185,46 +166,11 @@ def tree_arrange(request):
     return JsonResponse({'tree': tree, 'url': current.get_absolute_url() if current else None})
 
 
-def _when(moment) -> str:
-    return formats.date_format(timezone.localtime(moment), 'SHORT_DATETIME_FORMAT')
-
-
-def _changes(record, previous, earlier: dict, parents: dict) -> list[str]:
-    """What `record` changed since `previous`, the version before it, in words."""
-    if previous is None:
-        return [_('Created')]
-    if record.restored_from:
-        restored = earlier.get(record.restored_from)
-        return [_('Brought back the version of %(when)s') % {'when': _when(restored.history_date) if restored else '?'}]
-    changes = []
-    if record.title != previous.title:
-        changes.append(_('Renamed to “%(title)s”') % {'title': record.title})
-    if record.body != previous.body:
-        changes.append(_('Text changed'))
-    if record.parent_id != previous.parent_id:
-        parent = parents.get(record.parent_id)
-        changes.append(_('Moved under “%(title)s”') % {'title': parent.title} if parent else _('Moved to the top'))
-    return changes
-
-
 @wiki_required
 def page_history(request, path):
     """Every version of the page, newest first, with who made it and what it changed."""
     shown = _page(path)
-    records = list(shown.history.select_related('history_user'))
-    earlier = {record.history_id: record for record in records}
-    parents = Page.objects.in_bulk({record.parent_id for record in records if record.parent_id})
-    versions = [
-        {
-            'record': record,
-            'previous': previous,
-            'by': _name(_changed_by(shown, record)),
-            'via': _via(record),
-            'changes': _changes(record, previous, earlier, parents),
-        }
-        for record, previous in zip(records, [*records[1:], None], strict=True)
-    ]
-    context = {'page': shown, 'ancestors': shown.ancestors(), 'versions': versions}
+    context = {'page': shown, 'ancestors': shown.ancestors(), 'versions': versions.of(shown)}
     return render(request, 'gilde_wiki/page_history.html', context)
 
 
@@ -253,7 +199,9 @@ def page_compare(request, path, version):
     else:
         older, newer = sorted([other, record], key=lambda each: (each.history_date, each.history_id))
     sides = [
-        {'record': each, 'by': _name(_changed_by(shown, each)), 'current': _says(shown, each)} if each else None
+        {'record': each, 'by': versions.name(versions.changed_by(shown, each)), 'current': _says(shown, each)}
+        if each
+        else None
         for each in (older, newer)
     ]
     context = {
@@ -274,7 +222,7 @@ def page_restore(request, path, version):
     shown = _page(path)
     record = get_object_or_404(shown.history, history_id=version)
     operations.restore(request, shown, record)
-    messages.success(request, _('The version of %(when)s is back.') % {'when': _when(record.history_date)})
+    messages.success(request, _('The version of %(when)s is back.') % {'when': versions.when(record.history_date)})
     return redirect(shown)
 
 
@@ -318,7 +266,7 @@ def _comments(page: Page) -> list[Comment]:
     edited = set(records.filter(history_type='~').values_list('id', flat=True))
     for comment in comments:
         for each in (comment, *comment.replies.all()):
-            each.via, each.edited = _via(created.get(each.pk)), each.pk in edited
+            each.via, each.edited = versions.via(created.get(each.pk)), each.pk in edited
     return comments
 
 

@@ -331,6 +331,16 @@
           </form>
         </div>
 
+        {% for source, places in named_in %}
+          {# What names this ticket in another Gilde app, such as the wiki (gilde.core.backlinks). #}
+          <div class="tk-panel">
+            <div class="tk-panel-title">{{ source.label }}</div>
+            {% for place in places %}
+              <div class="tk-relation"><i class="bi bi-journal-text tk-muted"></i> <a href="{{ place.url }}">{{ place.title }}</a></div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
         <div class="tk-panel">
           <div class="tk-panel-title">{% translate "Attachments" %}</div>
           {% if attachments %}
