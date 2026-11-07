@@ -1,5 +1,15 @@
 # Changelog of django-dg-board
 
+## Unreleased
+
+Needs the next django-dg-core, for `People.may`.
+
+- **Access per group**, as the project decides in `People.may`: who may read, comment, write or manage
+  each group, on the pages and in the API and MCP tools alike (`access.py`). Who may not read a group
+  does not see its tickets anywhere, a relation to one shows as a ticket they cannot see, and they
+  neither hear about it nor can be assigned it. Controls show only to whoever may use them. By default
+  nothing changes: whoever may use the board may do everything.
+
 ## 1.1.0 (2026-11-07)
 
 Needs django-dg-core 1.1.0.

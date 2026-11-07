@@ -3,7 +3,7 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -12,7 +12,7 @@ from datagroceries.board.forms import fingerprint
 from datagroceries.board.models import RANK_GAP, Attachment, Column, Comment, Group, Label, Relation, Ticket, Watcher
 from datagroceries.board.templatetags.dg_board import avatar
 from datagroceries.board.tests import member
-from datagroceries.core import backlinks
+from datagroceries.core import backlinks, history
 from datagroceries.core.people import People
 from datagroceries.core.templatetags.dg_core import render_markdown
 from datagroceries.core.tests import addressed
@@ -903,7 +903,11 @@ class TicketLinkTests(TicketTestCase):
     def test_a_key_becomes_a_link_but_not_in_code_or_when_no_ticket_has_it(self):
         ticket = self.make_ticket('Linked one')
 
-        html = render_markdown(f'See {ticket.key}, UTF-8 and `{ticket.key}`.')
+        request = RequestFactory().get('/')
+        request.user = self.user
+        # Its title shows to the viewer of the page being served, who may read it.
+        with history.recording(request):
+            html = render_markdown(f'See {ticket.key}, UTF-8 and `{ticket.key}`.')
 
         self.assertIn(f'href="{ticket.get_absolute_url()}" title="Linked one"', html)
         self.assertIn(f'>{ticket.key}</a>,', html)

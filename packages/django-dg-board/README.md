@@ -62,6 +62,11 @@ people: they can be assigned and @-mentioned. Each one's @-handle is their usern
 project that sees its people differently, such as by a nickname, a photo or rules of its own, names a
 subclass of `datagroceries.core.people.People` in `DG_PEOPLE`; that module says how.
 
+What someone may do in each group is the same class's `may(user, right, group)`: `read`, `comment`,
+`write` or `manage`, each including the ones before it. By default everyone who may use the board may do
+everything; a project that wants less overrides `may`. Every page, API call and MCP tool asks it, through
+`access.py`, so an agent never does more than its person may.
+
 **Settings.** `DG_BOARD_NAME`, `DG_BOARD_KEY_PREFIX` and `DG_BOARD_COLORS`, each with a default
 (`conf.py`), and the GitHub settings below. Avatars are an image when the project's `People` gives one, and initials otherwise (`datagroceries.core.people`).
 

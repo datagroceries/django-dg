@@ -10,13 +10,14 @@
                 data-show="{% blocktranslate with title=lane.title %}Show {{ title }}{% endblocktranslate %}"
                 data-collapse="{% blocktranslate with title=lane.title %}Collapse {{ title }}{% endblocktranslate %}"
                 title="{% blocktranslate with title=lane.title %}Collapse {{ title }}{% endblocktranslate %}"><i class="bi bi-arrows-collapse-vertical"></i></button>
-        {% if lane.column %}<a class="tk-lane-add" href="{% url 'dg_board:ticket_create' %}?column={{ lane.column.pk }}" title="{% blocktranslate with title=lane.title %}New ticket in {{ title }}{% endblocktranslate %}{% if forloop.first %} (c){% endif %}" data-tk-new-ticket><i class="bi bi-plus-lg"></i></a>{% endif %}
+        {% if lane.column and lane.column.group_id in writable %}<a class="tk-lane-add" href="{% url 'dg_board:ticket_create' %}?column={{ lane.column.pk }}" title="{% blocktranslate with title=lane.title %}New ticket in {{ title }}{% endblocktranslate %}{% if forloop.first %} (c){% endif %}" data-tk-new-ticket><i class="bi bi-plus-lg"></i></a>{% endif %}
       </header>
-      <div class="tk-lane-cards"{% if lane.column %} data-column="{{ lane.column.pk }}"{% endif %}>
+      {# Cards drag only where they may be moved. #}
+      <div class="tk-lane-cards"{% if lane.column and lane.column.group_id in writable %} data-column="{{ lane.column.pk }}"{% endif %}>
         {% for ticket in lane.tickets %}{% include 'dg_board/_card.html' %}{% empty %}<div class="tk-lane-empty">{% translate "No tickets" %}</div>{% endfor %}
       </div>
       {# Below the last card, outside the sortable list so a drag never lands behind it. #}
-      {% if lane.column %}<div class="tk-lane-append"><a class="tk-insert-end" href="{% url 'dg_board:ticket_create' %}?column={{ lane.column.pk }}" data-quick-create title="{% blocktranslate with title=lane.title %}New ticket at the bottom of {{ title }}{% endblocktranslate %}">+</a></div>{% endif %}
+      {% if lane.column and lane.column.group_id in writable %}<div class="tk-lane-append"><a class="tk-insert-end" href="{% url 'dg_board:ticket_create' %}?column={{ lane.column.pk }}" data-quick-create title="{% blocktranslate with title=lane.title %}New ticket at the bottom of {{ title }}{% endblocktranslate %}">+</a></div>{% endif %}
     </section>
   {% endfor %}
 </div>

@@ -22,7 +22,8 @@ PostgreSQL too. Until 1.0, anything may change.
 **What you may write**, only to fit DataGroceries to your project:
 
 - settings, each with a default (below);
-- one class that says how DataGroceries sees your users (`People`);
+- one class that says how DataGroceries sees your users (`People`), and what each may do in each of the
+  board's groups;
 - your own version of one template, to show DataGroceries' pages inside your own layout;
 - the classes of your own API logins, or the address of your own OAuth server, so your people need no
   second token.
@@ -107,6 +108,46 @@ Superusers have every permission. Until a group or a person gets it, nobody else
 The people who may use an app are its people: they can be assigned and @-mentioned there. Losing
 the permission ends their access at once, on the pages and for every token or connected agent.
 
+### Per group of the board
+
+Whoever may use the board may do everything in every group, unless you say otherwise. To give some
+people less, override `may(user, right, group)` in your `People` class (below). The board asks it
+wherever it shows or changes something, on the pages and in the API and MCP tools alike, with one of four
+rights, each including the ones before it:
+
+| Right | Lets someone |
+|---|---|
+| `read` | see the group's tickets, search them and watch them |
+| `comment` | also comment |
+| `write` | also create, change, move, assign, relate and delete tickets |
+| `manage` | also change the group's name, columns and settings, and delete it; with `group` None, make new groups |
+
+Who may not read a group does not see its tickets anywhere: not on the board, in a search or the API. A
+page of one is not found, a relation to one shows as "a ticket you cannot see", and they do not hear
+about it, nor can it be assigned to them. Moving a ticket to another group needs `write` in both.
+
+There is no table, setting or page of DataGroceries' own for this: you decide in `may`, with whatever your
+project already has, such as Django's `has_perm`, django-guardian or a model of your own.
+`datagroceries.core.people.includes(granted, right)` says whether one right includes another:
+
+```python
+from datagroceries.core.people import People, includes
+
+
+class OurPeople(People):
+    def may(self, user, right, group):
+        if user.is_superuser:
+            return True
+        if group is None:  # making a new group
+            return False
+        # A model of the project's own: which right each team has in which group.
+        granted = Access.objects.filter(team__members=user, group_slug=group.slug).values_list('right', flat=True)
+        return any(includes(each, right) for each in granted)
+```
+
+`may` is asked often, a few times for each page, so keep it to a query or two, or remember its answers
+for the length of a request.
+
 ## Your users
 
 DataGroceries sees your users through one class, `datagroceries.core.people.People`. Its defaults:
@@ -114,6 +155,7 @@ DataGroceries sees your users through one class, `datagroceries.core.people.Peop
 | Method | Default |
 |---|---|
 | `may_use(user, area)` | an active user with the area's permission |
+| `may(user, right, group)` | True: whoever may use the board may do everything in every group (above) |
 | `members(area)` | everyone who may use the area, sorted by name |
 | `name(user)` | first and last name, or a `name` field, or else the username |
 | `short_name(user)` | the first name, or the first word of the name |

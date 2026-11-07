@@ -9,6 +9,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
+from datagroceries.board import access
 from datagroceries.board.conf import SCOPE
 from datagroceries.board.models import KEY_RE, Column, Comment, Group, Label, Relation, Ticket
 from datagroceries.core import people
@@ -19,10 +20,10 @@ class PersonChoiceField(forms.ModelChoiceField):
         return people.name(obj)
 
 
-def column_choices() -> list[tuple[str, list[tuple[int, str]]]]:
-    """Every column, grouped per group: picking a column of another group moves the ticket there."""
+def column_choices(groups) -> list[tuple[str, list[tuple[int, str]]]]:
+    """Every column of `groups`, grouped per group: picking a column of another group moves the ticket there."""
     choices: dict[str, list[tuple[int, str]]] = {}
-    for column in Column.objects.select_related('group'):
+    for column in Column.objects.filter(group__in=groups).select_related('group'):
         choices.setdefault(column.group.name, []).append((column.pk, column.name))
     return list(choices.items())
 
@@ -49,9 +50,10 @@ class TicketForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user, **kwargs):
+        """A new ticket by `user`, in a column of a group they may write in."""
         super().__init__(*args, **kwargs)
-        self.fields['column'].choices = column_choices()
+        self.fields['column'].choices = column_choices(access.groups(user, access.WRITE))
         self.fields['assignee'].queryset = people.members(SCOPE)
         self.fields['assignee'].widget.attrs['data-tk-select'] = ''
         self.fields['assignee'].empty_label = _('Unassigned')
@@ -62,7 +64,14 @@ class TicketForm(forms.ModelForm):
         )
 
     def clean_column(self):
-        return Column.objects.get(pk=self.cleaned_data['column'])
+        return Column.objects.select_related('group').get(pk=self.cleaned_data['column'])
+
+    def clean(self):
+        cleaned = super().clean()
+        column, assignee = cleaned.get('column'), cleaned.get('assignee')
+        if column and assignee and not access.readers(column.group, [assignee]):
+            self.add_error('assignee', _('%(person)s may not see this group.') % {'person': people.name(assignee)})
+        return cleaned
 
     def clean_labels_text(self):
         names = {name.strip() for name in self.cleaned_data['labels_text'].split(',')}
@@ -165,15 +174,17 @@ class RelationForm(forms.Form):
         widget=forms.TextInput(attrs={'placeholder': f'{settings.DG_BOARD_KEY_PREFIX}-123'}),
     )
 
-    def __init__(self, *args, ticket: Ticket, **kwargs):
+    def __init__(self, *args, ticket: Ticket, user, **kwargs):
+        """A relation of `ticket` that `user` adds, to another ticket they may read."""
         super().__init__(*args, **kwargs)
-        self.ticket = ticket
+        self.ticket, self.user = ticket, user
 
     def clean_other(self):
         match = KEY_RE.match(self.cleaned_data['other'].strip().upper())
-        if not match or not Ticket.objects.filter(pk=int(match[1])).exists():
+        other = access.tickets(self.user).filter(pk=int(match[1])).first() if match else None
+        if other is None:
             raise ValidationError(_('No such ticket.'))
-        return Ticket.objects.get(pk=int(match[1]))
+        return other
 
     def clean(self):
         cleaned = super().clean()

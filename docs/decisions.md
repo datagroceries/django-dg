@@ -239,6 +239,7 @@ complete as we like.*
   would have to add it to `AUTHENTICATION_BACKENDS`, and projects with backends of their own would have to
   fit it in. An integrator who wants restrictions uses `has_perm`, django-guardian or a model of their own
   inside the hook.
+  *Built on 7 November, as described; the demo lets visitors work on tickets but not manage groups.*
 
 ## 2026-11-07: Notifications are a hook (G-47)
 

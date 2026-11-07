@@ -19,7 +19,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from datagroceries.board import github, notifications, operations
+from datagroceries.board import access, github, notifications, operations
+from datagroceries.board.access import COMMENT, MANAGE, READ, WRITE
 from datagroceries.board.activity import build_feed
 from datagroceries.board.conf import SCOPE
 from datagroceries.board.forms import (
@@ -106,14 +107,18 @@ def _card_tickets():
             comment_count=Coalesce(Subquery(comment_count), 0),
             parent_pk=Subquery(parent_link.values('source')[:1]),
             parent_title=Subquery(parent_link.values('source__title')[:1]),
+            parent_group=Subquery(parent_link.values('source__column__group')[:1]),
         )
         .order_by(*LANE_ORDER)
     )
 
 
-def _count_children(tickets: list[Ticket]):
-    """Give each ticket its card's count of done children, and its parent's key."""
-    children = Relation.objects.filter(type=Relation.Type.PARENT_OF, source__in=tickets).values_list(
+def _count_children(tickets: list[Ticket], readable: set[int]):
+    """Give each ticket its card's count of done children, and its parent's key, counting and naming only
+    tickets in the groups `readable`."""
+    children = Relation.objects.filter(
+        type=Relation.Type.PARENT_OF, source__in=tickets, target__column__group__in=readable
+    ).values_list(
         'source_id',
         'target__column__category',
     )
@@ -123,6 +128,8 @@ def _count_children(tickets: list[Ticket]):
         progress[parent_id] = (done + (category == Column.Category.DONE), total + 1)
     for ticket in tickets:
         ticket.children_done, ticket.children_total = progress.get(ticket.pk, (0, 0))
+        if ticket.parent_pk and ticket.parent_group not in readable:
+            ticket.parent_pk = ticket.parent_title = None
         ticket.parent_key = f'{settings.DG_BOARD_KEY_PREFIX}-{ticket.parent_pk}' if ticket.parent_pk else None
 
 
@@ -186,11 +193,11 @@ def _family(parent) -> set[int]:
     return family
 
 
-def _filter_people(group, assignees, creators):
+def _filter_people(user, group, assignees, creators):
     """Whom the assignee and creator filters offer: the people assigned to, or who created, a ticket on
-    this board, whatever the other filters are; someone chosen already stays, so the choice can be taken
-    off again."""
-    on_board = Ticket.objects.on_board()
+    this board that `user` may see, whatever the other filters are; someone chosen already stays, so the
+    choice can be taken off again."""
+    on_board = access.tickets(user, Ticket.objects.on_board())
     if group:
         on_board = on_board.filter(column__group=group)
     chosen = [int(value) for value in assignees if value not in ('me', 'none')]
@@ -209,9 +216,10 @@ def board(request):
     # The board opens as its viewer left it: the group and filters they last chose, not the text search.
     if not request.GET and (remembered := request.session.get(BOARD_SESSION_KEY)):
         return redirect(f'{request.path}?{remembered}')
-    groups = list(Group.objects.all())
+    groups = access.groups(request.user, READ)
+    may_make_groups = access.may(request.user, MANAGE, None)
     if not groups:
-        return render(request, 'dg_board/board.html', {'groups': groups})
+        return render(request, 'dg_board/board.html', {'groups': groups, 'may_make_groups': may_make_groups})
 
     slug = request.GET.get('group')
     group = None if slug == 'all' else next((g for g in groups if g.slug == slug), None) if slug else groups[0]
@@ -225,7 +233,7 @@ def board(request):
     # its number alone ("831"). Without it, as the board filters while the search is typed, the search only
     # filters: that URL, reloaded or come back to, shows the board again.
     opening = 'open' in request.GET
-    if opening and (best := Ticket.objects.search(query).first()) and best.search_rank == 0:
+    if opening and (best := access.tickets(request.user).search(query).first()) and best.search_rank == 0:
         return redirect(best)
     # A search is a one-off, from the board or the Command Center: it leaves the remembered view alone.
     if not query:
@@ -233,7 +241,7 @@ def board(request):
             [(key, value) for key, values in request.GET.lists() if key not in ('q', 'open') for value in values],
         )
 
-    tickets = _card_tickets()
+    tickets = access.tickets(request.user, _card_tickets())
     assignees, creators, labels = (request.GET.getlist(name) for name in ('assignee', 'creator', 'label'))
     show = request.GET.get('show', 'all')
     if show not in BOARD_SHOW:
@@ -245,7 +253,7 @@ def board(request):
     parent = None
     if parent_key := request.GET.get('parent'):
         match = KEY_RE.match(parent_key)
-        parent = Ticket.objects.filter(pk=int(match[1])).first() if match else None
+        parent = access.tickets(request.user).filter(pk=int(match[1])).first() if match else None
         if parent is None:
             # A remembered parent that has been deleted since.
             request.session.pop(BOARD_SESSION_KEY, None)
@@ -259,9 +267,9 @@ def board(request):
     if opening and query and len(tickets) == 1:
         # One match for a word is as good as its key.
         return redirect(tickets[0])
-    _count_children(tickets)
+    _count_children(tickets, {g.pk for g in groups})
 
-    users, creator_users = _filter_people(group, assignees, creators)
+    users, creator_users = _filter_people(request.user, group, assignees, creators)
     other_filters = (
         [('assignee', v) for v in assignees]
         + [('creator', v) for v in creators]
@@ -280,7 +288,11 @@ def board(request):
             'users': users,
             'creator_users': creator_users,
             # Everyone a card can be assigned to, unlike the assignee filter's people with a ticket here.
-            'assignable_users': people.members(SCOPE),
+            'assignable_users': access.readers(group, people.members(SCOPE)) if group else people.members(SCOPE),
+            # Where cards may be added, dragged and assigned, and which groups' settings may be changed.
+            'writable': {g.pk for g in access.groups(request.user, WRITE)},
+            'manageable': {g.pk for g in access.groups(request.user, MANAGE)},
+            'may_make_groups': may_make_groups,
             'labels': Label.objects.all(),
             'filters': filters,
             'show_options': BOARD_SHOW.items(),
@@ -297,7 +309,7 @@ def board(request):
 @board_required
 def ticket_search(request):
     """The tickets `q` finds, best first, for autocomplete fields."""
-    tickets = Ticket.objects.search(request.GET.get('q', '')).select_related('column')[:20]
+    tickets = access.tickets(request.user).search(request.GET.get('q', '')).select_related('column')[:20]
     return JsonResponse(
         {'results': [{'key': t.key, 'title': t.title, 'category': t.column.category} for t in tickets]},
     )
@@ -308,6 +320,7 @@ def ticket_search(request):
 def ticket_quick_create(request):
     """Create a ticket from a title typed into a board column, and return its card for the board."""
     column = get_object_or_404(Column.objects.select_related('group'), pk=int(request.POST['column']))
+    access.require(request.user, WRITE, column.group)
     title = request.POST.get('title', '').strip()[:255]
     if not title:
         return JsonResponse({'error': 'A ticket needs a title.'}, status=400)
@@ -316,15 +329,21 @@ def ticket_quick_create(request):
     # What the board's query annotates, for a ticket that has none of it yet.
     ticket.comment_count = ticket.children_done = ticket.children_total = 0
     ticket.has_open_blocker, ticket.block_reason = False, None
-    card = render_to_string('dg_board/_card.html', {'ticket': ticket, 'group': column.group}, request=request)
+    card = render_to_string(
+        'dg_board/_card.html',
+        {'ticket': ticket, 'group': column.group, 'writable': {column.group_id}},
+        request=request,
+    )
     return JsonResponse({'key': ticket.key, 'html': card})
 
 
 @board_required
 @require_POST
 def ticket_move(request, pk):
-    ticket = get_object_or_404(Ticket, pk=pk)
-    column = get_object_or_404(Column, pk=int(request.POST['column']))
+    ticket = access.ticket(request.user, pk, Ticket.objects.select_related('column__group'))
+    column = get_object_or_404(Column.objects.select_related('group'), pk=int(request.POST['column']))
+    access.require(request.user, WRITE, ticket.column.group)
+    access.require(request.user, WRITE, column.group)
     before = int(request.POST['before']) if request.POST.get('before') else None
     operations.move(request, ticket, column, **_drop_place(column, before, moving=ticket))
     return JsonResponse({'key': ticket.key})
@@ -335,9 +354,10 @@ def ticket_move(request, pk):
 def ticket_reorder(request, pk):
     """Move a ticket just above `before` or just below `after` in the order of all tickets, from a
     list of related tickets on a ticket page; its column stays."""
-    ticket = get_object_or_404(Ticket, pk=pk)
+    ticket = access.ticket(request.user, pk, Ticket.objects.select_related('column__group'))
+    access.require(request.user, WRITE, ticket.column.group)
     side = 'before' if request.POST.get('before') else 'after'
-    neighbour = get_object_or_404(Ticket.objects.exclude(pk=pk), pk=int(request.POST[side]))
+    neighbour = access.ticket(request.user, int(request.POST[side]), Ticket.objects.exclude(pk=pk))
     ticket.move_to(ticket.column, **{side: neighbour})
     return JsonResponse({'key': ticket.key})
 
@@ -346,8 +366,9 @@ def ticket_reorder(request, pk):
 def ticket_create(request):
     # The board's "+" above a card passes that card as `before`; its column is where the new one goes.
     before = int(request.GET['before']) if request.GET.get('before') else None
-    column_id = get_object_or_404(Ticket, pk=before).column_id if before else request.GET.get('column')
-    form = TicketForm(request.POST or None, initial={'column': column_id})
+    column_id = access.ticket(request.user, before).column_id if before else request.GET.get('column')
+    # Its column is one of a group the user may write in: TicketForm offers only those.
+    form = TicketForm(request.POST or None, initial={'column': column_id}, user=request.user)
     if request.method == 'POST' and form.is_valid():
         data, column = form.cleaned_data, form.cleaned_data['column']
         ticket = operations.create(
@@ -371,21 +392,28 @@ def ticket_update(request, pk):
     it as soon as it changes. A new assignee comes back as the card shows it."""
     field, values = request.POST['field'], request.POST.getlist('value')
     with transaction.atomic():
-        ticket = get_object_or_404(Ticket.objects.select_for_update().select_related('column__group'), pk=pk)
+        ticket = access.ticket(request.user, pk, Ticket.objects.select_for_update().select_related('column__group'))
+        access.require(request.user, WRITE, ticket.column.group)
         if field == 'column':
             column = get_object_or_404(Column, pk=int(values[0]), group=ticket.column.group)
             if column != ticket.column:
                 operations.move(request, ticket, column)
         elif field == 'group':
             group = get_object_or_404(Group, pk=int(values[0]))
+            access.require(request.user, WRITE, group)
             try:
                 operations.move_to_group(request, ticket, group)
             except ValidationError as error:
                 return JsonResponse({'error': error.message}, status=400)
         elif field == 'assignee':
             assignee = get_object_or_404(people.members(SCOPE), pk=int(values[0])) if values[0] else None
+            if assignee and not access.readers(ticket.column.group, [assignee]):
+                return JsonResponse(
+                    {'error': _('%(person)s may not see this group.') % {'person': people.name(assignee)}}, status=400
+                )
             operations.assign(request, ticket, assignee)
-            card = render_to_string('dg_board/_card_assignee.html', {'ticket': ticket}, request=request)
+            writable = {ticket.column.group_id}
+            card = render_to_string('dg_board/_card_assignee.html', {'ticket': ticket, 'writable': writable}, request)
             return JsonResponse({'key': ticket.key, 'card_assignee': card})
         elif field == 'size':
             if values[0] not in {'', *Ticket.Size.values}:
@@ -471,7 +499,7 @@ def _act_watch(request, ticket, forms):
 
 
 def _act_relation(request, ticket, forms):
-    form = forms['relation_form'] = RelationForm(request.POST, ticket=ticket)
+    form = forms['relation_form'] = RelationForm(request.POST, ticket=ticket, user=request.user)
     if not form.is_valid():
         return None
     form.relation.save()
@@ -510,25 +538,26 @@ def _act_attachment(request, ticket, forms):
     return redirect(ticket)
 
 
-# What the ticket page's forms post, by their `action`. Each answers a redirect when done, or None to show
-# the page again with the form it bound, errors and all.
+# What the ticket page's forms post, by their `action`, with the right each needs in the ticket's group.
+# Each answers a redirect when done, or None to show the page again with the form it bound, errors and all.
 TICKET_ACTIONS = {
-    'title': _act_on_text,
-    'description': _act_on_text,
-    'comment': _act_comment,
-    'edit_comment': _act_edit_comment,
-    'block': _act_block,
-    'child': _act_child,
-    'watch': _act_watch,
-    'relation': _act_relation,
-    'unrelate': _act_unrelate,
-    'delete': _act_delete,
-    'attachment': _act_attachment,
+    'title': (_act_on_text, WRITE),
+    'description': (_act_on_text, WRITE),
+    'comment': (_act_comment, COMMENT),
+    'edit_comment': (_act_edit_comment, COMMENT),
+    'block': (_act_block, WRITE),
+    'child': (_act_child, WRITE),
+    'watch': (_act_watch, READ),
+    'relation': (_act_relation, WRITE),
+    'unrelate': (_act_unrelate, WRITE),
+    'delete': (_act_delete, WRITE),
+    'attachment': (_act_attachment, WRITE),
 }
 
 
-def _relations(ticket) -> list[dict]:
-    """The ticket's relations both ways, each with the other ticket, marked when an open ticket blocks it."""
+def _relations(user, ticket) -> list[dict]:
+    """The ticket's relations both ways, each with the other ticket, marked when an open ticket blocks it,
+    or as `hidden` when `user` may not read it."""
     relations = [
         {
             'kind': relation.get_type_display(),
@@ -563,23 +592,22 @@ def _relations(ticket) -> list[dict]:
     )
     for other in others:
         other.has_open_blocker = other.pk in blocked_ids
+    access.mark_hidden(user, others)
+    # Its status, group and assignee change from this page only where the user may change it.
+    writable = {group.pk for group in access.groups(user, WRITE)}
+    for other in others:
+        other.writable = other.column.group_id in writable
     # In the board's order within each kind, so dragging a row moves the ticket on the board too.
     return sorted(relations, key=lambda relation: (relation['kind'], relation['other'].rank, relation['other'].pk))
 
 
 @board_required
 def ticket_detail(request, key):
-    match = KEY_RE.match(key)
-    if not match:
-        raise Http404(f'No ticket {key}.')
-    ticket = get_object_or_404(
-        Ticket.objects.select_related('column__group', 'creator', 'assignee'),
-        pk=int(match[1]),
-    )
+    ticket = access.ticket(request.user, key, Ticket.objects.select_related('column__group', 'creator', 'assignee'))
     forms = {
         'comment_form': CommentForm(instance=Comment(ticket=ticket, author=request.user)),
         'block_form': BlockForm(ticket=ticket),
-        'relation_form': RelationForm(ticket=ticket),
+        'relation_form': RelationForm(ticket=ticket, user=request.user),
         'child_form': ChildForm(),
         'title_form': TitleForm.for_ticket(ticket),
         'description_form': DescriptionForm.for_ticket(ticket),
@@ -587,10 +615,13 @@ def ticket_detail(request, key):
     if (action := request.POST.get('action')) is not None:
         if action not in TICKET_ACTIONS:
             raise Http404(f'Unknown action {action!r}')
-        if response := TICKET_ACTIONS[action](request, ticket, forms):
+        act, right = TICKET_ACTIONS[action]
+        access.require(request.user, right, ticket.column.group)
+        if response := act(request, ticket, forms):
             return response
 
-    relations = _relations(ticket)
+    relations = _relations(request.user, ticket)
+    group = ticket.column.group
     # The main board on this ticket and everything under it, from Open on board beside its subtasks, to use
     # its filters on them. It opens on the ticket's own group; the All groups tab adds subtasks elsewhere.
     main_board_query = urlencode({'group': ticket.column.group.slug, 'parent': ticket.key})
@@ -605,7 +636,7 @@ def ticket_detail(request, key):
             'relations': relations,
             'done_relations': sum(item['other'].column.category == Column.Category.DONE for item in relations),
             'main_board_url': f'{reverse("dg_board:board")}?{main_board_query}',
-            'open_blockers': ticket.open_blockers(),
+            'open_blockers': access.mark_hidden(request.user, list(ticket.open_blockers().select_related('column'))),
             'block_reason': ticket.comments.filter(sets_blocked=True).last() if ticket.is_blocked else None,
             'attachments': ticket.attachments.all(),
             'named_in': backlinks.find(request, ticket.key),
@@ -614,14 +645,16 @@ def ticket_detail(request, key):
                 ticket.code_references.all(),
                 key=lambda reference: CODE_KIND_ORDER.index(reference.kind),
             ),
-            'feed': build_feed(ticket),
+            'feed': build_feed(ticket, request.user),
             'watchers': [watcher.user for watcher in ticket.watchers.select_related('user')],
             'mention_handle': people.handle(request.user),
-            'groups': Group.objects.all(),
-            'users': people.members(SCOPE),
+            # The groups it may move to, and who may be assigned: those who may read its group.
+            'groups': access.groups(request.user, WRITE),
+            'users': access.readers(group, people.members(SCOPE)),
+            'can': access.rights(request.user, group),
             'sizes': Ticket.Size.choices,
             'label_names': json.dumps(list(Label.objects.values_list('name', flat=True))),
-            'board_url': _board_url(request, ticket.column.group),
+            'board_url': _board_url(request, group),
         },
     )
 
@@ -629,13 +662,7 @@ def ticket_detail(request, key):
 @board_required
 def ticket_peek(request, key):
     """A ticket in brief, for the panel that shows it beside the board or a ticket page (peek.js)."""
-    match = KEY_RE.match(key)
-    if not match:
-        raise Http404(f'Unknown ticket key {key!r}')
-    ticket = get_object_or_404(
-        Ticket.objects.select_related('column__group', 'creator', 'assignee'),
-        pk=int(match[1]),
-    )
+    ticket = access.ticket(request.user, key, Ticket.objects.select_related('column__group', 'creator', 'assignee'))
     relations = [
         {'kind': relation.get_type_display(), 'other': relation.target}
         for relation in ticket.outgoing_relations.select_related('target__column')
@@ -643,6 +670,7 @@ def ticket_peek(request, key):
         {'kind': Relation.INVERSE_LABELS[relation.type], 'other': relation.source}
         for relation in ticket.incoming_relations.select_related('source__column')
     ]
+    access.mark_hidden(request.user, [relation['other'] for relation in relations])
     return render(
         request,
         'dg_board/_peek.html',
@@ -653,7 +681,7 @@ def ticket_peek(request, key):
                 relations,
                 key=lambda relation: (relation['kind'], relation['other'].rank, relation['other'].pk),
             ),
-            'open_blockers': ticket.open_blockers(),
+            'open_blockers': access.mark_hidden(request.user, list(ticket.open_blockers().select_related('column'))),
             'comments': ticket.comments.select_related('author').order_by('-created_at', '-pk')[:PEEK_COMMENTS],
             'comment_count': ticket.comments.count(),
         },
@@ -664,7 +692,10 @@ def ticket_peek(request, key):
 @require_POST
 def attachment_upload(request):
     """Image upload endpoint of the Markdown editor."""
-    ticket = get_object_or_404(Ticket, pk=int(request.GET['ticket'])) if request.GET.get('ticket') else None
+    ticket = access.ticket(request.user, int(request.GET['ticket'])) if request.GET.get('ticket') else None
+    if ticket:
+        # Images go into comments as well as the description.
+        access.require(request.user, COMMENT, ticket.column.group)
 
     def create(upload):
         return Attachment.from_upload(upload, request.user, ticket=ticket)
@@ -674,12 +705,17 @@ def attachment_upload(request):
 
 @board_required
 def attachment(request, pk, name=None):
-    return attachments.serve(get_object_or_404(Attachment, pk=pk))
+    found = get_object_or_404(Attachment, pk=pk)
+    if found.ticket_id:
+        # Not found for who may not read its ticket. One without a ticket yet was uploaded for a new one.
+        access.ticket(request.user, found.ticket_id)
+    return attachments.serve(found)
 
 
 @board_required
 def group_create(request):
     """A new group, from the tab beside the board's groups; its columns are added on its settings page."""
+    access.require(request.user, MANAGE, None)
     form = GroupForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         group = form.save()
@@ -690,6 +726,7 @@ def group_create(request):
 @board_required
 def group_edit(request, slug):
     group = get_object_or_404(Group, slug=slug)
+    access.require(request.user, MANAGE, group)
     form = GroupForm(request.POST or None, instance=group, prefix='group')
     formset = ColumnFormSet(request.POST or None, instance=group, prefix='columns')
     if request.method == 'POST' and form.is_valid() and formset.is_valid():
@@ -706,7 +743,7 @@ def group_edit(request, slug):
             'form': form,
             'formset': formset,
             'ticket_count': Ticket.objects.filter(column__group=group).count(),
-            'other_groups': Group.objects.exclude(pk=group.pk),
+            'other_groups': [other for other in access.groups(request.user, WRITE) if other != group],
         },
     )
 
@@ -722,6 +759,7 @@ def group_delete(request, slug):
     the group is only deleted once it is empty, so doing it again moves the rest.
     """
     group = get_object_or_404(Group, slug=slug)
+    access.require(request.user, MANAGE, group)
     remaining = list(Ticket.objects.filter(column__group=group).select_related('column'))
     if remaining:
         if not request.POST.get('move_to'):
@@ -732,6 +770,7 @@ def group_delete(request, slug):
             )
             return redirect('dg_board:group_edit', slug=group.slug)
         target = get_object_or_404(Group.objects.exclude(pk=group.pk), pk=int(request.POST['move_to']))
+        access.require(request.user, WRITE, target)
         if not target.columns.exists():
             messages.error(request, _('%(group)s has no columns yet.') % {'group': target})
             return redirect('dg_board:group_edit', slug=group.slug)

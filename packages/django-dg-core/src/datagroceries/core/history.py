@@ -18,3 +18,8 @@ def recording(request):
         yield
     finally:
         del HistoricalRecords.context.request
+
+
+def current_request():
+    """The request a DataGroceries view or API call is serving, or None outside one, such as in a task."""
+    return getattr(HistoricalRecords.context, 'request', None)

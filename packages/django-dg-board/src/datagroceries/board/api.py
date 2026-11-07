@@ -14,7 +14,8 @@ from rest_framework.exceptions import NotFound, PermissionDenied, ValidationErro
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from datagroceries.board import notifications, operations
+from datagroceries.board import access, notifications, operations
+from datagroceries.board.access import COMMENT, WRITE
 from datagroceries.board.conf import SCOPE
 from datagroceries.board.forms import BlockForm, CommentForm, RelationForm
 from datagroceries.board.models import KEY_RE, Column, Comment, Group, Relation, Ticket
@@ -72,9 +73,9 @@ class CommentEditSerializer(serializers.Serializer):
     body = serializers.CharField(allow_blank=True, help_text='The whole new text, Markdown.')
 
 
-def _find(key: str, queryset=None) -> Ticket:
-    """The ticket with this key."""
-    queryset = queryset if queryset is not None else Ticket.objects.all()
+def _find(request, key: str, queryset=None) -> Ticket:
+    """The ticket with this key, if the requesting user may read it; not found otherwise."""
+    queryset = access.tickets(request.user, queryset)
     match = KEY_RE.match(key.upper())
     ticket = queryset.filter(pk=int(match[1])).first() if match else None
     if ticket is None:
@@ -90,13 +91,21 @@ def _named(value: str):
     return people.by_handle(SCOPE).get(value)
 
 
-def _member(value: str | None):
+def _member(value: str | None, group: Group):
+    """The person `value` names, to assign a ticket in `group` to."""
     if value is None:
         return None
     user = _named(value)
     if user is None:
         raise ValidationError({'assignee': [f'Nobody on the board has the handle or email address {value}.']})
+    if not access.readers(group, [user]):
+        raise ValidationError({'assignee': [f'{value} may not see {group}.']})
     return user
+
+
+def _require(request, right: str, group: Group):
+    if not access.may(request.user, right, group):
+        raise PermissionDenied(f'You may not {right} in {group}.')
 
 
 def _column(group: Group | None, column: str | None, current_group: Group | None = None) -> Column | None:
@@ -121,10 +130,11 @@ def _column(group: Group | None, column: str | None, current_group: Group | None
     return found
 
 
-def _group(slug: str | None) -> Group | None:
+def _group(request, slug: str | None) -> Group | None:
+    """The group with this slug, if the requesting user may read it."""
     if slug is None:
         return None
-    group = Group.objects.filter(slug=slug).first()
+    group = next((group for group in access.groups(request.user) if group.slug == slug), None)
     if group is None:
         raise ValidationError({'group': [f'No group {slug!r}.']})
     return group
@@ -158,18 +168,27 @@ def _comment(comment: Comment) -> dict:
     }
 
 
+def _related(other: Ticket) -> dict:
+    """Another ticket, as a relation names it: by key and title, unless its reader may not read it."""
+    if other.hidden:
+        return {'key': None, 'title': 'A ticket you cannot see', 'category': other.column.category}
+    return {'key': other.key, 'title': other.title, 'category': other.column.category}
+
+
 def _detail(request, ticket: Ticket) -> dict:
     relations = [
         (RELATION_KINDS[relation.type, False], relation.target) for relation in ticket.outgoing_relations.all()
     ] + [(RELATION_KINDS[relation.type, True], relation.source) for relation in ticket.incoming_relations.all()]
+    access.mark_hidden(request.user, [other for _, other in relations])
+    blockers = access.mark_hidden(request.user, list(ticket.open_blockers().select_related('column')))
     comments = ticket.comments.filter(parent=None).select_related('author').prefetch_related('replies__author')
     return {
         **_summary(request, ticket),
         'description': ticket.description,
         'creator': person(ticket.creator),
-        'open_blockers': [blocker.key for blocker in ticket.open_blockers()],
+        'open_blockers': [None if blocker.hidden else blocker.key for blocker in blockers],
         'relations': [
-            {'kind': kind, 'key': other.key, 'title': other.title, 'category': other.column.category}
+            {'kind': kind, **_related(other)}
             for kind, other in sorted(relations, key=lambda relation: (relation[0], relation[1].pk))
         ],
         'comments': [
@@ -236,7 +255,7 @@ class TicketGroupsView(TicketApiView):
                         for column in group.columns.all()
                     ],
                 }
-                for group in Group.objects.prefetch_related('columns')
+                for group in access.groups(request.user)
             ],
         )
 
@@ -244,12 +263,14 @@ class TicketGroupsView(TicketApiView):
 class TicketListCreateView(TicketApiView):
     def get(self, request):
         """Tickets matching every filter given: a search's best matches first, else newest first."""
-        tickets = Ticket.objects.select_related('column__group', 'assignee').prefetch_related('labels')
+        tickets = access.tickets(
+            request.user, Ticket.objects.select_related('column__group', 'assignee').prefetch_related('labels')
+        )
         params = request.query_params
         if query := params.get('q', '').strip():
             tickets = tickets.search(query)
         if slug := params.get('group'):
-            tickets = tickets.filter(column__group=_group(slug))
+            tickets = tickets.filter(column__group=_group(request, slug))
         if categories := params.getlist('category'):
             tickets = tickets.filter(column__category__in=categories)
         if assignees := params.getlist('assignee'):
@@ -272,17 +293,20 @@ class TicketListCreateView(TicketApiView):
     def post(self, request):
         data = validated(TicketCreateSerializer, request)
         with transaction.atomic():
-            column = _column(_group(data.get('group')), data.get('column'))
+            column = _column(_group(request, data.get('group')), data.get('column'))
             if column is None:
                 raise ValidationError({'group': ['Give a group, a column or both.']})
-            parent = _find(data['parent']) if 'parent' in data else None
+            _require(request, WRITE, column.group)
+            parent = _find(request, data['parent']) if 'parent' in data else None
+            if parent is not None:
+                _require(request, WRITE, parent.column.group)
             ticket = operations.create(
                 request,
                 column,
                 data['title'],
                 labels=data.get('labels', ()),
                 description=data.get('description', ''),
-                assignee=_member(data.get('assignee')),
+                assignee=_member(data.get('assignee'), column.group),
                 size=data.get('size') or '',
             )
             if parent is not None:
@@ -292,14 +316,16 @@ class TicketListCreateView(TicketApiView):
 
 class TicketDetailView(TicketApiView):
     def get(self, request, key):
-        return Response(_detail_of(request, _find(key)))
+        return Response(_detail_of(request, _find(request, key)))
 
     def patch(self, request, key):
         data = validated(TicketFieldsSerializer, request, partial=True)
         with transaction.atomic():
-            ticket = _find(key, Ticket.objects.select_for_update().select_related('column__group'))
-            group = _group(data.get('group'))
+            ticket = _find(request, key, Ticket.objects.select_for_update().select_related('column__group'))
+            _require(request, WRITE, ticket.column.group)
+            group = _group(request, data.get('group'))
             if group is not None:
+                _require(request, WRITE, group)
                 try:
                     operations.move_to_group(request, ticket, group)
                 except DjangoValidationError as error:
@@ -309,7 +335,7 @@ class TicketDetailView(TicketApiView):
                 if column != ticket.column:
                     operations.move(request, ticket, column)
             if 'assignee' in data:
-                operations.assign(request, ticket, _member(data['assignee']))
+                operations.assign(request, ticket, _member(data['assignee'], ticket.column.group))
             if 'size' in data:
                 ticket.size = data['size'] or ''
                 ticket.save()
@@ -324,7 +350,8 @@ class TicketDetailView(TicketApiView):
 class TicketCommentsView(TicketApiView):
     def post(self, request, key):
         data = validated(CommentSerializer, request)
-        ticket = _find(key)
+        ticket = _find(request, key)
+        _require(request, COMMENT, ticket.column.group)
         form = CommentForm(
             {'body': data['body'], 'parent': data.get('parent')},
             instance=Comment(ticket=ticket, author=request.user),
@@ -338,7 +365,8 @@ class TicketCommentView(TicketApiView):
     def patch(self, request, key, comment_id):
         """Change the text of a comment or reply, as its author does on the ticket page: only the
         people it newly @-mentions hear about it."""
-        ticket = _find(key)
+        ticket = _find(request, key)
+        _require(request, COMMENT, ticket.column.group)
         comment = ticket.comments.filter(pk=comment_id).first()
         if comment is None:
             raise NotFound(f'No comment {comment_id} on {ticket.key}.')
@@ -355,8 +383,9 @@ class TicketCommentView(TicketApiView):
 class TicketRelationsView(TicketApiView):
     def post(self, request, key):
         data = validated(RelationSerializer, request)
-        ticket = _find(key)
-        form = RelationForm({'kind': data['kind'], 'other': data['ticket']}, ticket=ticket)
+        ticket = _find(request, key)
+        _require(request, WRITE, ticket.column.group)
+        form = RelationForm({'kind': data['kind'], 'other': data['ticket']}, ticket=ticket, user=request.user)
         if not form.is_valid():
             raise form_errors(form)
         form.relation.save()
@@ -364,7 +393,8 @@ class TicketRelationsView(TicketApiView):
 
     def delete(self, request, key):
         data = validated(RelationSerializer, request)
-        ticket, other = _find(key), _find(data['ticket'])
+        ticket, other = _find(request, key), _find(request, data['ticket'])
+        _require(request, WRITE, ticket.column.group)
         relation_type, reversed_ = RelationForm.KINDS[data['kind']]
         source, target = (other, ticket) if reversed_ else (ticket, other)
         matches = Q(source=source, target=target)
@@ -384,7 +414,8 @@ class TicketBlockView(TicketApiView):
     def post(self, request, key):
         data = validated(BlockSerializer, request)
         with transaction.atomic():
-            ticket = _find(key, Ticket.objects.select_for_update())
+            ticket = _find(request, key, Ticket.objects.select_for_update().select_related('column__group'))
+            _require(request, WRITE, ticket.column.group)
             if data['blocked'] == ticket.is_blocked:
                 state = 'blocked' if ticket.is_blocked else 'not blocked'
                 raise ValidationError({'blocked': [f'{ticket.key} is already {state}.']})
@@ -398,12 +429,12 @@ class TicketBlockView(TicketApiView):
 class TicketWatchView(TicketApiView):
     def post(self, request, key):
         """Start watching the ticket."""
-        ticket = _find(key)
+        ticket = _find(request, key)
         notifications.watch(ticket, request.user)
         return Response(_detail_of(request, ticket))
 
     def delete(self, request, key):
         """Stop watching the ticket."""
-        ticket = _find(key)
+        ticket = _find(request, key)
         ticket.watchers.filter(user=request.user).delete()
         return Response(_detail_of(request, ticket))

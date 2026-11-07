@@ -4,12 +4,16 @@ The views call these after a change; nothing here listens to model signals, so b
 nobody. Nobody is told about their own change, and a message goes out only
 once the change is committed.
 
+Only those who may read a ticket's group watch it and hear about it (datagroceries.board.access): someone
+@-mentioned who may not is left out.
+
 Each person reads a message in their own language (datagroceries.core.people.language), whatever language the
 page or the API that made the change was in, so a message is a sentence still to translate.
 """
 
 from django.utils.translation import gettext_lazy as _
 
+from datagroceries.board import access
 from datagroceries.board.conf import SCOPE
 from datagroceries.board.models import Column, Ticket, Watcher
 from datagroceries.core import mentions, notifications, people
@@ -22,9 +26,9 @@ def mentioned_users(text: str) -> list:
 
 
 def watch(ticket: Ticket, *users):
-    for user in users:
-        if user is not None:
-            Watcher.objects.get_or_create(ticket=ticket, user=user)
+    """`users` start watching the ticket, those of them who may read it."""
+    for user in access.readers(ticket.column.group, users):
+        Watcher.objects.get_or_create(ticket=ticket, user=user)
 
 
 def _url(request, ticket: Ticket, anchor: str = '') -> str:
@@ -33,8 +37,12 @@ def _url(request, ticket: Ticket, anchor: str = '') -> str:
 
 
 def _watchers(ticket: Ticket, *excluded) -> list:
+    """The ticket's watchers who may still read it, but not `excluded`."""
     excluded_ids = {user.pk for user in excluded if user is not None}
-    return [watcher.user for watcher in ticket.watchers.select_related('user') if watcher.user_id not in excluded_ids]
+    watching = [
+        watcher.user for watcher in ticket.watchers.select_related('user') if watcher.user_id not in excluded_ids
+    ]
+    return access.readers(ticket.column.group, watching)
 
 
 def ticket_created(request, ticket: Ticket):
@@ -59,6 +67,7 @@ def text_written(request, ticket: Ticket, before: str, after: str, anchor: str =
     their link goes to `anchor` on the ticket's page, when given."""
     before_ids = {user.pk for user in mentioned_users(before)}
     new = [user for user in mentioned_users(after) if user.pk not in before_ids]
+    new = access.readers(ticket.column.group, new)
     watch(ticket, *new)
     summary = notifications.say(
         _('%(person)s mentioned you in %(ticket)s'), person=people.name(request.user), ticket=ticket
@@ -70,7 +79,7 @@ def commented(request, comment):
     """Tell the people @-mentioned in the comment, and everyone else watching the ticket."""
     ticket, author = comment.ticket, comment.author
     watch(ticket, author)
-    mentioned = mentioned_users(comment.body)
+    mentioned = access.readers(ticket.column.group, mentioned_users(comment.body))
     watch(ticket, *mentioned)
     # Straight to the comment, not the top of a long ticket.
     url = _url(request, ticket, f'#comment-{comment.pk}')

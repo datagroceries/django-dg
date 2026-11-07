@@ -1,0 +1,7 @@
+{% load i18n %}
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="unrelate">
+  <input type="hidden" name="relation" value="{{ item.relation.pk }}">
+  <button type="submit" class="tk-icon-button" title="{% translate 'Remove relation' %}" data-confirm="{% translate 'Remove this relation?' %}" onclick="return confirm(this.dataset.confirm)"><i class="bi bi-x"></i></button>
+</form>

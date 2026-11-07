@@ -131,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Files dropped anywhere on the page, or an image pasted outside a text field, are attached to the
   // ticket. An open editor handles its own drops and pastes: there the image goes into the text.
+  // Only where the user may attach files: without the right, the page has no overlay.
   const overlay = document.getElementById('tk-drop-overlay');
   const inEditor = (target) => target instanceof Element && target.closest('.EasyMDEContainer, input, textarea');
   const hasFiles = (event) => event.dataTransfer && [...event.dataTransfer.types].includes('Files');
@@ -153,18 +154,22 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   let dragDepth = 0;
   document.addEventListener('dragenter', (event) => {
+    if (!overlay) return;
     if (hasFiles(event) && dragDepth++ === 0) overlay.classList.add('tk-drop-visible');
   });
   document.addEventListener('dragleave', (event) => {
+    if (!overlay) return;
     if (hasFiles(event) && --dragDepth === 0) overlay.classList.remove('tk-drop-visible');
   });
   document.addEventListener('dragover', (event) => {
+    if (!overlay) return;
     if (!hasFiles(event)) return;
     // Over an open editor the drop is the editor's, so the page's overlay steps aside.
     overlay.classList.toggle('tk-drop-visible', !inEditor(event.target));
     if (!inEditor(event.target)) event.preventDefault();
   });
   document.addEventListener('drop', (event) => {
+    if (!overlay) return;
     dragDepth = 0;
     overlay.classList.remove('tk-drop-visible');
     if (!hasFiles(event) || inEditor(event.target)) return;
@@ -172,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attach([...event.dataTransfer.files]);
   });
   document.addEventListener('paste', (event) => {
+    if (!overlay) return;
     const files = [...(event.clipboardData?.files || [])];
     if (!files.length || inEditor(event.target) || event.target.isContentEditable) return;
     event.preventDefault();

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="py-3" data-upload-url="{% url 'dg_board:attachment_upload' %}?ticket={{ ticket.pk }}">
+<div class="py-3"{% if can.comment %} data-upload-url="{% url 'dg_board:attachment_upload' %}?ticket={{ ticket.pk }}"{% endif %}>
   <div class="d-flex justify-content-between align-items-center gap-2">
     <nav class="tk-crumbs">
       {% include 'dg_board/_logo.html' %}
@@ -25,9 +25,9 @@
   <div class="tk-editable" id="tk-title" data-tk-editable{% if title_form.errors %} data-editing{% endif %}>
     <div class="tk-editable-view">
       <h1 class="tk-title">{{ ticket.title }}</h1>
-      <button type="button" class="tk-edit-button" data-tk-edit title="{% translate 'Edit the title' %}"><i class="bi bi-pencil"></i></button>
+      {% if can.write %}<button type="button" class="tk-edit-button" data-tk-edit title="{% translate 'Edit the title' %}"><i class="bi bi-pencil"></i></button>{% endif %}
     </div>
-    <form method="post" class="tk-editable-form tk-title-form" hx-post="{{ request.path }}" hx-target="#tk-title" hx-select="#tk-title" hx-swap="outerHTML">
+    {% if can.write %}<form method="post" class="tk-editable-form tk-title-form" hx-post="{{ request.path }}" hx-target="#tk-title" hx-select="#tk-title" hx-swap="outerHTML">
       {% csrf_token %}
       <input type="hidden" name="action" value="title">
       {% form_errors title_form %}
@@ -37,7 +37,7 @@
         <button type="submit" class="btn btn-sm btn-primary">{% translate "Save" %}</button>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-tk-cancel>{% translate "Cancel" %}</button>
       </div>
-    </form>
+    </form>{% endif %}
   </div>
 
   <div class="row g-4">
@@ -54,7 +54,7 @@
       {% for blocker in open_blockers %}
         <div class="tk-blocked-banner">
           <i class="bi bi-link-45deg"></i>
-          <div class="tk-small">{% translate "Blocked by" %} <a href="{{ blocker.get_absolute_url }}">{{ blocker.key }}</a> {{ blocker.title }}</div>
+          <div class="tk-small">{% translate "Blocked by" %} {% if blocker.hidden %}{% translate "a ticket you cannot see" %}{% else %}<a href="{{ blocker.get_absolute_url }}">{{ blocker.key }}</a> {{ blocker.title }}{% endif %}</div>
         </div>
       {% endfor %}
 
@@ -63,9 +63,9 @@
           <div class="tk-prose flex-grow-1 min-w-0">
             {% if ticket.description %}{{ ticket.description|render_markdown }}{% else %}<p class="tk-muted fst-italic mb-0">{% translate "No description yet." %}</p>{% endif %}
           </div>
-          <button type="button" class="tk-edit-button" data-tk-edit title="{% translate 'Edit the description' %}"><i class="bi bi-pencil"></i></button>
+          {% if can.write %}<button type="button" class="tk-edit-button" data-tk-edit title="{% translate 'Edit the description' %}"><i class="bi bi-pencil"></i></button>{% endif %}
         </div>
-        <form method="post" class="tk-editable-form dg-editor" hx-post="{{ request.path }}" hx-target="#tk-description" hx-select="#tk-description" hx-swap="outerHTML">
+        {% if can.write %}<form method="post" class="tk-editable-form dg-editor" hx-post="{{ request.path }}" hx-target="#tk-description" hx-select="#tk-description" hx-swap="outerHTML">
           {% csrf_token %}
           <input type="hidden" name="action" value="description">
           {% form_errors description_form %}
@@ -75,7 +75,7 @@
             <button type="submit" class="btn btn-sm btn-primary">{% translate "Save" %}</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-tk-cancel>{% translate "Cancel" %}</button>
           </div>
-        </form>
+        </form>{% endif %}
       </div>
 
       <section>
@@ -102,9 +102,17 @@
                   </tr>
                   {% for item in kind.list %}
                     {% with other=item.other %}
+                      {% if other.hidden %}
+                      <tr class="{% if other.column.category == 'done' %}tk-relation-done{% else %}tk-relation-open{% endif %}">
+                        <td></td>
+                        <td class="tk-key text-nowrap"><i class="bi bi-eye-slash tk-muted"></i></td>
+                        <td class="tk-relations-title tk-muted" colspan="5">{% translate "a ticket you cannot see" %}</td>
+                        <td class="text-end">{% if can.write %}{% include 'dg_board/_unrelate.html' %}{% endif %}</td>
+                      </tr>
+                      {% else %}
                       {# Status, group and assignee save straight to the related ticket, like the sidebar. #}
                       <tr data-update-url="{% url 'dg_board:ticket_update' other.pk %}" data-reorder-url="{% url 'dg_board:ticket_reorder' other.pk %}" data-ticket="{{ other.pk }}" class="{% if other.column.category == 'done' %}tk-relation-done{% else %}tk-relation-open{% endif %}">
-                        <td class="tk-drag-handle" title="{% translate 'Drag to reorder; the board follows' %}"><i class="bi bi-grip-vertical"></i></td>
+                        <td{% if other.writable %} class="tk-drag-handle" title="{% translate 'Drag to reorder; the board follows' %}"{% endif %}>{% if other.writable %}<i class="bi bi-grip-vertical"></i>{% endif %}</td>
                         <td class="tk-key text-nowrap"><a href="{{ other.get_absolute_url }}">{{ other.key }}</a></td>
                         <td class="tk-relations-title">
                           <a href="{{ other.get_absolute_url }}"{% if other.column.category == 'done' %} class="tk-done-link"{% endif %}>{{ other.title }}</a>
@@ -114,33 +122,27 @@
                         <td class="text-nowrap">
                           <div class="d-flex align-items-center gap-1">
                             <i class="bi {{ other.column.category|category_icon }} tk-cat-{{ other.column.category }}"></i>
-                            <select class="form-select form-select-sm tk-inline-control" data-tk-property="column" aria-label="{% blocktranslate with key=other.key %}Status of {{ key }}{% endblocktranslate %}">
+                            {% if other.writable %}<select class="form-select form-select-sm tk-inline-control" data-tk-property="column" aria-label="{% blocktranslate with key=other.key %}Status of {{ key }}{% endblocktranslate %}">
                               {% for column in other.column.group.columns.all %}<option value="{{ column.pk }}"{% if column == other.column %} selected{% endif %}>{{ column }}</option>{% endfor %}
-                            </select>
+                            </select>{% else %}<span class="tk-small">{{ other.column }}</span>{% endif %}
                           </div>
                         </td>
                         <td>
-                          <select class="form-select form-select-sm tk-inline-control" data-tk-property="group" data-reload aria-label="{% blocktranslate with key=other.key %}Group of {{ key }}{% endblocktranslate %}">
+                          {% if other.writable %}<select class="form-select form-select-sm tk-inline-control" data-tk-property="group" data-reload aria-label="{% blocktranslate with key=other.key %}Group of {{ key }}{% endblocktranslate %}">
                             {% for group in groups %}<option value="{{ group.pk }}"{% if group == other.column.group %} selected{% endif %}>{{ group }}</option>{% endfor %}
-                          </select>
+                          </select>{% else %}<span class="tk-small">{{ other.column.group }}</span>{% endif %}
                         </td>
                         <td class="tk-relations-assignee">
-                          <select class="tk-inline-control" data-tk-property="assignee" data-tk-select aria-label="{% blocktranslate with key=other.key %}Assignee of {{ key }}{% endblocktranslate %}">
+                          {% if other.writable %}<select class="tk-inline-control" data-tk-property="assignee" data-tk-select aria-label="{% blocktranslate with key=other.key %}Assignee of {{ key }}{% endblocktranslate %}">
                             {% include 'dg_board/_assignee_options.html' with assignee=other.assignee %}
-                          </select>
+                          </select>{% else %}<span class="tk-small">{{ other.assignee|person }}</span>{% endif %}
                         </td>
                         <td class="tk-relations-created text-nowrap tk-small tk-muted" title="{% blocktranslate with person=other.creator|person when=other.created_at|date:'Y-m-d H:i' %}Created by {{ person }}, {{ when }}{% endblocktranslate %}">
                           {% avatar other.creator 'xs' %} {{ other.created_at|date:'j M Y' }}
                         </td>
-                        <td class="text-end">
-                          <form method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="unrelate">
-                            <input type="hidden" name="relation" value="{{ item.relation.pk }}">
-                            <button type="submit" class="tk-icon-button" title="{% translate 'Remove relation' %}" data-confirm="{% translate 'Remove this relation?' %}" onclick="return confirm(this.dataset.confirm)"><i class="bi bi-x"></i></button>
-                          </form>
-                        </td>
+                        <td class="text-end">{% if can.write %}{% include 'dg_board/_unrelate.html' %}{% endif %}</td>
                       </tr>
+                      {% endif %}
                     {% endwith %}
                   {% endfor %}
                 </tbody>
@@ -150,6 +152,7 @@
         {% else %}
           <p class="tk-small tk-muted mb-2">{% translate "No relations." %}</p>
         {% endif %}
+        {% if can.write %}
         <form method="post" class="d-flex gap-2 mb-2">
           {% csrf_token %}
           <input type="hidden" name="action" value="child">
@@ -170,6 +173,7 @@
             </div>
           </form>
         </details>
+        {% endif %}
       </section>
 
       <div class="d-flex justify-content-between align-items-baseline">
@@ -178,6 +182,7 @@
       </div>
       <div class="tk-timeline">
         {# Newest first, so the box to write the next comment comes first too. #}
+        {% if can.comment %}
         <div class="tk-comment">
           {% avatar request.user 'sm' %}
           <form method="post" class="flex-grow-1 dg-editor min-w-0">
@@ -188,6 +193,7 @@
             <button type="submit" class="btn btn-primary btn-sm">{% translate "Comment" %}</button>
           </form>
         </div>
+        {% endif %}
 
         {% for entry in feed %}
           {% if entry.comment %}
@@ -202,6 +208,7 @@
                     <button type="button" class="tk-comment-copy" data-tk-copy-link="#comment-{{ comment.pk }}" title="{% translate 'Copy a link to this comment' %}"><i class="bi bi-link-45deg"></i></button>
                   </div>
                   {% if comment.body %}<div class="tk-comment-body tk-prose">{{ comment.body|render_markdown }}</div>{% endif %}
+                  {% if can.comment %}
                   <div class="tk-comment-actions">
                     <details class="tk-reply-form">
                       <summary><i class="bi bi-reply"></i> {% translate "Reply" %}</summary>
@@ -215,6 +222,7 @@
                     </details>
                     {% if comment.author == request.user %}{% include 'dg_board/_comment_edit.html' %}{% endif %}
                   </div>
+                  {% endif %}
                   {% for reply in comment.replies.all %}
                     <div class="tk-reply" id="comment-{{ reply.pk }}">
                       {% avatar reply.author 'xs' %}
@@ -223,7 +231,7 @@
                           <a href="#comment-{{ reply.pk }}" class="tk-muted text-decoration-none" title="{{ reply.created_at|date:'Y-m-d H:i' }}">{{ reply.created_at|naturaltime }}</a>{% if reply.edited %} <span class="tk-muted">· {% translate "edited" %}</span>{% endif %}
                           <button type="button" class="tk-comment-copy" data-tk-copy-link="#comment-{{ reply.pk }}" title="{% translate 'Copy a link to this reply' %}"><i class="bi bi-link-45deg"></i></button></div>
                         <div class="tk-prose">{{ reply.body|render_markdown }}</div>
-                        {% if reply.author == request.user %}{% include 'dg_board/_comment_edit.html' with comment=reply %}{% endif %}
+                        {% if can.comment and reply.author == request.user %}{% include 'dg_board/_comment_edit.html' with comment=reply %}{% endif %}
                       </div>
                     </div>
                   {% endfor %}
@@ -247,33 +255,43 @@
         <div class="tk-panel tk-properties tk-inline-controls" data-update-url="{% url 'dg_board:ticket_update' ticket.pk %}">
           <div class="tk-prop">
             <span class="tk-prop-name"><i class="bi {{ ticket.column.category|category_icon }} tk-cat-{{ ticket.column.category }}"></i> {% translate "Status" %}</span>
+{% if can.write %}
             <select class="form-select form-select-sm tk-inline-control" data-tk-property="column" aria-label="{% translate 'Status' %}">
               {% for column in ticket.column.group.columns.all %}<option value="{{ column.pk }}"{% if column == ticket.column %} selected{% endif %}>{{ column }}</option>{% endfor %}
             </select>
+            {% else %}<span class="tk-prop-value">{{ ticket.column }}</span>{% endif %}
           </div>
           <div class="tk-prop">
             <span class="tk-prop-name">{% translate "Group" %}</span>
+{% if can.write %}
             <select class="form-select form-select-sm tk-inline-control" data-tk-property="group" data-reload aria-label="{% translate 'Group' %}">
               {% for group in groups %}<option value="{{ group.pk }}"{% if group == ticket.column.group %} selected{% endif %}>{{ group }}</option>{% endfor %}
             </select>
+            {% else %}<span class="tk-prop-value">{{ ticket.column.group }}</span>{% endif %}
           </div>
           <div class="tk-prop">
             <span class="tk-prop-name">{% translate "Assignee" %}</span>
+{% if can.write %}
             <select class="tk-inline-control" data-tk-property="assignee" data-tk-select aria-label="{% translate 'Assignee' %}">
               {% include 'dg_board/_assignee_options.html' with assignee=ticket.assignee %}
             </select>
+            {% else %}<span class="tk-prop-value">{% if ticket.assignee %}{% avatar ticket.assignee 'xs' %} {{ ticket.assignee|person }}{% else %}{% translate "Unassigned" %}{% endif %}</span>{% endif %}
           </div>
           <div class="tk-prop">
             <span class="tk-prop-name">{% translate "Size" %}</span>
+{% if can.write %}
             <select class="form-select form-select-sm tk-inline-control" data-tk-property="size" aria-label="{% translate 'Size' %}">
               <option value="">{% translate "Not estimated" %}</option>
               {% for value, label in sizes %}<option value="{{ value }}"{% if value == ticket.size %} selected{% endif %}>{{ label }}</option>{% endfor %}
             </select>
+            {% else %}<span class="tk-prop-value">{{ ticket.get_size_display|default:_("Not estimated") }}</span>{% endif %}
           </div>
           <div class="tk-prop">
             <span class="tk-prop-name">{% translate "Labels" %}</span>
+{% if can.write %}
             <input type="text" class="tk-inline-control" data-tk-property="labels" data-tk-labels data-options="{{ label_names }}"
                    value="{% for label in labels %}{{ label.name }}{% if not forloop.last %},{% endif %}{% endfor %}" placeholder="{% translate 'Add labels' %}" aria-label="{% translate 'Labels' %}">
+            {% else %}<span class="tk-prop-value">{% for label in labels %}<span class="tk-label"><span class="tk-label-dot" style="background: {{ label|label_color }}"></span>{{ label }}</span>{% empty %}—{% endfor %}</span>{% endif %}
           </div>
           <div class="tk-prop"><span class="tk-prop-name">{% translate "Creator" %}</span><span class="tk-prop-value">{% avatar ticket.creator 'xs' %} {{ ticket.creator|person }}</span></div>
           <div class="tk-prop"><span class="tk-prop-name">{% translate "Created" %}</span><span class="tk-prop-value" title="{{ ticket.created_at|date:'Y-m-d H:i' }}">{{ ticket.created_at|naturaltime }}</span></div>
@@ -311,6 +329,7 @@
           </p>
         </div>
 
+        {% if can.write %}
         <div class="tk-panel">
           <div class="tk-panel-title">{% translate "Blocked" %}</div>
           <form method="post">
@@ -329,6 +348,7 @@
             {% endif %}
           </form>
         </div>
+        {% endif %}
 
         {% for source, places in named_in %}
           {# What names this ticket in another DataGroceries app, such as the wiki (datagroceries.core.backlinks). #}
@@ -356,6 +376,7 @@
               </div>
             {% endif %}{% endfor %}
           {% endif %}
+          {% if can.write %}
           <p class="tk-small tk-muted mb-0">{% translate "Drop a file anywhere on this page, or paste a screenshot, to attach it." %}</p>
           <details>
             <summary><i class="bi bi-upload"></i> {% translate "Upload a file" %}</summary>
@@ -368,6 +389,8 @@
               </div>
             </form>
           </details>
+          {% elif not attachments %}<p class="tk-small tk-muted mb-0">{% translate "None." %}</p>
+          {% endif %}
         </div>
 
         <div class="tk-panel">
@@ -390,6 +413,7 @@
           <p class="tk-small tk-muted mb-0">{% blocktranslate with key=ticket.key %}Pull requests, branches and commits on main that mention {{ key }} show here.{% endblocktranslate %}</p>
         </div>
 
+        {% if can.write %}
         <div class="tk-panel">
           <form method="post" data-confirm="{% blocktranslate with key=ticket.key %}Delete {{ key }}, with its comments and relations? This cannot be undone.{% endblocktranslate %}" onsubmit="return confirm(this.dataset.confirm)">
             {% csrf_token %}
@@ -398,11 +422,12 @@
           </form>
           <p class="tk-small tk-muted mt-2 mb-0">{% blocktranslate trimmed %}For a mistake or a duplicate. A ticket decided against goes to Won't do instead, so its history stays.{% endblocktranslate %}</p>
         </div>
+        {% endif %}
       </aside>
     </div>
   </div>
 </div>
-<div id="tk-drop-overlay" class="tk-drop-overlay" aria-hidden="true"><span><i class="bi bi-paperclip"></i> {% blocktranslate with key=ticket.key %}Drop to attach to {{ key }}{% endblocktranslate %}</span></div>
+{% if can.write %}<div id="tk-drop-overlay" class="tk-drop-overlay" aria-hidden="true"><span><i class="bi bi-paperclip"></i> {% blocktranslate with key=ticket.key %}Drop to attach to {{ key }}{% endblocktranslate %}</span></div>{% endif %}
 {% endblock %}
 
 {% block extra_scripts %}

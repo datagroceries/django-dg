@@ -16,15 +16,19 @@
   {% endif %}
 
   {% if not groups %}
-    <p class="tk-muted">{% url 'dg_board:group_create' as create_url %}{% blocktranslate trimmed %}There are no groups yet. <a href="{{ create_url }}">Create the first one</a> to start a board.{% endblocktranslate %}</p>
+    {% if may_make_groups %}
+      <p class="tk-muted">{% url 'dg_board:group_create' as create_url %}{% blocktranslate trimmed %}There are no groups yet. <a href="{{ create_url }}">Create the first one</a> to start a board.{% endblocktranslate %}</p>
+    {% else %}
+      <p class="tk-muted">{% translate "There are no groups you can see yet." %}</p>
+    {% endif %}
   {% else %}
     <nav class="tk-tabs">
       {% for g in groups %}<a class="tk-tab{% if g == group %} active{% endif %}" href="?group={{ g.slug }}{% if filter_query %}&{{ filter_query }}{% endif %}">{{ g }}</a>{% endfor %}
       <a class="tk-tab{% if not group %} active{% endif %}" href="?group=all{% if filter_query %}&{{ filter_query }}{% endif %}"><i class="bi bi-grid-3x3-gap"></i> {% translate "All groups" %}</a>
-      <a class="tk-tab" href="{% url 'dg_board:group_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New group" %}</a>
+      {% if may_make_groups %}<a class="tk-tab" href="{% url 'dg_board:group_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New group" %}</a>{% endif %}
       <div class="tk-tabs-actions">
         {# A group's settings belong to its board; across all groups there is no one group to set. #}
-        {% if group %}
+        {% if group and group.pk in manageable %}
           <a class="btn btn-outline-secondary btn-sm" href="{% url 'dg_board:group_edit' group.slug %}"><i class="bi bi-gear"></i> {% translate "Group settings" %}</a>
         {% endif %}
         {# Only with django-dg-connect installed: the board does not depend on it. #}

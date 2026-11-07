@@ -1,5 +1,12 @@
 # Changelog of django-dg-core
 
+## Unreleased
+
+- **What someone may do per group** is a method of `People`, `may(user, right, group)`, with `RIGHTS`
+  (`read`, `comment`, `write`, `manage`) and `includes`. By default everyone who may use an app may do
+  everything; a project that wants less overrides it. The board asks it.
+- `history.current_request()`: the request a DataGroceries view or API call is serving.
+
 ## 1.1.0 (2026-11-07)
 
 Not backwards compatible, though a minor version: 1.0 was a day old and hardly anyone had it. Board and

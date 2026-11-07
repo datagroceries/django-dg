@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 13:18+0100\n"
+"POT-Creation-Date: 2026-11-07 23:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -17,156 +17,168 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: activity.py:34 activity.py:132 activity.py:147 views.py:421
+#: activity.py:35 activity.py:141 activity.py:162 views.py:449
 msgid "Someone"
 msgstr "Iemand"
 
-#: activity.py:43
+#: activity.py:44
 #, python-format
 msgid "via %(name)s"
 msgstr "via %(name)s"
 
-#: activity.py:48
+#: activity.py:49
 msgid "a deleted user"
 msgstr "een verwijderde gebruiker"
 
-#: activity.py:49
+#: activity.py:50
 msgid "nobody"
 msgstr "niemand"
 
-#: activity.py:70
+#: activity.py:71
 #, python-format
 msgid "renamed the ticket from \"%(old)s\" to \"%(new)s\""
 msgstr "hernoemde het ticket van \"%(old)s\" naar \"%(new)s\""
 
-#: activity.py:72
+#: activity.py:73
 msgid "edited the description"
 msgstr "bewerkte de beschrijving"
 
-#: activity.py:76 activity.py:80
+#: activity.py:77 activity.py:81
 #, python-format
 msgid "moved it from %(old)s to %(new)s"
 msgstr "verplaatste het van %(old)s naar %(new)s"
 
-#: activity.py:83
+#: activity.py:84
 #, python-format
 msgid "assigned it to %(person)s"
 msgstr "wees het toe aan %(person)s"
 
-#: activity.py:85
+#: activity.py:86
 #, python-format
 msgid "removed %(person)s as assignee"
 msgstr "haalde %(person)s weg als toegewezene"
 
-#: activity.py:86
+#: activity.py:87
 #, python-format
 msgid "changed the assignee from %(old)s to %(new)s"
 msgstr "veranderde de toewijzing van %(old)s naar %(new)s"
 
-#: activity.py:88
+#: activity.py:89
 #, python-format
 msgid "set the size to %(size)s"
 msgstr "zette de omvang op %(size)s"
 
-#: activity.py:88
+#: activity.py:89
 msgid "cleared the size"
 msgstr "maakte de omvang leeg"
 
-#: activity.py:93
+#: activity.py:94
 #, python-format
 msgid "added label \"%(name)s\""
 msgstr "voegde label \"%(name)s\" toe"
 
-#: activity.py:94
+#: activity.py:95
 #, python-format
 msgid "removed label \"%(name)s\""
 msgstr "haalde label \"%(name)s\" weg"
 
-#: activity.py:96
+#: activity.py:97
 #, python-format
 msgid "changed %(field)s"
 msgstr "veranderde %(field)s"
 
-#: activity.py:105
+#: activity.py:106 templates/dg_board/_peek.html:18
+#: templates/dg_board/_peek.html:45 templates/dg_board/ticket_detail.html:57
+#: templates/dg_board/ticket_detail.html:109
+msgid "a ticket you cannot see"
+msgstr "een ticket dat je niet kunt zien"
+
+#: activity.py:112
 #, python-format
 msgid "added \"%(relation)s\""
 msgstr "voegde \"%(relation)s\" toe"
 
-#: activity.py:106
+#: activity.py:113
 #, python-format
 msgid "removed \"%(relation)s\""
 msgstr "haalde \"%(relation)s\" weg"
 
-#: activity.py:118
+#: activity.py:127
 msgid "created the ticket"
 msgstr "maakte het ticket aan"
 
-#: apps.py:8 conf.py:17 mcp.py:216
+#: apps.py:8 conf.py:16 mcp.py:216
 msgid "Board"
 msgstr "Board"
 
-#: forms.py:31
+#: forms.py:32
 msgid "Group / column"
 msgstr "Groep / kolom"
 
-#: forms.py:34 templates/dg_board/_peek.html:27
-#: templates/dg_board/ticket_detail.html:275
-#: templates/dg_board/ticket_detail.html:277
+#: forms.py:35 templates/dg_board/_peek.html:26
+#: templates/dg_board/ticket_detail.html:290
+#: templates/dg_board/ticket_detail.html:293
 msgid "Labels"
 msgstr "Labels"
 
-#: forms.py:35
+#: forms.py:36
 msgid "Pick a label, or type a new name and press Enter."
 msgstr "Kies een label, of typ een nieuwe naam en druk op Enter."
 
-#: forms.py:47 forms.py:105
+#: forms.py:48 forms.py:114
 msgid "Describe the ticket (Markdown)."
 msgstr "Beschrijf het ticket (Markdown)."
 
-#: forms.py:57 templates/dg_board/_assignee_options.html:3
-#: templates/dg_board/_peek.html:24 templates/dg_board/board.html:41
-#: templatetags/dg_board.py:67
+#: forms.py:59 templates/dg_board/_assignee_options.html:3
+#: templates/dg_board/_peek.html:23 templates/dg_board/board.html:45
+#: templates/dg_board/ticket_detail.html:278 templatetags/dg_board.py:67
 msgid "Unassigned"
 msgstr "Niet toegewezen"
 
-#: forms.py:59 templates/dg_board/_peek.html:25
-#: templates/dg_board/ticket_detail.html:270
+#: forms.py:61 templates/dg_board/_peek.html:24
+#: templates/dg_board/ticket_detail.html:284
+#: templates/dg_board/ticket_detail.html:287
 msgid "Not estimated"
 msgstr "Niet geschat"
 
-#: forms.py:120
+#: forms.py:73 views.py:412
+#, python-format
+msgid "%(person)s may not see this group."
+msgstr "%(person)s mag deze groep niet zien."
+
+#: forms.py:129
 msgid "Leave a comment. Paste an image to attach it."
 msgstr "Schrijf een reactie. Plak een afbeelding om die toe te voegen."
 
-#: forms.py:138
+#: forms.py:147
 msgid "Say why the ticket is blocked."
 msgstr "Zeg waarom het ticket geblokkeerd is."
 
-#: forms.py:164
+#: forms.py:173
 msgid "Ticket"
 msgstr "Ticket"
 
-#: forms.py:175
+#: forms.py:186
 msgid "No such ticket."
 msgstr "Dat ticket bestaat niet."
 
-#: forms.py:195
+#: forms.py:206
 msgid "New child ticket"
 msgstr "Nieuw subticket"
 
-#: forms.py:213
+#: forms.py:224
 msgid ""
 "\"new\" is the address of the page for a new group; choose another slug."
 msgstr ""
 "\"new\" is het adres van de pagina voor een nieuwe groep; kies een andere "
 "slug."
 
-#: forms.py:223
+#: forms.py:234
 #, python-format
 msgid "Column \"%(name)s\" still holds tickets; move them out first."
 msgstr "Kolom \"%(name)s\" heeft nog tickets; verplaats die eerst."
 
-#: forms.py:226
+#: forms.py:237
 msgid "A group needs at least one column."
 msgstr "Een groep heeft minstens één kolom nodig."
 
@@ -319,37 +331,37 @@ msgstr "Branch"
 msgid "Pull request"
 msgstr "Pull request"
 
-#: notifications.py:50
+#: notifications.py:59
 #, python-format
 msgid "%(person)s assigned %(ticket)s to you"
 msgstr "%(person)s heeft %(ticket)s aan je toegewezen"
 
-#: notifications.py:62
+#: notifications.py:73
 #, python-format
 msgid "%(person)s mentioned you in %(ticket)s"
 msgstr "%(person)s noemde je in %(ticket)s"
 
-#: notifications.py:78
+#: notifications.py:88
 #, python-format
 msgid "%(person)s mentioned you on %(ticket)s"
 msgstr "%(person)s noemde je bij %(ticket)s"
 
-#: notifications.py:83
+#: notifications.py:90
 #, python-format
 msgid "%(person)s commented on %(ticket)s"
 msgstr "%(person)s reageerde op %(ticket)s"
 
-#: notifications.py:93
+#: notifications.py:98
 #, python-format
 msgid "%(person)s moved %(ticket)s to %(column)s"
 msgstr "%(person)s zette %(ticket)s in %(column)s"
 
-#: notifications.py:102
+#: notifications.py:108
 #, python-format
 msgid "%(person)s blocked %(ticket)s"
 msgstr "%(person)s blokkeerde %(ticket)s"
 
-#: notifications.py:102
+#: notifications.py:110
 #, python-format
 msgid "%(person)s unblocked %(ticket)s"
 msgstr "%(person)s deblokkeerde %(ticket)s"
@@ -367,21 +379,21 @@ msgid "New ticket above this one"
 msgstr "Nieuw ticket boven dit ticket"
 
 #: templates/dg_board/_card.html:9 templates/dg_board/_card.html:11
-#: templates/dg_board/_peek.html:14 templates/dg_board/ticket_detail.html:50
-#: templates/dg_board/ticket_detail.html:113
-#: templates/dg_board/ticket_detail.html:316
+#: templates/dg_board/_peek.html:13 templates/dg_board/ticket_detail.html:49
+#: templates/dg_board/ticket_detail.html:120
+#: templates/dg_board/ticket_detail.html:334
 msgid "Blocked"
 msgstr "Geblokkeerd"
 
-#: templates/dg_board/_card.html:11 templates/dg_board/ticket_detail.html:113
+#: templates/dg_board/_card.html:11 templates/dg_board/ticket_detail.html:120
 msgid "Blocked by an open ticket"
 msgstr "Geblokkeerd door een open ticket"
 
-#: templates/dg_board/_card.html:13 templates/dg_board/ticket_detail.html:112
+#: templates/dg_board/_card.html:13 templates/dg_board/ticket_detail.html:119
 msgid "Quick view"
 msgstr "Snelle weergave"
 
-#: templates/dg_board/_card.html:13 templates/dg_board/ticket_detail.html:112
+#: templates/dg_board/_card.html:13 templates/dg_board/ticket_detail.html:119
 #, python-format
 msgid "Quick view of %(key)s"
 msgstr "Snelle weergave van %(key)s"
@@ -396,9 +408,9 @@ msgstr "Alleen tickets met label %(label)s"
 msgid "Subtask of %(key)s: %(title)s"
 msgstr "Subticket van %(key)s: %(title)s"
 
-#: templates/dg_board/_card.html:24 templates/dg_board/_peek.html:25
-#: templates/dg_board/ticket_detail.html:268
-#: templates/dg_board/ticket_detail.html:269
+#: templates/dg_board/_card.html:24 templates/dg_board/_peek.html:24
+#: templates/dg_board/ticket_detail.html:281
+#: templates/dg_board/ticket_detail.html:283
 msgid "Size"
 msgstr "Omvang"
 
@@ -427,14 +439,14 @@ msgstr "Bewerken"
 
 #: templates/dg_board/_comment_edit.html:10
 #: templates/dg_board/group_edit.html:61
-#: templates/dg_board/ticket_detail.html:38
-#: templates/dg_board/ticket_detail.html:76
+#: templates/dg_board/ticket_detail.html:37
+#: templates/dg_board/ticket_detail.html:75
 msgid "Save"
 msgstr "Opslaan"
 
 #: templates/dg_board/_comment_edit.html:11
-#: templates/dg_board/ticket_detail.html:39
-#: templates/dg_board/ticket_detail.html:77
+#: templates/dg_board/ticket_detail.html:38
+#: templates/dg_board/ticket_detail.html:76
 #: templates/dg_board/ticket_form.html:37
 msgid "Cancel"
 msgstr "Annuleren"
@@ -454,67 +466,67 @@ msgstr "%(title)s inklappen"
 msgid "New ticket in %(title)s"
 msgstr "Nieuw ticket in %(title)s"
 
-#: templates/dg_board/_lanes.html:16
+#: templates/dg_board/_lanes.html:17
 msgid "No tickets"
 msgstr "Geen tickets"
 
-#: templates/dg_board/_lanes.html:19
+#: templates/dg_board/_lanes.html:20
 #, python-format
 msgid "New ticket at the bottom of %(title)s"
 msgstr "Nieuw ticket onderaan %(title)s"
 
-#: templates/dg_board/_peek.html:7 templates/dg_board/ticket_detail.html:22
+#: templates/dg_board/_peek.html:6 templates/dg_board/ticket_detail.html:21
 msgid "Copy a link to this ticket"
 msgstr "Kopieer een link naar dit ticket"
 
-#: templates/dg_board/_peek.html:7 templates/dg_board/ticket_detail.html:22
+#: templates/dg_board/_peek.html:6 templates/dg_board/ticket_detail.html:21
 msgid "Copy link"
 msgstr "Link kopiëren"
 
-#: templates/dg_board/_peek.html:8
+#: templates/dg_board/_peek.html:7
 msgid "Open ticket"
 msgstr "Ticket openen"
 
-#: templates/dg_board/_peek.html:9
+#: templates/dg_board/_peek.html:8
 msgid "Close"
 msgstr "Sluiten"
 
-#: templates/dg_board/_peek.html:9
+#: templates/dg_board/_peek.html:8
 msgid "Close (Esc)"
 msgstr "Sluiten (Esc)"
 
-#: templates/dg_board/_peek.html:19 templates/dg_board/ticket_detail.html:58
+#: templates/dg_board/_peek.html:18 templates/dg_board/ticket_detail.html:57
 msgid "Blocked by"
 msgstr "Geblokkeerd door"
 
-#: templates/dg_board/_peek.html:24 templates/dg_board/board.html:39
-#: templates/dg_board/board.html:80 templates/dg_board/ticket_detail.html:262
-#: templates/dg_board/ticket_detail.html:263
+#: templates/dg_board/_peek.html:23 templates/dg_board/board.html:43
+#: templates/dg_board/board.html:84 templates/dg_board/ticket_detail.html:273
+#: templates/dg_board/ticket_detail.html:275
 msgid "Assignee"
 msgstr "Toegewezen aan"
 
-#: templates/dg_board/_peek.html:29 templates/dg_board/board.html:46
-#: templates/dg_board/ticket_detail.html:279
+#: templates/dg_board/_peek.html:28 templates/dg_board/board.html:50
+#: templates/dg_board/ticket_detail.html:296
 msgid "Creator"
 msgstr "Aangemaakt door"
 
-#: templates/dg_board/_peek.html:30 templates/dg_board/ticket_detail.html:281
+#: templates/dg_board/_peek.html:29 templates/dg_board/ticket_detail.html:298
 msgid "Closed"
 msgstr "Afgerond"
 
-#: templates/dg_board/_peek.html:34 templates/dg_board/ticket_detail.html:65
+#: templates/dg_board/_peek.html:33 templates/dg_board/ticket_detail.html:64
 msgid "No description yet."
 msgstr "Nog geen beschrijving."
 
-#: templates/dg_board/_peek.html:38 templates/dg_board/ticket_detail.html:84
+#: templates/dg_board/_peek.html:37 templates/dg_board/ticket_detail.html:83
 msgid "Relations"
 msgstr "Relaties"
 
-#: templates/dg_board/_peek.html:59 templates/dg_board/ticket_detail.html:201
+#: templates/dg_board/_peek.html:59 templates/dg_board/ticket_detail.html:206
 msgid "blocked the ticket"
 msgstr "blokkeerde het ticket"
 
-#: templates/dg_board/_peek.html:59 templates/dg_board/ticket_detail.html:201
+#: templates/dg_board/_peek.html:59 templates/dg_board/ticket_detail.html:206
 msgid "unblocked the ticket"
 msgstr "deblokkeerde het ticket"
 
@@ -529,7 +541,15 @@ msgid_plural "All %(count)s comments on the ticket page"
 msgstr[0] "De reactie op de ticketpagina"
 msgstr[1] "Alle %(count)s reacties op de ticketpagina"
 
-#: templates/dg_board/board.html:13 templates/dg_board/board.html:23
+#: templates/dg_board/_unrelate.html:6
+msgid "Remove relation"
+msgstr "Relatie weghalen"
+
+#: templates/dg_board/_unrelate.html:6
+msgid "Remove this relation?"
+msgstr "Deze relatie weghalen?"
+
+#: templates/dg_board/board.html:13 templates/dg_board/board.html:27
 msgid "All groups"
 msgstr "Alle groepen"
 
@@ -541,7 +561,7 @@ msgstr ""
 "Een overzicht van alle groepen: de banen zijn categorieën, dus kaarten "
 "slepen niet en er is geen \"+\". Open een groep om dat wel te doen."
 
-#: templates/dg_board/board.html:19
+#: templates/dg_board/board.html:20
 #, python-format
 msgid ""
 "There are no groups yet. <a href=\"%(create_url)s\">Create the first one</a> "
@@ -550,63 +570,67 @@ msgstr ""
 "Er zijn nog geen groepen. <a href=\"%(create_url)s\">Maak de eerste</a> om "
 "een board te beginnen."
 
-#: templates/dg_board/board.html:24 templates/dg_board/group_create.html:4
+#: templates/dg_board/board.html:22
+msgid "There are no groups you can see yet."
+msgstr "Er zijn nog geen groepen die je kunt zien."
+
+#: templates/dg_board/board.html:28 templates/dg_board/group_create.html:4
 #: templates/dg_board/group_create.html:13
 #: templates/dg_board/group_create.html:16
 msgid "New group"
 msgstr "Nieuwe groep"
 
-#: templates/dg_board/board.html:28
+#: templates/dg_board/board.html:32
 msgid "Group settings"
 msgstr "Groepsinstellingen"
 
-#: templates/dg_board/board.html:32
+#: templates/dg_board/board.html:36
 msgid "Let Claude or another AI agent work on the board as you"
 msgstr "Laat Claude of een andere AI-agent als jou op het board werken"
 
-#: templates/dg_board/board.html:32
+#: templates/dg_board/board.html:36
 msgid "Connect an agent"
 msgstr "Verbind een agent"
 
-#: templates/dg_board/board.html:52
+#: templates/dg_board/board.html:56
 msgid "Label"
 msgstr "Label"
 
-#: templates/dg_board/board.html:53
+#: templates/dg_board/board.html:57
 msgid "No label"
 msgstr "Geen label"
 
-#: templates/dg_board/board.html:58
+#: templates/dg_board/board.html:62
 msgid "Show parents and subtasks"
 msgstr "Toon bovenliggende tickets en subtickets"
 
-#: templates/dg_board/board.html:58
+#: templates/dg_board/board.html:62
 msgid "Parents and subtasks"
 msgstr "Bovenliggend en subtickets"
 
-#: templates/dg_board/board.html:67
+#: templates/dg_board/board.html:71
 msgid "Under"
 msgstr "Onder"
 
-#: templates/dg_board/board.html:68
+#: templates/dg_board/board.html:72
 #, python-format
 msgid "All tickets, not only %(key)s and those under it"
 msgstr "Alle tickets, niet alleen %(key)s en wat eronder valt"
 
-#: templates/dg_board/board.html:73
+#: templates/dg_board/board.html:77
 msgid "Title or key"
 msgstr "Titel of nummer"
 
-#: templates/dg_board/board.html:73
+#: templates/dg_board/board.html:77
 msgid "Filters as you type; Enter on a key or a unique word opens that ticket"
 msgstr ""
 "Filtert terwijl je typt; Enter op een nummer of uniek woord opent dat ticket"
 
-#: templates/dg_board/board.html:75
+#: templates/dg_board/board.html:79
 msgid "Search"
 msgstr "Zoeken"
 
-#: templates/dg_board/board.html:77
+#: templates/dg_board/board.html:81
 msgid "Clear filters"
 msgstr "Filters wissen"
 
@@ -624,8 +648,8 @@ msgid "Settings"
 msgstr "Instellingen"
 
 #: templates/dg_board/group_edit.html:21
-#: templates/dg_board/ticket_detail.html:256
-#: templates/dg_board/ticket_detail.html:257
+#: templates/dg_board/ticket_detail.html:265
+#: templates/dg_board/ticket_detail.html:267
 msgid "Group"
 msgstr "Groep"
 
@@ -729,152 +753,144 @@ msgstr "%(group)s en de kolommen verwijderen?"
 msgid "Delete %(group)s"
 msgstr "%(group)s verwijderen"
 
-#: templates/dg_board/ticket_detail.html:29
+#: templates/dg_board/ticket_detail.html:28
 msgid "Edit the title"
 msgstr "De titel bewerken"
 
-#: templates/dg_board/ticket_detail.html:50
+#: templates/dg_board/ticket_detail.html:49
 #, python-format
 msgid "by %(person)s"
 msgstr "door %(person)s"
 
-#: templates/dg_board/ticket_detail.html:67
+#: templates/dg_board/ticket_detail.html:66
 msgid "Edit the description"
 msgstr "De beschrijving bewerken"
 
-#: templates/dg_board/ticket_detail.html:87
+#: templates/dg_board/ticket_detail.html:86
 #, python-format
 msgid "Hide done (%(count)s)"
 msgstr "Afgerond verbergen (%(count)s)"
 
-#: templates/dg_board/ticket_detail.html:101
+#: templates/dg_board/ticket_detail.html:100
 msgid ""
 "The main board with only this ticket and everything under it, to filter them "
 "further"
 msgstr ""
 "Het hoofdboard met alleen dit ticket en alles eronder, om verder te filteren"
 
-#: templates/dg_board/ticket_detail.html:101
+#: templates/dg_board/ticket_detail.html:100
 msgid "Open on board"
 msgstr "Openen op het board"
 
-#: templates/dg_board/ticket_detail.html:108
+#: templates/dg_board/ticket_detail.html:115
 msgid "Drag to reorder; the board follows"
 msgstr "Sleep om de volgorde te veranderen; het board volgt"
 
-#: templates/dg_board/ticket_detail.html:118
+#: templates/dg_board/ticket_detail.html:125
 #, python-format
 msgid "Status of %(key)s"
 msgstr "Status van %(key)s"
 
-#: templates/dg_board/ticket_detail.html:124
+#: templates/dg_board/ticket_detail.html:131
 #, python-format
 msgid "Group of %(key)s"
 msgstr "Groep van %(key)s"
 
-#: templates/dg_board/ticket_detail.html:129
+#: templates/dg_board/ticket_detail.html:136
 #, python-format
 msgid "Assignee of %(key)s"
 msgstr "Toewijzing van %(key)s"
 
-#: templates/dg_board/ticket_detail.html:133
+#: templates/dg_board/ticket_detail.html:140
 #, python-format
 msgid "Created by %(person)s, %(when)s"
 msgstr "Aangemaakt door %(person)s, %(when)s"
 
-#: templates/dg_board/ticket_detail.html:141
-msgid "Remove relation"
-msgstr "Relatie weghalen"
-
-#: templates/dg_board/ticket_detail.html:141
-msgid "Remove this relation?"
-msgstr "Deze relatie weghalen?"
-
-#: templates/dg_board/ticket_detail.html:152
+#: templates/dg_board/ticket_detail.html:153
 msgid "No relations."
 msgstr "Geen relaties."
 
-#: templates/dg_board/ticket_detail.html:158
+#: templates/dg_board/ticket_detail.html:160
 msgid "Add child"
 msgstr "Subticket toevoegen"
 
-#: templates/dg_board/ticket_detail.html:162
+#: templates/dg_board/ticket_detail.html:164
 msgid "Add relation"
 msgstr "Relatie toevoegen"
 
-#: templates/dg_board/ticket_detail.html:169
+#: templates/dg_board/ticket_detail.html:171
 msgid "Search a ticket"
 msgstr "Zoek een ticket"
 
-#: templates/dg_board/ticket_detail.html:170
+#: templates/dg_board/ticket_detail.html:172
 msgid "Add"
 msgstr "Toevoegen"
 
-#: templates/dg_board/ticket_detail.html:177
+#: templates/dg_board/ticket_detail.html:180
 msgid "Activity"
 msgstr "Activiteit"
 
-#: templates/dg_board/ticket_detail.html:178
+#: templates/dg_board/ticket_detail.html:181
 #, python-format
 msgid "Hover a time for the exact time (%(zone)s)"
 msgstr "Wijs een tijd aan voor de precieze tijd (%(zone)s)"
 
-#: templates/dg_board/ticket_detail.html:189
+#: templates/dg_board/ticket_detail.html:193
 msgid "Comment"
 msgstr "Reageren"
 
-#: templates/dg_board/ticket_detail.html:202
-#: templates/dg_board/ticket_detail.html:224
+#: templates/dg_board/ticket_detail.html:207
+#: templates/dg_board/ticket_detail.html:231
 msgid "edited"
 msgstr "bewerkt"
 
-#: templates/dg_board/ticket_detail.html:203
+#: templates/dg_board/ticket_detail.html:208
 msgid "Copy a link to this comment"
 msgstr "Kopieer een link naar deze reactie"
 
-#: templates/dg_board/ticket_detail.html:208
 #: templates/dg_board/ticket_detail.html:214
+#: templates/dg_board/ticket_detail.html:220
 msgid "Reply"
 msgstr "Antwoorden"
 
-#: templates/dg_board/ticket_detail.html:213
+#: templates/dg_board/ticket_detail.html:219
 msgid "Write a reply"
 msgstr "Schrijf een antwoord"
 
-#: templates/dg_board/ticket_detail.html:225
+#: templates/dg_board/ticket_detail.html:232
 msgid "Copy a link to this reply"
 msgstr "Kopieer een link naar dit antwoord"
 
-#: templates/dg_board/ticket_detail.html:250
-#: templates/dg_board/ticket_detail.html:251
+#: templates/dg_board/ticket_detail.html:257
+#: templates/dg_board/ticket_detail.html:259
 msgid "Status"
 msgstr "Status"
 
-#: templates/dg_board/ticket_detail.html:277
+#: templates/dg_board/ticket_detail.html:293
 msgid "Add labels"
 msgstr "Labels toevoegen"
 
-#: templates/dg_board/ticket_detail.html:280
+#: templates/dg_board/ticket_detail.html:297
 msgid "Created"
 msgstr "Aangemaakt"
 
-#: templates/dg_board/ticket_detail.html:288
+#: templates/dg_board/ticket_detail.html:305
 msgid "Watchers"
 msgstr "Volgers"
 
-#: templates/dg_board/ticket_detail.html:293
+#: templates/dg_board/ticket_detail.html:310
 msgid "Stop watching"
 msgstr "Niet meer volgen"
 
-#: templates/dg_board/ticket_detail.html:293
+#: templates/dg_board/ticket_detail.html:310
 msgid "Watch"
 msgstr "Volgen"
 
-#: templates/dg_board/ticket_detail.html:298
+#: templates/dg_board/ticket_detail.html:315
 msgid "Nobody yet."
 msgstr "Nog niemand."
 
-#: templates/dg_board/ticket_detail.html:302
+#: templates/dg_board/ticket_detail.html:319
 #, python-format
 msgid ""
 "Watchers hear about comments, blocking and the ticket being done. Mention "
@@ -883,7 +899,7 @@ msgstr ""
 "Volgers horen over reacties, blokkades en het afronden van het ticket. Noem "
 "iemand met @ en hun handle, zoals @%(handle)s voor jou."
 
-#: templates/dg_board/ticket_detail.html:307
+#: templates/dg_board/ticket_detail.html:324
 msgid ""
 "Watchers hear about comments, blocking and the ticket being done. Mention "
 "someone with @ and their handle."
@@ -891,64 +907,68 @@ msgstr ""
 "Volgers horen over reacties, blokkades en het afronden van het ticket. Noem "
 "iemand met @ en hun handle."
 
-#: templates/dg_board/ticket_detail.html:321
+#: templates/dg_board/ticket_detail.html:339
 msgid "What unblocked it? (optional)"
 msgstr "Wat heeft de blokkade opgeheven? (optioneel)"
 
-#: templates/dg_board/ticket_detail.html:322
+#: templates/dg_board/ticket_detail.html:340
 msgid "Unblock"
 msgstr "Deblokkeren"
 
-#: templates/dg_board/ticket_detail.html:325
-#: templates/dg_board/ticket_detail.html:328
+#: templates/dg_board/ticket_detail.html:343
+#: templates/dg_board/ticket_detail.html:346
 msgid "Mark as blocked"
 msgstr "Als geblokkeerd markeren"
 
-#: templates/dg_board/ticket_detail.html:327
+#: templates/dg_board/ticket_detail.html:345
 msgid "Why is it blocked?"
 msgstr "Waarom is het geblokkeerd?"
 
-#: templates/dg_board/ticket_detail.html:345
+#: templates/dg_board/ticket_detail.html:364
 msgid "Attachments"
 msgstr "Bijlagen"
 
-#: templates/dg_board/ticket_detail.html:360
+#: templates/dg_board/ticket_detail.html:380
 msgid "Drop a file anywhere on this page, or paste a screenshot, to attach it."
 msgstr ""
 "Sleep een bestand ergens op deze pagina, of plak een screenshot, om het toe "
 "te voegen."
 
-#: templates/dg_board/ticket_detail.html:362
+#: templates/dg_board/ticket_detail.html:382
 msgid "Upload a file"
 msgstr "Een bestand uploaden"
 
-#: templates/dg_board/ticket_detail.html:368
+#: templates/dg_board/ticket_detail.html:388
 msgid "Upload"
 msgstr "Uploaden"
 
-#: templates/dg_board/ticket_detail.html:375
+#: templates/dg_board/ticket_detail.html:392
+msgid "None."
+msgstr "Geen."
+
+#: templates/dg_board/ticket_detail.html:397
 msgid "Code"
 msgstr "Code"
 
-#: templates/dg_board/ticket_detail.html:391
+#: templates/dg_board/ticket_detail.html:413
 #, python-format
 msgid ""
 "Pull requests, branches and commits on main that mention %(key)s show here."
 msgstr ""
 "Pull requests, branches en commits op main die %(key)s noemen, staan hier."
 
-#: templates/dg_board/ticket_detail.html:395
+#: templates/dg_board/ticket_detail.html:418
 #, python-format
 msgid "Delete %(key)s, with its comments and relations? This cannot be undone."
 msgstr ""
 "%(key)s verwijderen, met de reacties en relaties? Dit kan niet ongedaan "
 "worden."
 
-#: templates/dg_board/ticket_detail.html:398
+#: templates/dg_board/ticket_detail.html:421
 msgid "Delete ticket"
 msgstr "Ticket verwijderen"
 
-#: templates/dg_board/ticket_detail.html:400
+#: templates/dg_board/ticket_detail.html:423
 msgid ""
 "For a mistake or a duplicate. A ticket decided against goes to Won't do "
 "instead, so its history stays."
@@ -956,7 +976,7 @@ msgstr ""
 "Voor een vergissing of een duplicaat. Een ticket waar je van afziet, gaat "
 "naar Won't do, zodat de geschiedenis blijft."
 
-#: templates/dg_board/ticket_detail.html:406
+#: templates/dg_board/ticket_detail.html:430
 #, python-format
 msgid "Drop to attach to %(key)s"
 msgstr "Loslaten om aan %(key)s toe te voegen"
@@ -973,31 +993,31 @@ msgstr "Titel van het ticket"
 msgid "Create ticket"
 msgstr "Ticket aanmaken"
 
-#: ticket_links.py:32
+#: ticket_links.py:33
 msgid "A link to that ticket."
 msgstr "Een link naar dat ticket."
 
-#: views.py:54
+#: views.py:55
 msgid "All tickets"
 msgstr "Alle tickets"
 
-#: views.py:55
+#: views.py:56
 msgid "Top level"
 msgstr "Bovenste niveau"
 
-#: views.py:56
+#: views.py:57
 msgid "Parents only"
 msgstr "Alleen bovenliggende"
 
-#: views.py:417
+#: views.py:445
 msgid "the title"
 msgstr "de titel"
 
-#: views.py:417
+#: views.py:445
 msgid "the description"
 msgstr "de beschrijving"
 
-#: views.py:420
+#: views.py:448
 #, python-format
 msgid ""
 "%(who)s changed %(what)s while you were editing it. Copy your text, reload "
@@ -1006,31 +1026,31 @@ msgstr ""
 "%(who)s veranderde %(what)s terwijl jij aan het bewerken was. Kopieer je "
 "tekst, laad de pagina opnieuw en pas het nog eens toe."
 
-#: views.py:441
+#: views.py:469
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."
 
-#: views.py:459
+#: views.py:487
 #, python-format
 msgid "Created %(child)s as a child of %(ticket)s."
 msgstr "%(child)s aangemaakt als subticket van %(ticket)s."
 
-#: views.py:496
+#: views.py:524
 #, python-format
 msgid "Deleted %(key)s."
 msgstr "%(key)s verwijderd."
 
-#: views.py:505
+#: views.py:533
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
 
-#: views.py:701
+#: views.py:736
 #, python-format
 msgid "Saved %(group)s."
 msgstr "%(group)s opgeslagen."
 
-#: views.py:732
+#: views.py:768
 #, python-format
 msgid ""
 "%(group)s still holds %(count)s tickets; choose a group to move them to."
@@ -1038,18 +1058,18 @@ msgstr ""
 "%(group)s heeft nog %(count)s tickets; kies een groep om ze naartoe te "
 "verplaatsen."
 
-#: views.py:738
+#: views.py:775
 #, python-format
 msgid "%(group)s has no columns yet."
 msgstr "%(group)s heeft nog geen kolommen."
 
-#: views.py:746
+#: views.py:783
 #, python-format
 msgid "Deleted %(group)s and moved its %(count)s tickets to %(target)s."
 msgstr ""
 "%(group)s verwijderd en de %(count)s tickets verplaatst naar %(target)s."
 
-#: views.py:749
+#: views.py:786
 #, python-format
 msgid "Deleted %(group)s."
 msgstr "%(group)s verwijderd."

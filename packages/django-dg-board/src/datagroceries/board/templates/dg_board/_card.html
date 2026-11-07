@@ -1,7 +1,7 @@
 {% load i18n dg_board %}
 <div class="tk-card{% if ticket.is_blocked or ticket.has_open_blocker %} tk-card-blocked{% endif %}"
      data-ticket="{{ ticket.pk }}" data-move-url="{% url 'dg_board:ticket_move' ticket.pk %}">
-  {% if group %}<a class="tk-insert" href="{% url 'dg_board:ticket_create' %}?before={{ ticket.pk }}" data-quick-create title="{% translate 'New ticket above this one' %}">+</a>{% endif %}
+  {% if group and ticket.column.group_id in writable %}<a class="tk-insert" href="{% url 'dg_board:ticket_create' %}?before={{ ticket.pk }}" data-quick-create title="{% translate 'New ticket above this one' %}">+</a>{% endif %}
   <div class="tk-card-top">
     <span class="tk-key">{{ ticket.key }}</span>
     {% if not group %}<span class="tk-chip">· {{ ticket.column.group }} / {{ ticket.column }}</span>{% endif %}

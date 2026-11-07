@@ -29,6 +29,8 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
   Each ticket shows it as one feed, with the comments and relations.
 - **@-mentions and watchers**: people hear about what concerns them, by email, or any other way your
   project reaches them, such as Slack, with a notifier of its own.
+- **Access per group**, as your project decides: who may read, comment, write or manage, on the pages
+  and for agents alike.
 - **GitHub**: a ticket links to the commits, branches and pull requests that mention its key.
 - **In your project's language**: English and Dutch to start, the Django way, so another language is one
   more translation file.
@@ -93,8 +95,9 @@ Each app does a few things one way, on purpose, so some things are left out:
   a settings file and a URL include ([deploy/web1](deploy/web1/)).
 - **No sprints, estimates in points, due dates, priorities or time tracking**, and no custom fields: a
   ticket's fields are fixed in code. A size (hours, days, weeks) and labels are what there is.
-- **No access per group yet.** Whoever may use the board sees all its groups. Access per group is
-  designed as a hook ([decisions.md](docs/decisions.md)) and comes next.
+- **No access screens of its own.** Whoever may use the board may do everything in it, unless your
+  project says otherwise per group, in one method of your own: read, comment, write or manage
+  ([integrating.md](docs/integrating.md#per-group-of-the-board)).
 - **No live updates.** A page shows what was there when it loaded. In the wiki, a save made on top of
   someone else's is refused, naming them, rather than merged.
 - **English and Dutch only**, for now; another language is one more translation file.

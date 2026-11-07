@@ -142,3 +142,5 @@ LOGGING = {
 }
 
 DG_BOARD_KEY_PREFIX = 'DEMO'
+# Visitors work on tickets, but leave the groups and their columns as they are (people.py).
+DG_PEOPLE = 'demo.people.DemoPeople'

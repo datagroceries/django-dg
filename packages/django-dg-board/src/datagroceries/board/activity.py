@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from simple_history.models import DeletedObject
 
+from datagroceries.board import access
 from datagroceries.board.models import Column, Comment, Group, Relation, Ticket
 from datagroceries.core import people
 
@@ -96,17 +97,25 @@ def _change_line(field: str, old, new) -> str:
     return _('changed %(field)s') % {'field': field}
 
 
-def _relation_line(record, ticket: Ticket) -> str:
+def _other(record, ticket: Ticket) -> int:
+    return record.target_id if record.source_id == ticket.pk else record.source_id
+
+
+def _relation_line(record, ticket: Ticket, hidden: set[int]) -> str:
+    other = _other(record, ticket)
+    name = _('a ticket you cannot see') if other in hidden else Ticket(pk=other).key
     if record.source_id == ticket.pk:
-        relation = f'{Relation.Type(record.type).label} {Ticket(pk=record.target_id).key}'
+        relation = f'{Relation.Type(record.type).label} {name}'
     else:
-        relation = f'{Relation.INVERSE_LABELS[record.type]} {Ticket(pk=record.source_id).key}'
+        relation = f'{Relation.INVERSE_LABELS[record.type]} {name}'
     if record.history_type == '+':
         return _('added "%(relation)s"') % {'relation': relation}
     return _('removed "%(relation)s"') % {'relation': relation}
 
 
-def build_feed(ticket: Ticket) -> list[Entry]:
+def build_feed(ticket: Ticket, user=None) -> list[Entry]:
+    """The ticket's history, relations and comments, newest first, as `user` may see them: a related
+    ticket they may not read is not named. Without a user, as everyone sees it."""
     entries = []
     previous = None
     for record in ticket.history.select_related('history_user').order_by('history_date', 'history_id'):
@@ -136,19 +145,25 @@ def build_feed(ticket: Ticket) -> list[Entry]:
                 )
         previous = record
 
-    relation_records = Relation.history.filter(Q(source_id=ticket.pk) | Q(target_id=ticket.pk)).exclude(
-        history_type='~',
+    relation_records = list(
+        Relation.history.filter(Q(source_id=ticket.pk) | Q(target_id=ticket.pk))
+        .exclude(history_type='~')
+        .select_related('history_user')
     )
+    hidden = set()
+    if user is not None:
+        others = Ticket.objects.filter(pk__in={_other(record, ticket) for record in relation_records})
+        hidden = set(others.exclude(pk__in=access.tickets(user, others)).values_list('pk', flat=True))
     entries += [
         Entry(
             record.history_date,
             record.history_user,
-            [_relation_line(record, ticket)],
+            [_relation_line(record, ticket, hidden)],
             fallback=record.history_change_reason or _('Someone'),
             icon='bi-link-45deg',
             via=_via(record),
         )
-        for record in relation_records.select_related('history_user')
+        for record in relation_records
     ]
 
     comments = (

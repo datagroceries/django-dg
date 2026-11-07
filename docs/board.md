@@ -141,4 +141,9 @@ extension; the address without the name, which older text links to, still works.
   comments. The activity feed turns it into sentences.
 - What both the pages and the API do to a ticket (create, move, assign, block, comment) lives in
   `operations.py`, so both follow the same rules and notify the same people.
+- What someone may do in a group (read, comment, write, manage) is asked in one place, `access.py`, which
+  asks the project's `People.may`. Every view, form, API call and MCP tool goes through it: a ticket is
+  fetched with `access.ticket()` or from `access.tickets()`, never `Ticket.objects` alone, and a change
+  calls `access.require()` first. A related ticket the viewer may not read is marked `hidden` and shown
+  as such. A new view does the same.
 

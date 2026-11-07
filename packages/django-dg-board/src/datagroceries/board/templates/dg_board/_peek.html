@@ -15,7 +15,7 @@
 {% for blocker in open_blockers %}
   <div class="tk-blocked-banner">
     <i class="bi bi-link-45deg"></i>
-    <div class="tk-small">{% translate "Blocked by" %} <a href="{{ blocker.get_absolute_url }}" data-tk-peek="{% url 'dg_board:ticket_peek' blocker.key %}">{{ blocker.key }}</a> {{ blocker.title }}</div>
+    <div class="tk-small">{% translate "Blocked by" %} {% if blocker.hidden %}{% translate "a ticket you cannot see" %}{% else %}<a href="{{ blocker.get_absolute_url }}" data-tk-peek="{% url 'dg_board:ticket_peek' blocker.key %}">{{ blocker.key }}</a> {{ blocker.title }}{% endif %}</div>
   </div>
 {% endfor %}
 
@@ -42,8 +42,9 @@
       {% with other=item.other %}
         <div class="tk-relation">
           <i class="bi {{ other.column.category|category_icon }} tk-cat-{{ other.column.category }}" title="{{ other.column }}"></i>
+          {% if other.hidden %}<span class="tk-muted">{% translate "a ticket you cannot see" %}</span>{% else %}
           <span class="tk-key">{{ other.key }}</span>
-          <a href="{{ other.get_absolute_url }}" data-tk-peek="{% url 'dg_board:ticket_peek' other.key %}"{% if other.column.category == 'done' %} class="tk-done-link"{% endif %} title="{{ other.title }}">{{ other.title }}</a>
+          <a href="{{ other.get_absolute_url }}" data-tk-peek="{% url 'dg_board:ticket_peek' other.key %}"{% if other.column.category == 'done' %} class="tk-done-link"{% endif %} title="{{ other.title }}">{{ other.title }}</a>{% endif %}
         </div>
       {% endwith %}
     {% endfor %}

@@ -227,9 +227,9 @@ ONBOARDING = """Welcome to the team. This page lists what to do in your first we
 
 
 def welcome(visitor):
-    """A ticket of the visitor's own, at the top of To do, that suggests what to try. Any visitor may
-    rename or delete groups and columns until the night's reset, so it goes to the first group's to-do
-    column, whichever that is now, and there is none when no group has a column."""
+    """A ticket of the visitor's own, at the top of To do, that suggests what to try: in the first group's
+    to-do column, and none when no group has a column. Visitors may not change the groups (people.py),
+    but the superuser may."""
     ann = get_user_model().objects.get(username='ann')
     group = Group.objects.filter(columns__isnull=False).first()
     column = group and group.intake_column()
