@@ -1,0 +1,10 @@
+{% load i18n %}{% autoescape off %}{# Every email about one ticket or page has its subject: what happened goes first here. #}{{ message.summary }}
+{% if message.quote %}
+{{ message.quote }}
+{% endif %}
+{{ message.url }}
+
+-- 
+{% blocktranslate with subject=message.subject %}You get this because you watch {{ subject }}.{% endblocktranslate %}
+{% translate "Stop watching on its page" %}: {{ about_url }}
+{% endautoescape %}

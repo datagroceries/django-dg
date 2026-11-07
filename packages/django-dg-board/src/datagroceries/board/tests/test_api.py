@@ -191,7 +191,7 @@ class WriteTests(TicketApiTestCase):
         self.assertIsNotNone(ticket.closed_at)
         [call] = delay.enqueue.call_args_list
         self.assertEqual(addressed(call.args[0]), ['bob@example.com'])
-        self.assertIn('http://', call.args[2])
+        self.assertIn('http://', call.args[1]['url'])
 
     def test_a_column_of_another_group_needs_that_group(self, delay):
         ticket = self.make_ticket()
@@ -262,7 +262,7 @@ class WriteTests(TicketApiTestCase):
         # Bob watches anyway, but hears only that he is mentioned now, not that a comment changed.
         [call] = delay.enqueue.call_args_list
         self.assertEqual(addressed(call.args[0]), ['bob@example.com'])
-        self.assertIn('mentioned you in', call.args[1])
+        self.assertIn('mentioned you in', call.args[1]['summary'])
 
     def test_relations_are_added_checked_and_removed(self, delay):
         ticket, other = self.make_ticket(), self.make_ticket('Other')

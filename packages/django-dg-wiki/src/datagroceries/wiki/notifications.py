@@ -9,6 +9,7 @@ reads a message in their own language, so a message is a sentence still to trans
 from django.utils.translation import gettext_lazy as _
 
 from datagroceries.core import mentions, notifications, people
+from datagroceries.core.notifications import Message
 from datagroceries.wiki.conf import SCOPE
 from datagroceries.wiki.models import Page, Watcher
 
@@ -36,7 +37,7 @@ def written(request, page: Page, before: str):
     new = [user for user in mentions.mentioned(SCOPE, page.body) if user.pk not in before_ids]
     watch(page, *new)
     summary = notifications.say(_('%(person)s mentioned you in %(page)s'), person=people.name(request.user), page=page)
-    notifications.send(new, request.user, summary, _url(request, page))
+    notifications.send(new, Message('mentioned', summary, _url(request, page), page, request.user))
 
 
 def commented(request, comment, before: str | None = None):
@@ -47,12 +48,11 @@ def commented(request, comment, before: str | None = None):
     before_ids = {user.pk for user in mentions.mentioned(SCOPE, before or '')}
     mentioned = [user for user in mentions.mentioned(SCOPE, comment.body) if user.pk not in before_ids]
     watch(page, *mentioned)
-    quote = notifications.snippet(comment.body)
     url = _url(request, page, f'#comment-{comment.pk}')
     names = {'person': people.name(author), 'page': page}
-    notifications.send(
-        mentioned, author, notifications.say(_('%(person)s mentioned you on %(page)s'), **names), url, quote
-    )
+    about = {'about': page, 'actor': author, 'quote': notifications.snippet(comment.body)}
+    summary = notifications.say(_('%(person)s mentioned you on %(page)s'), **names)
+    notifications.send(mentioned, Message('mentioned', summary, url, **about))
     if before is None:
         summary = notifications.say(_('%(person)s commented on %(page)s'), **names)
-        notifications.send(_watchers(page, *mentioned), author, summary, url, quote)
+        notifications.send(_watchers(page, *mentioned), Message('commented', summary, url, **about))

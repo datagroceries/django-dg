@@ -253,6 +253,13 @@ complete as we like.*
   a task once the change is committed, leaving out inactive users. A notifier that raises is logged, and
   the others still hear.
 - **Slack left core** for a dozen lines in integrating.md, with email for whoever Slack cannot reach.
+- **The notifier gets the event, not only a sentence**: `kind`, `actor`, `subject` and the ticket or page
+  itself (`about`), besides the summary, link and quote. With only a sentence, a project could change
+  the channel but not choose by what happened (Slack for mentions, email for the rest), group a digest
+  by ticket, or build a message of its own: not "integrate fully". One call per person stays; a team
+  channel per event would need a language for the channel, and waits until someone asks.
+- **The default email is a good one**: from templates a project overrides, with the ticket or page as
+  subject and in one thread (`In-Reply-To`/`References`), HTML beside the text, and why it came.
 - **Not backwards compatible.** 1.0 was a day old, so `DG_NOTIFICATIONS` and `DG_SLACK_BOT_TOKEN` went
   without a transition; the changelog says so.
 

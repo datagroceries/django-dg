@@ -74,11 +74,11 @@ class NotificationLanguageTests(TicketTestCase):
 
     def summary(self, task) -> str:
         [call] = task.enqueue.call_args_list
-        return call.args[1]
+        return call.args[1]['summary']
 
     def summaries(self, task) -> dict:
         """Each message's summary, by who it went to."""
-        return {tuple(addressed(call.args[0])): call.args[1] for call in task.enqueue.call_args_list}
+        return {tuple(addressed(call.args[0])): call.args[1]['summary'] for call in task.enqueue.call_args_list}
 
     @override_settings(LANGUAGE_CODE='nl', DG_AUTHENTICATION_CLASSES=TEST_AUTHENTICATION)
     def test_in_the_project_s_language_even_from_the_english_api(self, task):

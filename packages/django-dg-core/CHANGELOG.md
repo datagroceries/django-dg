@@ -7,6 +7,12 @@
   Not backwards compatible: `DG_NOTIFICATIONS` and `DG_SLACK_BOT_TOKEN` are gone, and with them Slack and
   the `requests` dependency. Slack is a few lines of your own; docs/integrating.md shows how. The check
   `dg.E003` now says `DG_NOTIFIER` cannot be imported, and `dg.E004` is gone.
+- **A notifier gets the whole event.** `Message` has what happened (`kind`, such as `mentioned`), who did
+  it (`actor`), what it is about (`subject`, and the ticket or page itself as `about`), besides the
+  sentence, the link and the quote. Apps send one with `notifications.send(users, message)`.
+- **The default email is written from templates** (`dg_core/notifications/`), which a project overrides
+  to change how it looks: text and HTML, with the ticket or page as its subject, every email about one
+  in one thread, and a last line saying why it came and where to stop.
 
 ## 1.0.0 (2026-11-07)
 

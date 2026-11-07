@@ -268,13 +268,37 @@ token of your own.
 People hear about what concerns them: being assigned, @-mentioned, or a change on a ticket they watch.
 
 By default they get an email, through your email settings, at the address your `People` gives
-(`email`). Each says what happened, in the person's language, with a link and the text it is about.
+(`email`), in the person's language. It says what happened, quotes the text it is about, links to it,
+and ends with why they get it and where to stop. Its subject is the ticket or page, and every email
+about one ticket or page is in one thread. The email comes from three templates, which you override as
+any other Django template, to change only how it looks:
+
+| Template | |
+|---|---|
+| `dg_core/notifications/email_subject.txt` | the subject, on one line |
+| `dg_core/notifications/email.txt` | the plain text |
+| `dg_core/notifications/email.html` | the HTML, with its styles inline |
+
+Each gets `message`, `user` (whom it goes to) and `about_url` (the page, without the place on it).
 
 To reach people another way, such as in Slack or Teams, inside your project, in a daily digest, or not at
 all when someone said so, subclass `datagroceries.core.notifications.Notifier` and name it in
-`DG_NOTIFIER`. Its one method, `send(user, message)`, is handed the user and a `Message` with `summary`,
-`url` and `quote`. The apps still decide who hears about what, never tell the person who made the change,
-and leave out inactive users. A Slack direct message, with an email for whoever Slack cannot reach, using
+`DG_NOTIFIER`. Its one method, `send(user, message)`, is handed the user and a `Message`, the whole
+event:
+
+| Field | |
+|---|---|
+| `kind` | what happened, the same in every language. The board says `assigned`, `mentioned`, `commented`, `blocked`, `unblocked` and `done`; the wiki `mentioned` and `commented` |
+| `summary` | the same as a sentence in the person's language: "Ann commented on T-12 Fix the login" |
+| `url` | where to see it, such as the comment on the ticket's page |
+| `subject` | what it is about, as people know it: "T-12 Fix the login", a page's title |
+| `about` | that ticket or page itself, such as for its group or labels; None when it was deleted since |
+| `actor` | who made the change |
+| `quote` | the text it concerns, if any, such as the start of the comment |
+
+The apps still decide who hears about what, never tell the person who made the change, and leave out
+inactive users; your notifier decides how, and whether. A Slack direct message for being assigned or
+@-mentioned, and an email for the rest and for whoever Slack cannot reach, using
 [slack_sdk](https://pypi.org/project/slack-sdk/):
 
 ```python
@@ -291,9 +315,13 @@ slack = WebClient(token=settings.SLACK_BOT_TOKEN)  # scopes users:read.email and
 
 class SlackFirst(Notifier):
     def send(self, user, message):
+        if message.kind not in ('assigned', 'mentioned'):
+            return super().send(user, message)
         try:
             found = slack.users_lookupByEmail(email=people.email(user))
             text = f'<{message.url}|{message.summary}>'
+            if message.quote:
+                text += '\n>' + message.quote.replace('\n', '\n>')
             slack.chat_postMessage(channel=found['user']['id'], text=text)
         except SlackApiError:  # not in the workspace, or Slack is down
             super().send(user, message)

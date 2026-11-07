@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 12:02+0100\n"
+"POT-Creation-Date: 2026-11-07 21:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -117,3 +117,18 @@ msgstr "Apps"
 #: templates/dg_core/base.html:38
 msgid "Language"
 msgstr "Taal"
+
+#: templates/dg_core/notifications/email.html:9
+msgid "Open"
+msgstr "Openen"
+
+#: templates/dg_core/notifications/email.html:10
+#: templates/dg_core/notifications/email.txt:8
+#, python-format
+msgid "You get this because you watch %(subject)s."
+msgstr "Je krijgt dit omdat je %(subject)s volgt."
+
+#: templates/dg_core/notifications/email.html:10
+#: templates/dg_core/notifications/email.txt:9
+msgid "Stop watching on its page"
+msgstr "Niet meer volgen kan op de pagina"

@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from datagroceries.board.conf import SCOPE
 from datagroceries.board.models import Column, Ticket, Watcher
 from datagroceries.core import mentions, notifications, people
+from datagroceries.core.notifications import Message
 
 
 def mentioned_users(text: str) -> list:
@@ -49,7 +50,8 @@ def assigned(request, ticket: Ticket):
     summary = notifications.say(
         _('%(person)s assigned %(ticket)s to you'), person=people.name(request.user), ticket=ticket
     )
-    notifications.send([ticket.assignee], request.user, summary, _url(request, ticket))
+    message = Message('assigned', summary, _url(request, ticket), about=ticket, actor=request.user)
+    notifications.send([ticket.assignee], message)
 
 
 def text_written(request, ticket: Ticket, before: str, after: str, anchor: str = ''):
@@ -61,7 +63,7 @@ def text_written(request, ticket: Ticket, before: str, after: str, anchor: str =
     summary = notifications.say(
         _('%(person)s mentioned you in %(ticket)s'), person=people.name(request.user), ticket=ticket
     )
-    notifications.send(new, request.user, summary, _url(request, ticket, anchor))
+    notifications.send(new, Message('mentioned', summary, _url(request, ticket, anchor), ticket, request.user))
 
 
 def commented(request, comment):
@@ -70,20 +72,14 @@ def commented(request, comment):
     watch(ticket, author)
     mentioned = mentioned_users(comment.body)
     watch(ticket, *mentioned)
-    quote = notifications.snippet(comment.body)
     # Straight to the comment, not the top of a long ticket.
     url = _url(request, ticket, f'#comment-{comment.pk}')
     names = {'person': people.name(author), 'ticket': ticket}
-    notifications.send(
-        mentioned, author, notifications.say(_('%(person)s mentioned you on %(ticket)s'), **names), url, quote
-    )
-    notifications.send(
-        _watchers(ticket, *mentioned),
-        author,
-        notifications.say(_('%(person)s commented on %(ticket)s'), **names),
-        url,
-        quote,
-    )
+    about = {'about': ticket, 'actor': author, 'quote': notifications.snippet(comment.body)}
+    summary = notifications.say(_('%(person)s mentioned you on %(ticket)s'), **names)
+    notifications.send(mentioned, Message('mentioned', summary, url, **about))
+    summary = notifications.say(_('%(person)s commented on %(ticket)s'), **names)
+    notifications.send(_watchers(ticket, *mentioned), Message('commented', summary, url, **about))
 
 
 def moved(request, ticket: Ticket, *, was_done: bool):
@@ -95,10 +91,14 @@ def moved(request, ticket: Ticket, *, was_done: bool):
             ticket=ticket,
             column=ticket.column,
         )
-        notifications.send(_watchers(ticket), request.user, summary, _url(request, ticket))
+        notifications.send(_watchers(ticket), Message('done', summary, _url(request, ticket), ticket, request.user))
 
 
 def blocked(request, ticket: Ticket, reason: str):
-    sentence = _('%(person)s blocked %(ticket)s') if ticket.is_blocked else _('%(person)s unblocked %(ticket)s')
+    if ticket.is_blocked:
+        kind, sentence = 'blocked', _('%(person)s blocked %(ticket)s')
+    else:
+        kind, sentence = 'unblocked', _('%(person)s unblocked %(ticket)s')
     summary = notifications.say(sentence, person=people.name(request.user), ticket=ticket)
-    notifications.send(_watchers(ticket), request.user, summary, _url(request, ticket), notifications.snippet(reason))
+    message = Message(kind, summary, _url(request, ticket), ticket, request.user, notifications.snippet(reason))
+    notifications.send(_watchers(ticket), message)
