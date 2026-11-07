@@ -4,7 +4,6 @@ what to do."""
 from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.core import checks
-from django.core.exceptions import ImproperlyConfigured
 from django.db import DatabaseError
 from django.db.models import Q
 from django.shortcuts import resolve_url
@@ -102,17 +101,15 @@ def check_people(app_configs, **kwargs):
 
 
 @checks.register
-def check_notifications(app_configs, **kwargs):
+def check_notifier(app_configs, **kwargs):
     try:
-        order = notifications.channels()
-    except ImproperlyConfigured as error:
-        return [checks.Error(str(error), hint="For example ['email'], or ['slack', 'email'].", id='dg.E003')]
-    if 'slack' in order and not getattr(settings, 'DG_SLACK_BOT_TOKEN', ''):
+        notifications.notifier()
+    except ImportError as error:
         return [
             checks.Error(
-                'DG_NOTIFICATIONS includes Slack, but DG_SLACK_BOT_TOKEN is not set.',
-                hint='Set it to the token of a Slack bot with the scopes users:read.email and chat:write.',
-                id='dg.E004',
+                f'DG_NOTIFIER cannot be imported: {error}',
+                hint='Name a subclass of datagroceries.core.notifications.Notifier, or leave it out for email.',
+                id='dg.E003',
             )
         ]
     return []

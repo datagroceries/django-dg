@@ -266,14 +266,43 @@ token of your own.
 
 People hear about what concerns them: being assigned, @-mentioned, or a change on a ticket they watch.
 
-| Setting | Default | |
-|---|---|---|
-| `DG_NOTIFICATIONS` | `['email']` | the channels to try, in order, for each person: `'email'` sends through your email settings; `'slack'` sends a direct message to the Slack user with the same email address |
-| `DG_SLACK_BOT_TOKEN` | – | the token of a Slack bot with the scopes `users:read.email` and `chat:write`, for `'slack'` |
+By default they get an email, through your email settings, at the address your `People` gives
+(`email`). Each says what happened, in the person's language, with a link and the text it is about.
 
-With `['slack', 'email']`, people get a Slack message, and an email when Slack cannot reach them: they
-are not in the workspace, or Slack is down. Someone no channel reaches is logged as an error, and the
-others still hear about it. `manage.py check` refuses an unknown channel, and Slack without a token.
+To reach people another way, such as in Slack or Teams, inside your project, in a daily digest, or not at
+all when someone said so, subclass `datagroceries.core.notifications.Notifier` and name it in
+`DG_NOTIFIER`. Its one method, `send(user, message)`, is handed the user and a `Message` with `summary`,
+`url` and `quote`. The apps still decide who hears about what, never tell the person who made the change,
+and leave out inactive users. A Slack direct message, with an email for whoever Slack cannot reach, using
+[slack_sdk](https://pypi.org/project/slack-sdk/):
+
+```python
+# myproject/notifications.py
+from django.conf import settings
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
+from datagroceries.core import people
+from datagroceries.core.notifications import Notifier
+
+slack = WebClient(token=settings.SLACK_BOT_TOKEN)  # scopes users:read.email and chat:write
+
+
+class SlackFirst(Notifier):
+    def send(self, user, message):
+        try:
+            found = slack.users_lookupByEmail(email=people.email(user))
+            text = f'<{message.url}|{message.summary}>'
+            slack.chat_postMessage(channel=found['user']['id'], text=text)
+        except SlackApiError:  # not in the workspace, or Slack is down
+            super().send(user, message)
+```
+
+```python
+DG_NOTIFIER = 'myproject.notifications.SlackFirst'
+```
+
+When `send` raises, the error is logged and the others still hear about it.
 
 A message goes out as a task once the change is committed:
 
@@ -310,8 +339,7 @@ The wiki's pages offer the languages of your project's `LANGUAGES` for a page an
 | `dg.W002` | `LOGIN_URL` leads nowhere | point it at your sign-in page |
 | `dg.W003` | only superusers may use an app | grant its permission to a group |
 | `dg_board.E001` | `django.contrib.humanize` is not installed | add it to `INSTALLED_APPS` |
-| `dg.E003` | `DG_NOTIFICATIONS` lists an unknown channel | list `'email'` and `'slack'` only |
-| `dg.E004` | Slack without `DG_SLACK_BOT_TOKEN` | set the bot's token |
+| `dg.E003` | `DG_NOTIFIER` cannot be imported | name your `Notifier` subclass, or leave the setting out |
 | `dg_connect.E001` | django-oauth-toolkit is not installed | add `'oauth2_provider'` to `INSTALLED_APPS` |
 
 ## Moving your tickets over

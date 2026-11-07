@@ -20,6 +20,11 @@ def person(*permissions: str, **fields):
     return grant(get_user_model().objects.create_user(**fields), *permissions)
 
 
+def addressed(pks) -> list[str]:
+    """Who a notification went to, by email address: the people whose keys the task was given."""
+    return sorted(get_user_model().objects.filter(pk__in=pks).values_list('email', flat=True))
+
+
 @dataclasses.dataclass
 class IssuedToken:
     """A token as the tests hand it out, shaped as the real ones are: a name, and the space-separated areas

@@ -27,8 +27,8 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
   dropped or pasted onto the page. Parents and subtasks, blockers, duplicates and related tickets.
 - **History**: every change to a ticket is kept, with who made it, and through which agent if one did.
   Each ticket shows it as one feed, with the comments and relations.
-- **@-mentions and watchers**: people hear about what concerns them, by email or in Slack. With both,
-  Slack comes first, and whoever is not in Slack gets an email.
+- **@-mentions and watchers**: people hear about what concerns them, by email, or any other way your
+  project reaches them, such as Slack, with a notifier of its own.
 - **GitHub**: a ticket links to the commits, branches and pull requests that mention its key.
 - **In your project's language**: English and Dutch to start, the Django way, so another language is one
   more translation file.
@@ -97,7 +97,8 @@ Each app does a few things one way, on purpose, so some things are left out:
 - **No live updates.** A page shows what was there when it loaded. In the wiki, a save made on top of
   someone else's is refused, naming them, rather than merged.
 - **English and Dutch only**, for now; another language is one more translation file.
-- **Notifications by email and Slack only**, and nothing comes in by email.
+- **Notifications by email, out of the box.** Slack, Teams or anything else is a notifier of your own,
+  a few lines ([integrating.md](docs/integrating.md#notifications)). Nothing comes in by email.
 
 ## Design principles
 

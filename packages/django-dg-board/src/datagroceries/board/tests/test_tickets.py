@@ -15,6 +15,7 @@ from datagroceries.board.tests import member
 from datagroceries.core import backlinks
 from datagroceries.core.people import People
 from datagroceries.core.templatetags.dg_core import render_markdown
+from datagroceries.core.tests import addressed
 
 
 class FirstNamePeople(People):
@@ -1103,7 +1104,7 @@ class NotificationTests(TicketTestCase):
 
     def sent(self, task):
         """Each message as the people it went to and its summary, address and quote on lines of their own."""
-        return [(tuple(call.args[0]), '\n'.join(call.args[1:])) for call in task.enqueue.call_args_list]
+        return [(tuple(addressed(call.args[0])), '\n'.join(call.args[1:])) for call in task.enqueue.call_args_list]
 
     def test_a_comment_tells_the_other_watchers_but_not_its_author(self, delay):
         ticket = self.make_ticket()

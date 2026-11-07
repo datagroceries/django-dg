@@ -3,6 +3,7 @@ from unittest import mock
 from django.urls import reverse
 
 from datagroceries.core import markdown
+from datagroceries.core.tests import addressed
 from datagroceries.wiki.forms import fingerprint
 from datagroceries.wiki.models import Comment, Watcher
 from datagroceries.wiki.tests import member
@@ -22,7 +23,7 @@ class CommentTests(WikiTestCase):
 
     def sent(self, task):
         """Each message as the people it went to and its summary, address and quote on lines of their own."""
-        return [(tuple(call.args[0]), '\n'.join(call.args[1:])) for call in task.enqueue.call_args_list]
+        return [(tuple(addressed(call.args[0])), '\n'.join(call.args[1:])) for call in task.enqueue.call_args_list]
 
     def comment(self, body, parent=None):
         data = {'body': body, 'parent': parent.pk if parent else ''}

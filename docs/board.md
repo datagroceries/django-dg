@@ -54,7 +54,7 @@ less to build, test and keep working, and a board that behaves the same for the 
 ### Integrations
 
 - GitHub: a ticket links to the commits, branches and PRs that mention its key.
-- Notifications to watchers, by email or Slack. Creator, assignee, commenters and @-mentioned people
+- Notifications to watchers, by email or the project's own notifier. Creator, assignee, commenters and @-mentioned people
   watch automatically, and anyone can toggle it.
 - AI agents read and write tickets through the REST API and the MCP tools, as the person who connected them.
 

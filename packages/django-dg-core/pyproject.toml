@@ -15,7 +15,6 @@ dependencies = [
     "markdown",
     "nh3",
     "pymdown-extensions",
-    "requests",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

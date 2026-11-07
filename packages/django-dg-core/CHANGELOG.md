@@ -1,5 +1,13 @@
 # Changelog of django-dg-core
 
+## Unreleased
+
+- **Notifications are a hook.** How someone hears about a change is a subclass of
+  `datagroceries.core.notifications.Notifier`, named in `DG_NOTIFIER`; the default is an email, as before.
+  Not backwards compatible: `DG_NOTIFICATIONS` and `DG_SLACK_BOT_TOKEN` are gone, and with them Slack and
+  the `requests` dependency. Slack is a few lines of your own; docs/integrating.md shows how. The check
+  `dg.E003` now says `DG_NOTIFIER` cannot be imported, and `dg.E004` is gone.
+
 ## 1.0.0 (2026-11-07)
 
 The first release: the one MCP endpoint for every installed DataGroceries app, the checks on every way in

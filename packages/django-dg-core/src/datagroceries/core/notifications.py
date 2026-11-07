@@ -1,29 +1,31 @@
-"""Telling people about a change: by email, in a Slack direct message, or the one with the other as a
-fallback.
+"""Telling people about a change.
 
-`DG_NOTIFICATIONS` lists the channels in the order to try them, for each person apart: the first that
-reaches them is used. `['email']` (the default) sends through Django's email settings; `['slack']` sends a
-direct message from the bot whose token is `DG_SLACK_BOT_TOKEN`, to the Slack user with the same email
-address; `['slack', 'email']` does that, and emails whoever Slack cannot reach: someone not in the
-workspace, or anyone while Slack is down. One channel may also be given as a string.
+Who hears about what is the apps' to decide: the people watching a ticket or a page, those @-mentioned,
+a new assignee, never whoever made the change. How it reaches them comes from one class, `Notifier`. By
+default it is an email through Django's email settings, to the address `People` gives. A host project
+that reaches its people another way, such as in Slack or Teams, inside the project, in a daily digest or
+not at all when someone said so, names a subclass in `DG_NOTIFIER`; docs/integrating.md shows one for
+Slack.
 
 A message goes out once the change is committed, as a task on Django's task backend (`TASKS`), which runs
 it at once unless the host project sets up a worker. On Django 5.2 that takes the `django-tasks` backport;
-without it, the message goes out in the request. Someone no channel reaches is logged, not raised, so the
-others still hear about it.
+without it, the message goes out in the request. Someone the notifier fails to reach is logged, not
+raised, so the others still hear about it.
 """
 
+import dataclasses
 import functools
 import logging
-import smtplib
 from collections import defaultdict
 
-import requests
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.core.signals import setting_changed
 from django.db import transaction
+from django.dispatch import receiver
 from django.utils import translation
+from django.utils.module_loading import import_string
 
 try:
     from django.tasks import task  # Django 6
@@ -41,93 +43,68 @@ except ImportError:
 from datagroceries.core import people
 
 logger = logging.getLogger(__name__)
-SLACK_API = 'https://slack.com/api/'
 
 
-class UnreachableError(Exception):
-    """A channel cannot reach this person, now: the next channel is tried."""
+@dataclasses.dataclass(frozen=True)
+class Message:
+    """What a person is told: `summary` in their language ("Ann commented on T-12 Fix the login"), a link
+    to what it is about, and the text it concerns, if any."""
+
+    summary: str
+    url: str
+    quote: str = ''
+
+
+class Notifier:
+    """The default way people hear about a change: an email. Subclass it to reach them another way, and
+    name the subclass in `DG_NOTIFIER`."""
+
+    def send(self, user, message: Message):
+        """Tell `user` the `message`: by default an email to their address (`people.email`), and nothing
+        when they have none."""
+        if address := people.email(user):
+            body = f'{message.quote}\n\n{message.url}' if message.quote else message.url
+            send_mail(message.summary, body, None, [address])
+
+
+@functools.cache
+def notifier() -> Notifier:  # cleared when the setting changes, as in tests
+    path = getattr(settings, 'DG_NOTIFIER', None)
+    return import_string(path)() if path else Notifier()
+
+
+@receiver(setting_changed)
+def _forget_notifier(setting, **kwargs):
+    if setting == 'DG_NOTIFIER':
+        notifier.cache_clear()
 
 
 def notify(users, summary, url: str, quote: str = ''):
-    """Tell `users` that `summary` ("Ann commented on T-12 Fix the login"), with a link to `url` and
-    the text it is about, if any, once the current transaction is committed.
+    """Tell `users` that `summary`, with a link to `url` and the text it is about, if any, once the current
+    transaction is committed.
 
     Each person reads it in their own language (people.language): `summary` is a function that says it
     in the active language, called once for each language among them.
     """
-    by_language = defaultdict(set)
+    by_language = defaultdict(list)
     for user in users:
-        if user.is_active and (address := people.email(user)):
-            by_language[people.language(user)].add(address)
-    for language, emails in by_language.items():
+        if user.is_active:
+            # As text, so that the task's arguments are JSON whatever the user model's key is.
+            by_language[people.language(user)].append(str(user.pk))
+    for language, pks in by_language.items():
         with translation.override(language):
             text = summary()
-        transaction.on_commit(functools.partial(send_notification.enqueue, sorted(emails), text, url, quote))
-
-
-def channels() -> list[str]:
-    """The channels to try, in order (DG_NOTIFICATIONS)."""
-    setting = getattr(settings, 'DG_NOTIFICATIONS', ['email'])
-    found = [setting] if isinstance(setting, str) else list(setting)
-    if not found or any(channel not in CHANNELS for channel in found):
-        raise ImproperlyConfigured(f'DG_NOTIFICATIONS is {setting!r}; it lists "email" and "slack".')
-    return found
+        transaction.on_commit(functools.partial(send_notification.enqueue, pks, text, url, quote))
 
 
 @task
-def send_notification(emails: list[str], summary: str, url: str, quote: str):
-    order = channels()
-    for email in emails:
-        for channel in order:
-            try:
-                CHANNELS[channel](email, summary, url, quote)
-                break
-            except UnreachableError as reason:
-                logger.info('Notification by %s did not reach %s: %s', channel, email, reason)
-        else:
-            logger.error('No notification channel reached %s about %r.', email, summary)
-
-
-def _by_email(email: str, summary: str, url: str, quote: str):
-    body = f'{quote}\n\n{url}' if quote else url
-    try:
-        send_mail(summary, body, None, [email])
-    except (smtplib.SMTPException, OSError) as error:
-        raise UnreachableError(error) from error
-
-
-def _by_slack(email: str, summary: str, url: str, quote: str):
-    text = f'<{url}|{_slack_escape(summary)}>'
-    if quote:
-        text += '\n' + '\n'.join(f'> {_slack_escape(line)}' for line in quote.splitlines())
-    user = _slack('users.lookupByEmail', {'email': email})['user']
-    _slack('chat.postMessage', {'channel': user['id'], 'text': text})
-
-
-CHANNELS = {'email': _by_email, 'slack': _by_slack}
-
-
-def _slack(method: str, data: dict) -> dict:
-    """Call Slack's Web API. Slack being down, a refusal, or someone not in the workspace
-    (`users_not_found`) all make the person unreachable this way."""
-    try:
-        response = requests.post(
-            f'{SLACK_API}{method}',
-            data=data,
-            headers={'Authorization': f'Bearer {settings.DG_SLACK_BOT_TOKEN}'},
-            timeout=10,
-        )
-        response.raise_for_status()
-        answer = response.json()
-    except (requests.RequestException, ValueError) as error:
-        raise UnreachableError(f'Slack {method}: {error}') from error
-    if not answer.get('ok'):
-        raise UnreachableError(f'Slack {method}: {answer.get("error")}')
-    return answer
-
-
-def _slack_escape(text: str) -> str:
-    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+def send_notification(pks: list[str], summary: str, url: str, quote: str):
+    message = Message(summary, url, quote)
+    for user in get_user_model()._default_manager.filter(pk__in=pks):
+        try:
+            notifier().send(user, message)
+        except Exception:
+            logger.exception('Notifying %s of %r failed.', user, summary)
 
 
 SNIPPET_LENGTH = 300

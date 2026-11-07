@@ -1,104 +1,97 @@
-"""Tests for notifications by email and Slack, with one as the other's fallback (datagroceries.core.notifications)."""
+"""Tests for telling people about a change, by email or through the project's own notifier
+(datagroceries.core.notifications)."""
 
 import smtplib
 from unittest import mock
 
-import requests
+from django.contrib.auth import get_user_model
 from django.core import mail
-from django.core.exceptions import ImproperlyConfigured
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from datagroceries.core import checks, notifications
 
-IN_SLACK = {'ann@example.com': 'U1'}  # Bob is not in the workspace
+SENT = []
 
 
-def slack_api(url, data, headers, timeout):
-    """Slack's Web API, as far as the notifications use it."""
-    response = mock.Mock()
-    response.raise_for_status.return_value = None
-    if url.endswith('users.lookupByEmail'):
-        found = IN_SLACK.get(data['email'])
-        response.json.return_value = (
-            {'ok': True, 'user': {'id': found}} if found else {'ok': False, 'error': 'users_not_found'}
-        )
-    else:
-        response.json.return_value = {'ok': True}
-    return response
+class Recorder(notifications.Notifier):
+    """A project's own notifier: it is handed the user and the message."""
+
+    def send(self, user, message):
+        SENT.append((user.username, message))
 
 
-def send(*emails):
-    notifications.send_notification.call(list(emails), 'Ann commented on T-1', 'https://example.com/T-1', 'Done!')
+class NotifierTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        users = get_user_model().objects
+        cls.ann = users.create_user('ann', email='ann@example.com')
+        cls.bob = users.create_user('bob', email='bob@example.com')
+        cls.nobody = users.create_user('nobody')
 
+    def setUp(self):
+        SENT.clear()
 
-@override_settings(DG_SLACK_BOT_TOKEN='xoxb-test')
-@mock.patch('datagroceries.core.notifications.requests.post', side_effect=slack_api)
-class ChannelTests(SimpleTestCase):
-    def slack_messages(self, post) -> list[str]:
-        return [call.kwargs['data']['channel'] for call in post.call_args_list if call.args[0].endswith('postMessage')]
+    def tell(self, *users):
+        with self.captureOnCommitCallbacks(execute=True):
+            notifications.notify(users, lambda: 'Ann commented on T-1', 'https://example.com/T-1', 'Done!')
 
-    def test_email_by_default(self, post):
-        send('ann@example.com')
+    def test_an_email_by_default(self):
+        self.tell(self.ann)
 
         [message] = mail.outbox
         self.assertEqual(
             (message.subject, message.to, message.body),
             ('Ann commented on T-1', ['ann@example.com'], 'Done!\n\nhttps://example.com/T-1'),
         )
-        post.assert_not_called()
 
-    @override_settings(DG_NOTIFICATIONS='slack')
-    def test_slack_alone_may_be_given_as_a_string(self, post):
-        send('ann@example.com')
+    def test_someone_without_an_email_address_hears_nothing_by_default(self):
+        self.tell(self.nobody)
 
-        self.assertEqual(self.slack_messages(post), ['U1'])
         self.assertEqual(mail.outbox, [])
 
-    @override_settings(DG_NOTIFICATIONS=['slack', 'email'])
-    def test_whoever_slack_cannot_reach_gets_an_email(self, post):
-        send('ann@example.com', 'bob@example.com')
+    def test_someone_inactive_is_not_told(self):
+        self.bob.is_active = False
 
-        self.assertEqual(self.slack_messages(post), ['U1'])
-        self.assertEqual([message.to for message in mail.outbox], [['bob@example.com']])
+        self.tell(self.bob)
 
-    @override_settings(DG_NOTIFICATIONS=['slack', 'email'])
-    def test_everyone_gets_an_email_while_slack_is_down(self, post):
-        post.side_effect = requests.ConnectionError('Slack is down')
+        self.assertEqual(mail.outbox, [])
 
-        send('ann@example.com', 'bob@example.com')
+    @override_settings(DG_NOTIFIER=f'{__name__}.Recorder')
+    def test_the_projects_notifier_gets_the_user_and_the_message(self):
+        self.tell(self.ann, self.nobody)
 
-        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(
+            sorted(SENT),
+            [
+                ('ann', notifications.Message('Ann commented on T-1', 'https://example.com/T-1', 'Done!')),
+                ('nobody', notifications.Message('Ann commented on T-1', 'https://example.com/T-1', 'Done!')),
+            ],
+        )
+        self.assertEqual(mail.outbox, [])
 
-    @override_settings(DG_NOTIFICATIONS=['email', 'slack'])
-    def test_slack_takes_over_when_email_fails(self, post):
-        with mock.patch('datagroceries.core.notifications.send_mail', side_effect=smtplib.SMTPException('refused')):
-            send('ann@example.com')
+    def test_someone_who_cannot_be_reached_is_logged_and_the_others_still_hear(self):
+        def refuse_bob(subject, body, sender, to):
+            if to == ['bob@example.com']:
+                raise smtplib.SMTPRecipientsRefused({})
+            mail.outbox.append(to)
 
-        self.assertEqual(self.slack_messages(post), ['U1'])
+        with (
+            mock.patch('datagroceries.core.notifications.send_mail', side_effect=refuse_bob),
+            self.assertLogs('datagroceries.core.notifications', 'ERROR') as logged,
+        ):
+            self.tell(self.bob, self.ann)
 
-    @override_settings(DG_NOTIFICATIONS=['slack'])
-    def test_someone_no_channel_reaches_is_logged_and_the_others_still_hear(self, post):
-        with self.assertLogs('datagroceries.core.notifications', 'ERROR') as logged:
-            send('bob@example.com', 'ann@example.com')
-
-        self.assertIn('bob@example.com', logged.output[0])
-        self.assertEqual(self.slack_messages(post), ['U1'])
+        self.assertIn('bob', logged.output[0])
+        self.assertEqual(mail.outbox, [['ann@example.com']])
 
 
 class SettingTests(SimpleTestCase):
     def ids(self) -> list[str]:
-        return [message.id for message in checks.check_notifications(None)]
+        return [message.id for message in checks.check_notifier(None)]
 
-    @override_settings(DG_NOTIFICATIONS=['pigeon'])
-    def test_an_unknown_channel_is_refused(self):
-        with self.assertRaises(ImproperlyConfigured):
-            notifications.channels()
-        self.assertEqual(self.ids(), ['dg.E003'])
-
-    @override_settings(DG_NOTIFICATIONS=['slack', 'email'], DG_SLACK_BOT_TOKEN='')
-    def test_slack_needs_its_token(self):
-        self.assertEqual(self.ids(), ['dg.E004'])
-
-    @override_settings(DG_NOTIFICATIONS=['slack', 'email'], DG_SLACK_BOT_TOKEN='xoxb-test')
-    def test_slack_with_its_token_passes(self):
+    def test_email_needs_no_setting(self):
         self.assertEqual(self.ids(), [])
+
+    @override_settings(DG_NOTIFIER='myproject.notifications.Pigeon')
+    def test_a_notifier_that_cannot_be_imported_is_refused(self):
+        self.assertEqual(self.ids(), ['dg.E003'])

@@ -10,7 +10,7 @@ from rest_framework.test import APIClient
 from datagroceries.board.activity import build_feed
 from datagroceries.board.models import Column, Comment, Group, Relation, Ticket, Watcher
 from datagroceries.board.tests import member
-from datagroceries.core.tests import TEST_AUTHENTICATION, issue
+from datagroceries.core.tests import TEST_AUTHENTICATION, addressed, issue
 
 URL = '/dg/board/api/tickets/'
 
@@ -190,7 +190,7 @@ class WriteTests(TicketApiTestCase):
         ticket.refresh_from_db()
         self.assertIsNotNone(ticket.closed_at)
         [call] = delay.enqueue.call_args_list
-        self.assertEqual(call.args[0], ['bob@example.com'])
+        self.assertEqual(addressed(call.args[0]), ['bob@example.com'])
         self.assertIn('http://', call.args[2])
 
     def test_a_column_of_another_group_needs_that_group(self, delay):
@@ -219,7 +219,7 @@ class WriteTests(TicketApiTestCase):
 
         ticket.refresh_from_db()
         self.assertEqual((ticket.assignee, ticket.title), (self.bob, 'Renamed'))
-        self.assertEqual(delay.enqueue.call_args.args[0], ['bob@example.com'])
+        self.assertEqual(addressed(delay.enqueue.call_args.args[0]), ['bob@example.com'])
 
     def test_an_unknown_assignee_changes_nothing(self, delay):
         ticket = self.make_ticket()
@@ -261,7 +261,7 @@ class WriteTests(TicketApiTestCase):
         self.assertEqual(theirs.body, 'Theirs')
         # Bob watches anyway, but hears only that he is mentioned now, not that a comment changed.
         [call] = delay.enqueue.call_args_list
-        self.assertEqual(call.args[0], ['bob@example.com'])
+        self.assertEqual(addressed(call.args[0]), ['bob@example.com'])
         self.assertIn('mentioned you in', call.args[1])
 
     def test_relations_are_added_checked_and_removed(self, delay):

@@ -67,6 +67,7 @@ own layout. See "Core checks credentials, connect issues them" and "Fitting into
 - **Notifications** run on Django's own task framework (`django.tasks`) instead of Celery, so a project
   needs no worker to start; one with a worker sets up a task backend. A message is a summary, a link
   and a quote, which the email and Slack channels each lay out.
+  *Since 7 November how a message reaches someone is a hook, `Notifier`, and Slack left core.*
 - **The host's `base.html`** gives the pages Bootstrap 5, Bootstrap Icons and messages; the board brings
   its own scripts, htmx included.
 
@@ -235,3 +236,19 @@ Claude still connects with one URL. Worked out in a design proposal, tried in a 
   would have to add it to `AUTHENTICATION_BACKENDS`, and projects with backends of their own would have to
   fit it in. An integrator who wants restrictions uses `has_perm`, django-guardian or a model of their own
   inside the hook.
+
+## 2026-11-07: Notifications are a hook (G-47)
+
+- **Why.** Notifications were a choice from a menu, `DG_NOTIFICATIONS` with `'email'` and `'slack'` in the
+  order to try them: what "Hooks, not choices" rules out. A project with Teams, its own Slack ids, a digest
+  or people's own preferences could not plug them in, and core needed `requests` for a Slack that none of
+  our own projects uses. It came along from Eddy Grid.
+- **One class, `Notifier`, named in `DG_NOTIFIER`**, as `People` in `DG_PEOPLE`. Its `send(user, message)`
+  gets the user, not an address, so it can reach them any way it likes, or not at all. The default emails
+  `people.email(user)` through Django's email settings, with no code needed.
+- **The apps keep deciding who hears about what**, core says it in each person's language and sends it as
+  a task once the change is committed, leaving out inactive users. A notifier that raises is logged, and
+  the others still hear.
+- **Slack left core** for a dozen lines in integrating.md, with email for whoever Slack cannot reach.
+- **Not backwards compatible.** 1.0 was a day old, so `DG_NOTIFICATIONS` and `DG_SLACK_BOT_TOKEN` went
+  without a transition; the changelog says so.

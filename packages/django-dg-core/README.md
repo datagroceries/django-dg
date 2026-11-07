@@ -14,7 +14,7 @@ app, such as [django-dg-board](https://pypi.org/project/django-dg-board/), bring
 - **People.** Who may use an app is a Django permission; how DataGroceries names people, their @-handles,
   their email address and their image come from one class a project may subclass. No assumptions about
   the user model.
-- **Notifications** by email, Slack, or Slack with email as fallback, once the change is committed.
+- **Notifications** by email, or through a notifier of the project's own, once the change is committed.
 - **A layout of its own**, with Bootstrap and Bootstrap Icons in the package, so the apps' pages work in
   any project; override one template to show them in yours.
 - **Markdown**, rendered and sanitised the same way in every app (GitHub's lists, tables, task lists),
