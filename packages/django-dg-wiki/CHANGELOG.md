@@ -1,6 +1,6 @@
 # Changelog of django-dg-wiki
 
-## 1.0.0 (unreleased)
+## 1.0.0 (2026-11-07)
 
 The first release: pages in Markdown in one tree, at addresses that follow it, put in order by dragging,
 with old addresses that keep leading to their page; links between pages, `[[Engineering/Deploying]]`, by the

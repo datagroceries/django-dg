@@ -1,6 +1,6 @@
 # Changelog of django-dg-core
 
-## 1.0.0 (unreleased)
+## 1.0.0 (2026-11-07)
 
 The first release: the one MCP endpoint for every installed DataGroceries app, the checks on every way in
 (registered token packages and the project's own DRF authentication, with the `401` that points MCP

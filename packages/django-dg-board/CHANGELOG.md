@@ -1,6 +1,6 @@
 # Changelog of django-dg-board
 
-## 1.0.0 (unreleased)
+## 1.0.0 (2026-11-07)
 
 The first release: the kanban board with groups and their own columns, tickets with parents, relations,
 blockers, labels, sizes, comments and attachments, @-mentions and watchers, the activity feed, links to
