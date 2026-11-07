@@ -1,7 +1,8 @@
 """The areas of the Gilde apps that agents reach: one per app, such as the board.
 
 An app registers its area in its AppConfig.ready(). An area is a token scope, the Django permission
-that lets someone use it (gilde.core.people), a sentence for the agent about it, and its MCP tools. A
+that lets someone use it (gilde.core.people), a sentence for the agent about it, and its MCP tools; and,
+for the switch between the apps at the top of every page, the URL name of its start page and an icon. A
 token opens an area only while its user still may use it, so losing that right ends it on every token
 at once.
 """
@@ -20,6 +21,8 @@ class Area:
     permission: str
     instructions: str
     tools: tuple = ()
+    home: str = ''
+    icon: str = ''
 
 
 AREAS: dict[str, Area] = {}

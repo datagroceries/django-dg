@@ -218,4 +218,6 @@ AREA = Area(
     instructions=f'The board is the ticket tracker: look a ticket up when someone mentions its key ({EXAMPLE}). '
     "A comment reaches the ticket's watchers at once.",
     tools=TOOLS,
+    home='gilde_board:board',
+    icon='kanban',
 )

@@ -20,7 +20,16 @@ blocks title, extra_head, content, container_class and extra_scripts.
   </head>
   <body>
     <nav class="navbar border-bottom px-3 py-1 small">
-      <a class="link-secondary text-decoration-none" href="/"><i class="bi bi-arrow-left"></i> {{ request.get_host }}</a>
+      <div class="d-flex align-items-center gap-3">
+        <a class="link-secondary text-decoration-none" href="/"><i class="bi bi-arrow-left"></i> {{ request.get_host }}</a>
+        {% gilde_apps as gilde_apps %}{% if gilde_apps %}
+          <ul class="gilde-apps" aria-label="{% translate 'Apps' %}">
+            {% for app in gilde_apps %}
+              <li><a href="{{ app.url }}"{% if app.current %} aria-current="page"{% endif %}>{% if app.icon %}<i class="bi bi-{{ app.icon }}"></i> {% endif %}{{ app.label }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
       <div class="d-flex align-items-center gap-3">
         {% gilde_languages as languages %}{% if languages %}
           <form method="post" action="{% url 'gilde_core:set_language' %}" class="dropdown">

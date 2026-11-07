@@ -4,9 +4,10 @@ import pathlib
 from django import template
 from django.apps import apps
 from django.conf import settings
+from django.urls import reverse
 from django.utils.translation import get_language_info
 
-from gilde.core import markdown, mentions, people
+from gilde.core import areas, markdown, mentions, people
 
 register = template.Library()
 
@@ -29,6 +30,23 @@ def mention_people(scope: str):
     """The people an @-mention in the area `scope` reaches, for the editor's suggestions; before
     gilde_core/_editor_assets.html."""
     return mentions.people_json(scope)
+
+
+@register.simple_tag(takes_context=True)
+def gilde_apps(context) -> list[dict]:
+    """The Gilde apps the person may use, to switch between at the top of the page, the one shown marked;
+    none with only one, as there is nothing to switch to."""
+    request = context.get('request')
+    if request is None or not request.user.is_authenticated:
+        return []
+    found = [
+        {'label': area.label, 'icon': area.icon, 'url': reverse(area.home)}
+        for scope, area in areas.AREAS.items()
+        if area.home and people.may_use(request.user, scope)
+    ]
+    for app in found:
+        app['current'] = request.path.startswith(app['url'])
+    return found if len(found) > 1 else []
 
 
 @register.inclusion_tag('gilde_core/_markdown_help.html')

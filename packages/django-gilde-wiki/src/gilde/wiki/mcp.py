@@ -206,4 +206,6 @@ AREA = Area(
     instructions="The wiki is the team's own knowledge: pages in Markdown, in one tree. Search it before "
     'answering from memory about how the team works, and read a page before changing it.',
     tools=TOOLS,
+    home='gilde_wiki:home',
+    icon='journal-text',
 )

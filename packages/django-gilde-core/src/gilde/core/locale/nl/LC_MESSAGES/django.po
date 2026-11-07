@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 10:26+0100\n"
+"POT-Creation-Date: 2026-11-07 12:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -110,6 +110,10 @@ msgstr ""
 "Een nieuwe regel blijft een nieuwe regel; een lege regel begint een nieuwe "
 "alinea."
 
-#: templates/gilde_core/base.html:29
+#: templates/gilde_core/base.html:26
+msgid "Apps"
+msgstr "Apps"
+
+#: templates/gilde_core/base.html:38
 msgid "Language"
 msgstr "Taal"
