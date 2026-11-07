@@ -1,6 +1,6 @@
-# Gilde's public demo on web1; copied to /etc/caddy/sites/gilde-demo.caddy. Source: the Gilde repository,
+# DataGroceries' public demo on web1; copied to /etc/caddy/sites/gilde-demo.caddy. Source: the DataGroceries repository,
 # deploy/demo/.
-demo.gildehq.com {
+demo.datagroceries.com {
 	# Uploads up to 5 MB: the board allows 20, but this is a public server with a small disk.
 	request_body {
 		max_size 5MB

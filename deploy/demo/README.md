@@ -1,13 +1,13 @@
 # The public demo
 
-https://demo.gildehq.com: anyone gets an account with one click, without an email address or a password,
+https://demo.datagroceries.com: anyone gets an account with one click, without an email address or a password,
 finds a small team, a few tickets and a small wiki beside them, and connects Claude to it. Every night at
 04:00 (Amsterdam time) it starts again from the same board and wiki, so nothing a visitor does lasts, and
 there is nothing to moderate or keep.
 
 The project in this folder, `demo`, is the demo's own code: the welcome page and its button
 ([views.py](demo/views.py)), the board and wiki a visitor finds ([seed.py](demo/seed.py)), and the nightly
-fresh start (`manage.py reset_demo`). It runs on web1, next to Gilde's own instance
+fresh start (`manage.py reset_demo`). It runs on web1, next to DataGroceries' own instance
 ([../web1](../web1/README.md)), but apart from it: its own system user, service and SQLite database.
 
 - **Accounts**: "Try it" makes `visitor-1234`, named Visitor 1234, with no password, puts them in the
@@ -20,7 +20,7 @@ fresh start (`manage.py reset_demo`). It runs on web1, next to Gilde's own insta
 
 | Path | What |
 | --- | --- |
-| `/srv/gilde-demo/app` | A clone of Gilde's own instance's clone, `/srv/gilde/app`, so it needs no deploy key of its own |
+| `/srv/gilde-demo/app` | A clone of DataGroceries' own instance's clone, `/srv/gilde/app`, so it needs no deploy key of its own |
 | `/srv/gilde-demo/venv` | The virtualenv, with the packages installed editable from the clone |
 | `/srv/gilde-demo/.env` | `DJANGO_SECRET_KEY`, made on the server, and `SENTRY_DSN`; mode 600 |
 | `/srv/gilde-demo/data` | The SQLite database |
@@ -57,13 +57,13 @@ caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
 The DNS records, from the laptop, before the first visit to the name:
 
 ```bash
-hcloud zone add-records --record <web1's IPv4 address> gildehq.com demo A
-hcloud zone add-records --record <web1's IPv6 address> gildehq.com demo AAAA
+hcloud zone add-records --record <web1's IPv4 address> datagroceries.com demo A
+hcloud zone add-records --record <web1's IPv6 address> datagroceries.com demo AAAA
 ```
 
 ## Deploy, as root
 
-After deploying Gilde's own instance ([../web1](../web1/README.md)), whose clone this one pulls from:
+After deploying DataGroceries' own instance ([../web1](../web1/README.md)), whose clone this one pulls from:
 
 ```bash
 cd /srv/gilde-demo/app
@@ -84,4 +84,4 @@ every visitor of the day out.
 
 `journalctl -u gilde-demo`, and `journalctl -u gilde-demo-reset` for the nights; `systemctl list-timers
 gilde-demo-reset` shows when it last and next runs. Errors also go to Sentry, project `gilde`,
-environment `demo`, as for Gilde's own instance.
+environment `demo`, as for DataGroceries' own instance.

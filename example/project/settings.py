@@ -1,4 +1,4 @@
-"""A Django project to develop and try the Gilde apps in. Not for production."""
+"""A Django project to develop and try the DataGroceries apps in. Not for production."""
 
 import os
 import pathlib
@@ -20,10 +20,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'simple_history',
     'oauth2_provider',
-    'gilde.core',
-    'gilde.connect',
-    'gilde.board',
-    'gilde.wiki',
+    'datagroceries.core',
+    'datagroceries.connect',
+    'datagroceries.board',
+    'datagroceries.wiki',
     'project',
 ]
 
@@ -63,8 +63,8 @@ if os.environ.get('POSTGRES_HOST'):
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'HOST': os.environ['POSTGRES_HOST'],
-            'NAME': os.environ.get('POSTGRES_DB', 'gilde'),
-            'USER': os.environ.get('POSTGRES_USER', 'gilde'),
+            'NAME': os.environ.get('POSTGRES_DB', 'datagroceries'),
+            'USER': os.environ.get('POSTGRES_USER', 'datagroceries'),
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
         }
     }
@@ -83,5 +83,5 @@ LOGIN_URL = 'admin:login'
 # Notifications go to the console instead of anyone's inbox.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-GILDE_BOARD_KEY_PREFIX = 'EX'
-GILDE_BOARD_DISPLAY_TIMEZONE = 'Europe/Amsterdam'
+DG_BOARD_KEY_PREFIX = 'EX'
+DG_BOARD_DISPLAY_TIMEZONE = 'Europe/Amsterdam'

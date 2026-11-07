@@ -1,6 +1,6 @@
-# Gilde's own instance on web1; copied to /etc/systemd/system/gilde.service.
+# DataGroceries' own instance on web1; copied to /etc/systemd/system/gilde.service.
 [Unit]
-Description=Gilde (gunicorn)
+Description=DataGroceries (gunicorn)
 After=network.target postgresql.service
 
 [Service]

@@ -1,6 +1,6 @@
-# Contributing to Gilde
+# Contributing to DataGroceries
 
-Thank you for wanting to help. Gilde is small and opinionated, so a short look at how it is built saves
+Thank you for wanting to help. DataGroceries is small and opinionated, so a short look at how it is built saves
 you work: read what gets in, below, before you write a large change, and open an issue to talk it over.
 
 ## Setting up
@@ -33,12 +33,12 @@ on PostgreSQL. A pull request passes them before it is merged.
 
 One repository, a package per app, each released to PyPI on its own:
 
-- `packages/django-gilde-core/`: what the apps share: the one MCP endpoint, people, notifications, the
+- `packages/django-dg-core/`: what the apps share: the one MCP endpoint, people, notifications, the
   checks on every way in.
-- `packages/django-gilde-connect/`: connecting agents: OAuth for the Claude connector, personal tokens.
-- `packages/django-gilde-board/`: the kanban ticket tracker. How it is built: [docs/board.md](docs/board.md).
-- `packages/django-gilde-wiki/`: the wiki. How it is built: [docs/wiki.md](docs/wiki.md).
-- `example/`: the Django project to develop in. `deploy/web1/`: Gilde's own instance.
+- `packages/django-dg-connect/`: connecting agents: OAuth for the Claude connector, personal tokens.
+- `packages/django-dg-board/`: the kanban ticket tracker. How it is built: [docs/board.md](docs/board.md).
+- `packages/django-dg-wiki/`: the wiki. How it is built: [docs/wiki.md](docs/wiki.md).
+- `example/`: the Django project to develop in. `deploy/web1/`: DataGroceries' own instance.
 - `docs/`: the [integration guide](docs/integrating.md), the [decisions](docs/decisions.md) and why they
   were made, and [how to release](docs/releasing.md).
 
@@ -50,7 +50,7 @@ One repository, a package per app, each released to PyPI on its own:
   endpoint, which are the point of the project. What issues tokens is in connect.
 - **Agents are first-class users.** What a page can do, an MCP tool can do too, through the same code
   (an app's `operations.py`), so both follow the same rules and notify the same people.
-- **Django first.** What Django has, Gilde uses, before a library or code of its own: users, groups and
+- **Django first.** What Django has, DataGroceries uses, before a library or code of its own: users, groups and
   permissions, the admin, forms, messages, translation, system checks, `django.tasks`.
 - **Opinionated, not configurable.** Each thing works one way, the right one, for everyone. Settings exist
   only to fit an app into its project (who the people are, its own ways in, where notifications go), never
@@ -66,14 +66,14 @@ One repository, a package per app, each released to PyPI on its own:
   them from an app's folder as `python -P -m django …`, so that core's own `markdown.py` does not hide
   the library of that name.
 - A line in the `CHANGELOG.md` of each package a change touches, under "Unreleased".
-- A decision that shapes Gilde is a dated entry in [docs/decisions.md](docs/decisions.md). One that no
+- A decision that shapes DataGroceries is a dated entry in [docs/decisions.md](docs/decisions.md). One that no
   longer holds keeps its text, with a note saying what replaced it.
 - Agents working in the repository read [CLAUDE.md](CLAUDE.md).
 
 ## Proposing work, asking questions
 
-Bugs and wishes go in [GitHub issues](https://github.com/gildehq/gilde/issues), questions in
-[GitHub Discussions](https://github.com/gildehq/gilde/discussions). A security problem does not: see
+Bugs and wishes go in [GitHub issues](https://github.com/datagroceries/django-dg/issues), questions in
+[GitHub Discussions](https://github.com/datagroceries/django-dg/discussions). A security problem does not: see
 [SECURITY.md](SECURITY.md).
 
-Contributions are under the [MIT licence](LICENSE), as Gilde is.
+Contributions are under the [MIT licence](LICENSE), as DataGroceries is.

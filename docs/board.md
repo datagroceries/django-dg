@@ -1,7 +1,7 @@
 # The board, inside
 
-How django-gilde-board is built and why, for contributors and agents working on it. What it offers and
-how to install it are in its [README](../packages/django-gilde-board/README.md).
+How django-dg-board is built and why, for contributors and agents working on it. What it offers and
+how to install it are in its [README](../packages/django-dg-board/README.md).
 
 ## Principles of the board
 
@@ -49,7 +49,7 @@ less to build, test and keep working, and a board that behaves the same for the 
 - Comments, with one level of replies, both written and edited in the same Markdown editor.
 - One activity feed with every change, comment and relation.
 - Everything is edited on the ticket page itself.
-- A short URL with the key: `gilde/board/T-123/`. One prefix for all groups.
+- A short URL with the key: `dg/board/T-123/`. One prefix for all groups.
 
 ### Integrations
 
@@ -60,12 +60,12 @@ less to build, test and keep working, and a board that behaves the same for the 
 
 ### Scope
 
-- An app of its own that imports only from `gilde.core`, so any Django project can install it.
+- An app of its own that imports only from `datagroceries.core`, so any Django project can install it.
 
 ## How it works
 
 **Models.** `Group` → `Column` (with a category) → `Ticket`. A ticket's group is its column's group,
-and its key is `GILDE_BOARD_KEY_PREFIX` plus its id. `Relation` is one directed table (source, type,
+and its key is `DG_BOARD_KEY_PREFIX` plus its id. `Relation` is one directed table (source, type,
 target), shown from both sides ("child of", "blocked by"). A conditional unique constraint enforces
 the single parent, and `Relation.clean` refuses loops in `parent_of` and `blocks`. `Comment.parent`
 holds replies, and `Comment.sets_blocked` marks the comments that switched blocked. `Attachment`
@@ -104,7 +104,7 @@ extension; the address without the name, which older text links to, still works.
   that text meanwhile, the save is refused and names them; changes to other fields never get in the
   way.
 - A ticket key in any Markdown text links to that ticket, with its title on hover (`ticket_links.py`, a
-  reference in core's Markdown, so in other Gilde apps too), and an `@jasper` that names a colleague shows
+  reference in core's Markdown, so in other DataGroceries apps too), and an `@jasper` that names a colleague shows
   as a mention, with their name on hover (core's `mentions`); keys and handles that name nobody, or sit in
   code, stay text.
 - On the board: a new ticket starts in a column, from the "+" at its head (`c` takes the first

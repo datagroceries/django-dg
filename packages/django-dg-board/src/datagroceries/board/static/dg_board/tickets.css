@@ -1,0 +1,378 @@
+/* Ticket tracker. Colours come from --tk-* variables (the ticket_theme tag) and Bootstrap's own
+   variables, so the pages follow the site's light and dark theme. */
+
+.tk-key { font-family: var(--bs-font-monospace); font-size: .75rem; color: var(--bs-secondary-color); letter-spacing: .01em; }
+.tk-muted { color: var(--bs-secondary-color); }
+.tk-small { font-size: .8125rem; }
+.min-w-0 { min-width: 0; }
+
+/* Status icons per column category */
+.tk-cat-todo { color: var(--tk-todo); }
+.tk-cat-in_progress { color: var(--tk-in-progress); }
+.tk-cat-done { color: var(--tk-done); }
+
+/* Avatars */
+.tk-avatar { display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 50%;
+             color: #fff; font-weight: 600; line-height: 1; user-select: none; }
+.tk-avatar-xs { width: 1.25rem; height: 1.25rem; font-size: .55rem; }
+.tk-avatar-sm { width: 1.5rem; height: 1.5rem; font-size: .625rem; }
+.tk-avatar-md { width: 2rem; height: 2rem; font-size: .75rem; }
+img.tk-avatar { object-fit: cover; background: var(--bs-secondary-bg); }
+.tk-avatar-empty { border: 1.5px dashed var(--bs-border-color); background: transparent; }
+
+/* Labels and chips */
+.tk-label { display: inline-flex; align-items: center; gap: .3rem; padding: .05rem .5rem; border-radius: 1rem;
+            border: 1px solid var(--bs-border-color); font-size: .7rem; line-height: 1.4; white-space: nowrap;
+            color: var(--bs-body-color); background: var(--bs-body-bg); }
+.tk-label-dot { width: .45rem; height: .45rem; border-radius: 50%; flex: none; }
+.tk-chip { display: inline-flex; align-items: center; gap: .25rem; font-size: .7rem; color: var(--bs-secondary-color); }
+.tk-chip-blocked { color: var(--tk-blocked); font-weight: 600; }
+
+/* Board header */
+.tk-tabs { display: flex; align-items: flex-end; gap: .25rem; flex-wrap: wrap; border-bottom: 1px solid var(--bs-border-color); margin-bottom: .75rem; }
+.tk-tab { padding: .45rem .75rem; margin-bottom: -1px; border-bottom: 2px solid transparent; color: var(--bs-secondary-color);
+          text-decoration: none; font-size: .875rem; font-weight: 500; }
+.tk-tab:hover { color: var(--bs-body-color); }
+.tk-tab.active { color: var(--bs-emphasis-color); border-bottom-color: var(--tk-blocked); }
+.tk-filters { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
+.tk-filters .form-select, .tk-filters .form-control { width: auto; font-size: .8125rem; }
+.tk-filters .ts-control { min-height: calc(1.5em + .5rem + 2px); padding: .15rem .5rem; font-size: .8125rem; }
+.tk-filters .ts-control > input { font-size: .8125rem; }
+.tk-filters .ts-wrapper.multi .ts-control > div { font-size: .75rem; margin: .1rem .25rem .1rem 0; }
+.tk-filters .ts-dropdown { font-size: .8125rem; }
+/* Tom Select's Bootstrap 5 theme hard-codes a dark grey text and light grey chips; take Bootstrap's theme
+   variables instead, so its dropdowns and fields stay readable in dark mode. */
+.ts-dropdown, .ts-control, .ts-control input { color: var(--bs-body-color); }
+.ts-wrapper.multi .ts-control > div { background: var(--bs-secondary-bg); color: var(--bs-body-color); }
+.ts-wrapper .dropdown-header-close { color: var(--bs-body-color); }
+/* The chosen value in a searchable select's list: a check in front of it and bold, as a plain select
+   marks it, so it stands out from the option under the mouse. */
+.ts-dropdown .option { position: relative; padding-left: 1.6rem; }
+.ts-dropdown .option.selected { font-weight: 600; }
+.ts-dropdown .option.selected::before { content: '\2713'; position: absolute; left: .55rem; color: var(--tk-in-progress); }
+/* selects.js runs only once the whole board is parsed; until Tom Select takes a filter over, the bare select
+   (a multi-select is a box four rows tall) keeps the control's place unseen, so the filters do not jump. Its
+   height is the one Tom Select's theme gives the control's wrapper. */
+.tk-filters select[data-tk-select]:not(.tomselected) { visibility: hidden; display: block; width: 0; min-width: 100%;
+                                                        height: calc(1.5rem + .75rem + 2px); }
+
+/* Board lanes */
+.tk-lanes { display: flex; gap: .75rem; overflow-x: auto; align-items: flex-start; padding-bottom: 1rem; }
+.tk-lane { flex: 0 0 300px; display: flex; flex-direction: column; max-height: calc(100vh - 13rem);
+           background: var(--bs-tertiary-bg); border-radius: .75rem; }
+/* Across all groups the lanes are categories, an overview where nothing drags: outlined, not filled. */
+.tk-lanes-overview .tk-lane { background: transparent; border: 2px dashed var(--bs-border-color); }
+.tk-lane-head { display: flex; align-items: center; gap: .5rem; padding: .7rem .8rem .5rem; font-size: .875rem; font-weight: 600; }
+.tk-lane-count { color: var(--bs-secondary-color); font-weight: 500; }
+/* The way to a new ticket, so it stands out: a new ticket starts in the column it is made in. */
+.tk-lane-add { margin-left: auto; display: inline-flex; align-items: center; justify-content: center;
+               width: 1.6rem; height: 1.6rem; border-radius: .375rem; background: var(--bs-primary);
+               color: #fff; text-decoration: none; font-size: .95rem; }
+.tk-lane-add:hover { background: var(--bs-primary-text-emphasis); color: #fff; }
+/* Folds away; clicking the strip opens it again. A card dropped on it goes to the bottom of that column. */
+.tk-lane-toggle { margin-left: auto; border: 0; background: none; padding: 0 .15rem; color: var(--bs-secondary-color); }
+.tk-lane-toggle:hover { color: var(--bs-emphasis-color); }
+.tk-lane-toggle + .tk-lane-add { margin-left: 0; }
+.tk-lane.tk-collapsed { flex: 0 0 2.75rem; min-height: 14rem; cursor: pointer; position: relative; }
+.tk-collapsed .tk-lane-head { flex-direction: column; padding: .7rem 0 .5rem; }
+.tk-collapsed .tk-lane-title { writing-mode: vertical-rl; white-space: nowrap; }
+.tk-collapsed .tk-lane-toggle { order: -1; margin-left: 0; }
+.tk-collapsed .tk-lane-add, .tk-collapsed .tk-lane-append, .tk-collapsed .tk-lane-cards > * { display: none; }
+/* The list covers the whole strip, so a drop anywhere on it lands in this column. */
+.tk-collapsed .tk-lane-cards { position: absolute; inset: 0; padding: 0; overflow: hidden; }
+/* The card itself is hidden in a folded lane, so the strip shows where it goes, and flashes once it is saved. */
+.tk-collapsed:has(.sortable-ghost) { background: var(--bs-primary-bg-subtle); outline: 2px dashed var(--bs-primary);
+                                     outline-offset: -2px; }
+@keyframes tk-dropped { from { background: var(--bs-primary-bg-subtle); } }
+.tk-lane.tk-dropped { animation: tk-dropped 1.2s ease-out; }
+.tk-lane-cards { flex: 1; overflow-y: auto; padding: .25rem .5rem .5rem; min-height: 3rem; }
+/* The placeholder goes as soon as a card is dropped into an empty lane. */
+.tk-lane-cards:has(.tk-card, .tk-quick-create) .tk-lane-empty { display: none; }
+.tk-quick-create { margin-bottom: .5rem; }
+.tk-quick-create textarea { font-size: .875rem; resize: none; }
+.tk-lane-empty { color: var(--bs-secondary-color); font-size: .75rem; text-align: center; padding: .75rem 0; }
+
+/* Cards */
+.tk-card { position: relative; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: .5rem;
+           padding: .55rem .65rem; margin-bottom: .5rem; cursor: grab; transition: box-shadow .12s, border-color .12s; }
+/* Across all groups a lane is a category, not a column, and nothing drags: a click opens the ticket. */
+.tk-lane-cards:not([data-column]) .tk-card { cursor: pointer; }
+.tk-card:hover { border-color: var(--bs-secondary-color); box-shadow: 0 2px 6px rgba(0, 0, 0, .06); }
+.tk-card-blocked { border-left: 3px solid var(--tk-blocked); }
+.tk-card-top { display: flex; align-items: center; gap: .4rem; margin-bottom: .2rem; }
+.tk-card-title { display: block; color: var(--bs-emphasis-color); text-decoration: none; font-size: .875rem;
+                 font-weight: 500; line-height: 1.35; margin-bottom: .4rem; overflow-wrap: anywhere; }
+.tk-card-title:hover { text-decoration: underline; }
+/* A chip that leads somewhere, such as a subtask's parent. */
+.tk-chip-link, .tk-label-link { color: inherit; text-decoration: none; }
+.tk-label-link:hover { color: var(--bs-emphasis-color); border-color: var(--bs-secondary-color); }
+.tk-chip-link:hover { color: var(--bs-emphasis-color); text-decoration: underline; }
+.tk-card-labels { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: .4rem; }
+/* When a card has too much to show on one line, the assignee wraps to its own line rather than a chip breaking. */
+.tk-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; }
+.tk-card-foot .tk-chip { white-space: nowrap; }
+/* A card's assignee is a button that opens the assignee picker; without one, a faint person-plus. */
+.tk-assignee { margin-left: auto; display: inline-flex; align-items: center; gap: .3rem; font-size: .75rem;
+               white-space: nowrap; border: 0; background: none; padding: 0; color: inherit; cursor: pointer; }
+.tk-assignee:hover .tk-assignee-name { text-decoration: underline; }
+.tk-assignee-none { font-size: 1rem; color: var(--bs-tertiary-color); }
+.tk-assignee-none:hover { color: var(--bs-emphasis-color); }
+/* An @handle being written, in the board's colour for mentions (dg_core/editor.css marks it). */
+.dg-editor .CodeMirror .cm-dg-mention { color: var(--tk-in-progress); }
+/* The one assignee picker of the board, placed below the card's assignee that was clicked. */
+.tk-assignee-picker { position: absolute; z-index: 1040; width: 15rem; }
+.tk-insert { position: absolute; top: -.7rem; left: 50%; transform: translateX(-50%); z-index: 2; display: none;
+             width: 1.3rem; height: 1.3rem; line-height: 1.2rem; text-align: center; border-radius: 50%; font-size: .9rem;
+             background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); color: var(--bs-secondary-color);
+             text-decoration: none; }
+.tk-insert:hover, .tk-insert-end:hover { color: var(--bs-body-color); border-color: var(--bs-secondary-color); }
+.tk-lane-append { display: flex; justify-content: center; padding: 0 .5rem .45rem; }
+.tk-insert-end { visibility: hidden; width: 1.3rem; height: 1.3rem; line-height: 1.2rem; text-align: center; border-radius: 50%;
+                 font-size: .9rem; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color);
+                 color: var(--bs-secondary-color); text-decoration: none; }
+/* Shown while the lane is hovered, and always in an empty lane. */
+.tk-lane:hover .tk-insert-end, .tk-lane:not(:has(.tk-card)) .tk-insert-end { visibility: visible; }
+.tk-card:hover .tk-insert { display: block; }
+.tk-lane-cards > .tk-card:first-child .tk-insert { top: -.55rem; }
+.sortable-ghost { opacity: .35; }
+.sortable-chosen { box-shadow: 0 6px 16px rgba(0, 0, 0, .12); }
+
+/* An @-mention (dg_core/datagroceries.css) in the board's own colour. */
+.dg-mention { padding: 0 .3em; border-radius: .3rem; font-weight: 600; color: var(--tk-in-progress);
+              background: color-mix(in srgb, var(--tk-in-progress) 12%, transparent); white-space: nowrap; }
+
+/* Ticket page */
+.tk-crumbs { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; font-size: .8125rem; color: var(--bs-secondary-color); }
+.tk-crumbs a { color: inherit; text-decoration: none; }
+.tk-crumbs a:hover { color: var(--bs-body-color); text-decoration: underline; }
+.tk-title { font-size: 1.6rem; font-weight: 600; line-height: 1.25; margin: .35rem 0 1.25rem; color: var(--bs-emphasis-color); }
+.tk-blocked-banner { display: flex; gap: .6rem; padding: .7rem .9rem; margin-bottom: 1.25rem; border-radius: .5rem;
+                     border: 1px solid var(--tk-blocked); background: color-mix(in srgb, var(--tk-blocked) 7%, transparent); }
+.tk-blocked-banner > i { color: var(--tk-blocked); }
+.tk-section-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+                    color: var(--bs-secondary-color); margin: 1.75rem 0 .75rem; }
+
+.tk-prose { font-size: .9375rem; line-height: 1.6; overflow-wrap: anywhere; }
+.tk-prose > :last-child { margin-bottom: 0; }
+.tk-prose img { max-width: 100%; border-radius: .375rem; border: 1px solid var(--bs-border-color); }
+.tk-prose pre { background: var(--bs-tertiary-bg); padding: .75rem 1rem; border-radius: .5rem; font-size: .8125rem; }
+.tk-prose :not(pre) > code { background: var(--bs-tertiary-bg); padding: .1rem .3rem; border-radius: .25rem; font-size: .85em; color: inherit; }
+.tk-prose blockquote { border-left: 3px solid var(--bs-border-color); padding-left: .9rem; color: var(--bs-secondary-color); }
+.tk-prose table { border-collapse: collapse; margin-bottom: 1rem; font-size: .875rem; }
+.tk-prose th, .tk-prose td { border: 1px solid var(--bs-border-color); padding: .3rem .6rem; }
+.tk-prose th { background: var(--bs-tertiary-bg); }
+/* A "- [ ]" item's checkbox stands where its bullet would, as in the editor's preview. */
+.tk-prose .task-list-item { list-style-type: none; margin-left: -1.5em; }
+/* Headings in a description or comment at the scale of its text, not of the page: # and ## with a line
+   under them, as the sections they usually start. */
+.tk-prose :is(h1, h2, h3, h4, h5, h6) { font-size: .9375rem; font-weight: 600; line-height: 1.35; margin: 1.4rem 0 .5rem;
+                                        color: var(--bs-emphasis-color); }
+.tk-prose h1 { font-size: 1.3rem; }
+.tk-prose h2 { font-size: 1.125rem; }
+.tk-prose h3 { font-size: 1rem; }
+.tk-prose :is(h1, h2) { padding-bottom: .3rem; border-bottom: 1px solid var(--bs-border-color); }
+.tk-prose > :is(h1, h2, h3, h4, h5, h6):first-child { margin-top: 0; }
+
+/* Activity timeline */
+.tk-timeline { position: relative; padding-left: 0; }
+.tk-timeline::before { content: ''; position: absolute; left: .75rem; top: .25rem; bottom: .25rem; width: 1px; background: var(--bs-border-color); }
+.tk-event { position: relative; display: flex; align-items: center; gap: .6rem; padding: .3rem 0; font-size: .8125rem;
+            color: var(--bs-secondary-color); }
+.tk-event-icon { position: relative; z-index: 1; width: 1.5rem; height: 1.5rem; flex: none; display: inline-flex; align-items: center;
+                 justify-content: center; border-radius: 50%; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); font-size: .7rem; }
+.tk-event strong { color: var(--bs-body-color); font-weight: 600; }
+.tk-comment { position: relative; display: flex; gap: .6rem; margin: .6rem 0; }
+.tk-comment > .tk-avatar { position: relative; z-index: 1; }
+.tk-comment-box { flex: 1; min-width: 0; border: 1px solid var(--bs-border-color); border-radius: .5rem; background: var(--bs-body-bg); }
+.tk-comment-head { display: flex; align-items: center; gap: .5rem; padding: .45rem .8rem; font-size: .8125rem;
+                   border-bottom: 1px solid var(--bs-border-color); background: var(--bs-tertiary-bg); border-radius: .5rem .5rem 0 0; }
+.tk-comment-body { padding: .65rem .8rem; }
+.tk-comment-blocked { border-color: var(--tk-blocked); }
+.tk-reply { display: flex; gap: .5rem; padding: .55rem .8rem; border-top: 1px solid var(--bs-border-color); }
+.tk-reply-form summary { list-style: none; cursor: pointer; padding: .4rem .8rem; font-size: .75rem; color: var(--bs-secondary-color);
+                         border-top: 1px solid var(--bs-border-color); }
+.tk-reply-form summary::-webkit-details-marker { display: none; }
+.tk-reply-form summary:hover { color: var(--bs-body-color); }
+.tk-reply-form form { padding: 0 .8rem .7rem; }
+/* Reply and Edit side by side; the one opened takes the full width below them. */
+.tk-comment-actions { display: flex; flex-wrap: wrap; border-top: 1px solid var(--bs-border-color); }
+.tk-comment-actions .tk-reply-form summary { border-top: 0; }
+.tk-comment-actions > details[open] { flex-basis: 100%; order: 1; }
+.tk-reply .tk-reply-form summary { border-top: 0; padding: .15rem 0 0; }
+.tk-reply .tk-reply-form form { padding: .4rem 0 0; }
+
+/* Ticket page sidebar: sticky only while it fits on the screen (ticket.js sets the class). A taller one
+   stays put, or it would keep its lower panels out of reach until the page ends. */
+.tk-sidebar-sticky { position: sticky; top: 1rem; }
+/* A pull request's state in the Code panel, in the colours of the column categories it matches: open is
+   work in progress, merged is done, and closed unmerged is work that did not land. */
+/* A commit's short hash, as GitHub shows it. */
+/* The kind's icon stands beside both lines of an entry, as an avatar beside a name and a date. */
+.tk-code-ref { align-items: center; }
+.tk-code-ref > .bi { font-size: 1.25rem; }
+.tk-code-meta { display: flex; align-items: center; gap: .4rem; min-width: 0; font-size: .75rem; color: var(--bs-secondary-color); }
+.tk-code-sha { color: inherit; font-size: .95em; }
+.tk-code-state { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+                 padding: .05rem .35rem; border-radius: .5rem; color: #fff; white-space: nowrap; }
+.tk-code-open { background: var(--tk-in-progress); }
+.tk-code-merged { background: var(--tk-done); }
+.tk-code-closed { background: var(--tk-todo); }
+.tk-panel { border: 1px solid var(--bs-border-color); border-radius: .75rem; padding: .9rem 1rem; margin-bottom: 1rem; background: var(--bs-body-bg); }
+.tk-panel-title { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--bs-secondary-color);
+                  margin-bottom: .6rem; display: flex; align-items: center; }
+.tk-prop { display: grid; grid-template-columns: 6.5rem 1fr; align-items: center; gap: .5rem; padding: .3rem 0; font-size: .8125rem; }
+.tk-prop-name { color: var(--bs-secondary-color); }
+.tk-prop-value { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; min-width: 0; }
+.tk-relation { display: flex; align-items: center; gap: .4rem; padding: .25rem 0; font-size: .8125rem; }
+.tk-relation a { color: var(--bs-body-color); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tk-relation a:hover { text-decoration: underline; }
+.tk-relation .tk-done-link { text-decoration: line-through; color: var(--bs-secondary-color); }
+.tk-relation-kind { font-size: .7rem; color: var(--bs-secondary-color); margin-top: .5rem; }
+.tk-panel details > summary { list-style: none; cursor: pointer; font-size: .8125rem; color: var(--bs-secondary-color); margin-top: .5rem; }
+.tk-panel details > summary::-webkit-details-marker { display: none; }
+.tk-panel details > summary:hover { color: var(--bs-body-color); }
+.tk-icon-button { border: 0; background: none; padding: 0 .2rem; color: var(--bs-secondary-color); line-height: 1; }
+.tk-icon-button:hover { color: var(--bs-body-color); }
+
+/* A link to one comment: copied from its header, and highlighted when the page opens on it. */
+.tk-comment-copy { border: 0; background: none; padding: 0 .1rem; line-height: 1; color: var(--bs-secondary-color); }
+.tk-comment-copy:hover { color: var(--bs-emphasis-color); }
+.tk-comment, .tk-reply { scroll-margin-top: 5rem; }
+.tk-comment:target > .tk-comment-box, .tk-reply:target { outline: 2px solid var(--bs-primary); outline-offset: -1px; }
+.tk-reply:target { border-radius: .375rem; }
+/* The editor hides the textarea, and with it the textarea's margin. */
+.tk-reply-form .EasyMDEContainer { margin-bottom: .5rem; }
+/* While a comment is edited, the editor takes the place of its text, and Reply steps aside. */
+.tk-comment-edit[open] > summary,
+.tk-comment-box:has(> .tk-comment-actions > .tk-comment-edit[open]) > .tk-comment-body,
+.tk-comment-actions:has(> .tk-comment-edit[open]) > .tk-reply-form:not(.tk-comment-edit),
+.tk-reply div:has(> .tk-comment-edit[open]) > .tk-prose { display: none; }
+.tk-comment-edit[open] form { padding-top: .7rem; }
+.tk-reply .tk-comment-edit[open] form { padding-top: .3rem; }
+
+/* In-place editing on the ticket page */
+.tk-editable { position: relative; }
+.tk-editable-view { display: flex; align-items: flex-start; gap: .5rem; }
+.tk-editable-form { display: none; }
+.tk-editable[data-editing] .tk-editable-view { display: none; }
+.tk-editable[data-editing] .tk-editable-form { display: block; }
+/* While htmx saves the form in the background, so a second click does not save it twice. */
+.tk-editable-form.htmx-request button { opacity: .6; pointer-events: none; }
+.tk-editable-form.htmx-request { cursor: progress; }
+.tk-edit-button { border: 0; background: none; color: var(--bs-secondary-color); opacity: 0; padding: .2rem .35rem;
+                  border-radius: .375rem; transition: opacity .12s; }
+.tk-editable-view:hover .tk-edit-button, .tk-edit-button:focus { opacity: 1; }
+.tk-edit-button:hover { background: var(--bs-tertiary-bg); color: var(--bs-body-color); }
+.tk-title-form { margin: .35rem 0 1.25rem; }
+.tk-title-input { font-size: 1.6rem; font-weight: 600; }
+
+/* Inline controls (sidebar properties, relations table): plain text until hovered, a control when used */
+.tk-properties .tk-prop { grid-template-columns: 6.5rem minmax(0, 1fr); }
+.tk-properties .tk-prop-name { display: flex; align-items: center; gap: .35rem; }
+.tk-inline-controls .form-select.tk-inline-control, .tk-inline-controls .ts-control {
+  border-color: transparent; background-color: transparent; box-shadow: none; font-size: .8125rem;
+  padding-top: .2rem; padding-bottom: .2rem; min-height: 0; }
+.tk-inline-controls .form-select.tk-inline-control { background-position: right .5rem center; }
+/* The dropdown arrow shows only when the control is hovered or in use; its space stays reserved. */
+.tk-inline-controls .form-select.tk-inline-control, .tk-inline-controls .ts-wrapper.single .ts-control { background-image: none; }
+.tk-inline-controls .tk-prop:hover .form-select.tk-inline-control, .tk-inline-controls tr:hover .form-select.tk-inline-control,
+.tk-inline-controls .form-select.tk-inline-control:focus, .tk-inline-controls .tk-prop:hover .ts-wrapper.single .ts-control,
+.tk-inline-controls tr:hover .ts-wrapper.single .ts-control, .tk-inline-controls .ts-wrapper.single.focus .ts-control {
+  background-image: var(--bs-form-select-bg-img); }
+.tk-inline-controls .tk-prop:hover .form-select.tk-inline-control, .tk-inline-controls .tk-prop:hover .ts-control,
+.tk-inline-controls tr:hover .form-select.tk-inline-control, .tk-inline-controls tr:hover .ts-control,
+.tk-inline-controls .form-select.tk-inline-control:focus, .tk-inline-controls .ts-wrapper.focus .ts-control { border-color: var(--bs-border-color); }
+.tk-relations .form-select.tk-inline-control { width: auto; padding-left: .35rem; }
+/* One left edge for every value in the sidebar: a control's border and padding, which plain text gets too. */
+.tk-properties .form-select.tk-inline-control, .tk-properties .ts-control { padding-left: .5rem; }
+.tk-properties .ts-wrapper.multi .ts-control > input { padding-left: 0 !important; margin-left: 0 !important; }
+.tk-properties .tk-prop-value { padding-left: calc(.5rem + 1px); }
+.tk-relations-assignee { min-width: 11rem; }
+.tk-properties .ts-wrapper.multi .ts-control > div { font-size: .75rem; }
+.tk-saved { min-height: 1.2rem; color: var(--tk-done); text-align: right; }
+
+/* Attachments: image thumbnails, and the overlay while files are dragged over the page */
+.tk-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); gap: .4rem; margin-bottom: .6rem; }
+.tk-thumbs img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: .375rem; border: 1px solid var(--bs-border-color); }
+.tk-drop-overlay { position: fixed; inset: 0; z-index: 1080; display: none; align-items: center; justify-content: center;
+                   pointer-events: none; background: color-mix(in srgb, var(--bs-body-bg) 70%, transparent);
+                   border: 3px dashed var(--tk-in-progress); }
+.tk-drop-overlay span { padding: .75rem 1.25rem; border-radius: .75rem; background: var(--bs-body-bg); font-weight: 600;
+                        box-shadow: 0 6px 20px rgba(0, 0, 0, .12); }
+.tk-drop-overlay.tk-drop-visible, .tk-drop-overlay.tk-drop-busy { display: flex; }
+
+/* Relations table on the ticket page */
+.tk-relations { font-size: .8125rem; margin-bottom: .5rem; }
+.tk-relations tbody:not(:first-of-type) .tk-relations-kind th { padding-top: .75rem; }
+.tk-relations.tk-hide-done .tk-relation-done, .tk-relations.tk-hide-done tbody:not(:has(.tk-relation-open)) { display: none; }
+.tk-relations-kind th { font-weight: 600; color: var(--bs-emphasis-color); border-bottom: 0; }
+.tk-relations .tk-kind-link { margin-left: .5rem; font-size: .75rem; font-weight: 400; color: var(--bs-secondary-color); }
+.tk-relations .tk-kind-link:hover { color: var(--bs-emphasis-color); }
+.tk-relations a { color: var(--bs-body-color); text-decoration: none; }
+.tk-relations a:hover { text-decoration: underline; }
+.tk-relations .tk-done-link { text-decoration: line-through; color: var(--bs-secondary-color); }
+.tk-relations-title { min-width: 12rem; }
+/* The grip a related ticket is dragged by: faint until its row is hovered, and gone from a list of one. */
+.tk-relations .tk-drag-handle { width: 1.5rem; padding-left: 0; padding-right: 0; font-size: 1.125rem; cursor: grab;
+                                color: var(--bs-secondary-color); }
+.tk-relations tr:hover .tk-drag-handle { color: var(--bs-body-color); }
+.tk-relations tbody:not(:has(tr[data-ticket] ~ tr[data-ticket])) .tk-drag-handle,
+.tk-relations.tk-hide-done tbody:not(:has(.tk-relation-open ~ .tk-relation-open)) .tk-drag-handle { cursor: auto; }
+.tk-relations tbody:not(:has(tr[data-ticket] ~ tr[data-ticket])) .tk-drag-handle i,
+.tk-relations.tk-hide-done tbody:not(:has(.tk-relation-open ~ .tk-relation-open)) .tk-drag-handle i { visibility: hidden; }
+/* On the board, the filter on one ticket's subtasks, with a cross that takes it off. */
+.tk-filter-parent { display: inline-flex; align-items: center; gap: .35rem; max-width: 22rem; padding: .2rem .3rem .2rem .6rem;
+                    border: 1px solid var(--bs-border-color); border-radius: .375rem; font-size: .8125rem; }
+.tk-filter-parent .tk-filter-parent-title { color: var(--bs-secondary-color); }
+.tk-add-relation > summary { list-style: none; cursor: pointer; font-size: .8125rem; color: var(--bs-secondary-color); }
+.tk-add-relation > summary::-webkit-details-marker { display: none; }
+.tk-add-relation > summary:hover { color: var(--bs-body-color); }
+
+/* The quick view of a ticket (peek.js, _peek.html): a panel on the right, beside a page that stays usable. */
+.tk-peek { --bs-offcanvas-width: min(34rem, 100vw); box-shadow: -8px 0 24px rgba(0, 0, 0, .1); }
+.tk-peek .offcanvas-body { padding: 1rem 1.25rem 2rem; }
+.tk-peek-head { display: flex; align-items: center; gap: .6rem; }
+/* A long group and column name is cut short before the buttons are pushed onto a line of their own. */
+.tk-peek-head .tk-chip { min-width: 0; }
+.tk-peek-head a.tk-key { text-decoration: none; }
+.tk-peek-head a.tk-key:hover { text-decoration: underline; }
+.tk-peek-title { font-size: 1.3rem; font-weight: 600; line-height: 1.3; margin: .75rem 0 1rem; color: var(--bs-emphasis-color); overflow-wrap: anywhere; }
+.tk-peek-props { border-top: 1px solid var(--bs-border-color); border-bottom: 1px solid var(--bs-border-color); padding: .4rem 0; margin-bottom: 1rem; }
+/* A long title is cut short; the key and the status icon beside it keep their size. */
+.tk-peek .tk-relation > .tk-key, .tk-peek .tk-relation > .bi { flex: none; }
+.tk-peek .tk-relation > a { min-width: 0; }
+.tk-peek-comment { padding: .5rem 0; border-top: 1px solid var(--bs-border-color); }
+.tk-peek-comment .tk-prose { font-size: .875rem; margin-top: .3rem; }
+.tk-peek-loading { display: flex; align-items: center; gap: .5rem; color: var(--bs-secondary-color); font-size: .875rem; }
+/* The eye that opens the quick view: shown while its card or row is hovered, and not at all on a screen
+   without hover, where the panel would cover the page anyway. */
+.tk-peek-eye { font-size: 1rem; line-height: 1; color: var(--bs-secondary-color); text-decoration: none; visibility: hidden; }
+.tk-peek-eye:hover { color: var(--bs-emphasis-color); }
+.tk-card:hover .tk-peek-eye, tr:hover .tk-peek-eye, .tk-peeked .tk-peek-eye, .tk-peek-eye:focus-visible { visibility: visible; }
+.tk-card-top .tk-peek-eye { margin-left: auto; cursor: pointer; }
+.tk-card-top .tk-chip-blocked + .tk-peek-eye { margin-left: 0; }
+@media (hover: none) { .tk-peek-eye { display: none; } }
+/* The card or related ticket the panel shows. */
+.tk-card.tk-peeked { border-color: var(--bs-primary); box-shadow: 0 0 0 1px var(--bs-primary); }
+tr.tk-peeked > td { background: var(--bs-primary-bg-subtle); }
+
+/* The board's wordmark (_logo.html). Everything is in em, so font-size sets its size. */
+.tk-logo { display: inline-flex; align-items: center; gap: .4em; text-decoration: none; line-height: 1; vertical-align: middle; }
+.tk-crumbs a.tk-logo, .tk-crumbs a.tk-logo:hover { text-decoration: none; }
+.tk-logo-mark { display: inline-flex; align-items: flex-start; gap: .09em; width: 1.15em; height: 1.15em; padding: .2em;
+                border-radius: .28em; background: var(--tk-accent-3); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
+.tk-logo-mark i { flex: 1; border-radius: .08em; }
+.tk-logo-mark i:nth-child(1) { height: 100%; background: var(--tk-accent-4); }
+.tk-logo-mark i:nth-child(2) { height: 68%; background: var(--tk-accent-0); }
+.tk-logo-mark i:nth-child(3) { height: 42%; background: var(--tk-accent-1); }
+.tk-logo-word { font-weight: 700; text-transform: uppercase; letter-spacing: .01em; color: var(--bs-emphasis-color); }
+.tk-logo:hover .tk-logo-mark i:nth-child(2) { height: 85%; }
+.tk-logo:hover .tk-logo-mark i:nth-child(3) { height: 62%; }
+.tk-logo-mark i { transition: height .2s ease; }
+.tk-board-heading { font-size: 2.1rem; margin: 0 0 .6rem; }
+/* The group's name after the wordmark, in its style but quieter. */
+.tk-board-name { font-weight: 700; text-transform: uppercase;
+                 letter-spacing: .01em; color: var(--bs-secondary-color); margin-left: .45em; vertical-align: middle; }
+.tk-board-name::before { content: '/'; margin-right: .45em; color: var(--bs-border-color); }
+.tk-board-note { margin: -.3rem 0 .6rem; font-size: .8125rem; color: var(--bs-secondary-color); }
+.tk-tabs-actions { display: flex; gap: .5rem; margin-left: auto; padding-bottom: .4rem; }

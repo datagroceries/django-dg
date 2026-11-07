@@ -1,0 +1,48 @@
+[project]
+name = "django-dg-core"
+version = "0.1.0.dev0"
+description = "What the DataGroceries apps share: one MCP endpoint for all of them, people, notifications, and the checks on every way in."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Jasper Cramwinckel" }]
+keywords = ["django", "mcp", "model context protocol", "ai agents", "claude"]
+dependencies = [
+    "Django>=5.2",
+    "django-simple-history",
+    "djangorestframework",
+    "markdown",
+    "nh3",
+    "pymdown-extensions",
+    "requests",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+
+[project.urls]
+Homepage = "https://github.com/datagroceries/django-dg"
+Source = "https://github.com/datagroceries/django-dg"
+Documentation = "https://github.com/datagroceries/django-dg/blob/main/docs/integrating.md"
+Changelog = "https://github.com/datagroceries/django-dg/blob/main/packages/django-dg-core/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/datagroceries"]

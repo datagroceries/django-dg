@@ -1,0 +1,37 @@
+{% extends 'dg_core/base.html' %}
+{% load i18n static dg_wiki %}
+{% comment %}The wiki's layout: the tree of pages on the left, the page on the right.{% endcomment %}
+
+{% block title %}{% block page_title %}{% endblock %} · {% wiki_name %}{% endblock %}
+{% block container_class %}container-fluid{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'dg_wiki/wiki.css' %}">
+{% block wiki_head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="row py-3">
+  <nav class="col-lg-3 col-xl-2 wk-sidebar" aria-label="{% translate 'Pages' %}">
+    <a class="wk-name" href="{% url 'dg_wiki:home' %}"><i class="bi bi-journal-text"></i> {% wiki_name %}</a>
+    <form method="get" action="{% url 'dg_wiki:search' %}" class="wk-search" role="search">
+      <i class="bi bi-search"></i>
+      <input type="search" name="q" value="{{ query|default:'' }}" class="form-control form-control-sm"
+             placeholder="{% translate 'Search the wiki' %}" aria-label="{% translate 'Search the wiki' %}">
+    </form>
+    <div class="wk-tree-holder" data-arrange-url="{% url 'dg_wiki:tree_arrange' %}" data-current="{{ page.pk|default:'' }}"
+         data-failed="{% translate 'Moving the page failed. The page will reload.' %}">
+      {% csrf_token %}
+      {% page_tree page %}
+    </div>
+    <a class="btn btn-sm btn-outline-secondary mt-3" href="{% url 'dg_wiki:page_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New page" %}</a>
+  </nav>
+  <main class="col-lg-9 col-xl-10 wk-main">
+    {% block main %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'dg_wiki/tree.js' %}"></script>
+{% endblock %}

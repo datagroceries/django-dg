@@ -29,7 +29,7 @@ ignore = ["PLR0911"]
 "example/**" = ["S105"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["gilde", "project"]
+known-first-party = ["datagroceries", "project"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "project.settings"

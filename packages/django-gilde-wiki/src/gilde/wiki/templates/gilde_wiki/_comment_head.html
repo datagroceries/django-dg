@@ -1,4 +1,0 @@
-{% load i18n humanize gilde_core %}<div class="wk-comment-head">
-  <strong>{{ item.author|person_name }}</strong>{% if item.via %} <span class="wk-muted">{{ item.via }}</span>{% endif %}
-  <a class="wk-muted text-decoration-none" href="#comment-{{ item.pk }}" title="{{ item.created_at|date:'SHORT_DATETIME_FORMAT' }}">{{ item.created_at|naturaltime }}</a>{% if item.edited %} <span class="wk-muted">· {% translate "edited" %}</span>{% endif %}
-</div>

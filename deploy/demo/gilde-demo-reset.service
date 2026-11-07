@@ -1,6 +1,6 @@
 # The demo's nightly fresh start; copied to /etc/systemd/system/, run by gilde-demo-reset.timer.
 [Unit]
-Description=Start Gilde's public demo again
+Description=Start DataGroceries' public demo again
 
 [Service]
 Type=oneshot

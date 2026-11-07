@@ -1,6 +1,6 @@
 # The public demo on web1; copied to /etc/systemd/system/gilde-demo.service.
 [Unit]
-Description=Gilde's public demo (gunicorn)
+Description=DataGroceries' public demo (gunicorn)
 After=network.target
 
 [Service]

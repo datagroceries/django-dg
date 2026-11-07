@@ -1,11 +1,11 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="brand/gilde-mark-dark.svg">
-    <img src="brand/gilde-mark.svg" alt="" width="88">
+    <source media="(prefers-color-scheme: dark)" srcset="brand/dg-mark-dark.svg">
+    <img src="brand/dg-mark.svg" alt="" width="88">
   </picture>
 </p>
 
-# Gilde
+# DataGroceries
 
 Open-source Django apps that people and AI agents work on together. Each app installs on its own into a
 Django project you already have, with its own login and its own users, and agents reach all of them
@@ -42,7 +42,7 @@ it.
   Markdown.
 - **A REST API and MCP tools** for everything the pages do but uploading and downloading files.
 
-## Why Gilde
+## Why DataGroceries
 
 - **It fits into your Django project.** A few lines in your settings and one URL include. Your login,
   your user model and your database stay as they are. `manage.py check` tells you what is still
@@ -57,19 +57,19 @@ it.
   pages bring their own layout and assets, so they work behind a firewall and load nothing from
   elsewhere.
 
-Gilde is for teams that build on Django, want their tracker and their wiki inside their own project, and
+DataGroceries is for teams that build on Django, want their tracker and their wiki inside their own project, and
 work with AI agents.
 
 ## Design principles
 
-- **Django first.** What Django has, Gilde uses, rather than a library or code of its own: its users
+- **Django first.** What Django has, DataGroceries uses, rather than a library or code of its own: its users
   and your user model, groups and permissions for who may use what, the admin, the ORM and migrations on
   any database Django supports, its email settings, its task framework for sending notifications (so
   you choose the worker, and no Celery or Redis is needed), its translation machinery for the pages'
   languages, forms, messages and system checks. Whoever
-  knows Django already knows how to run Gilde.
+  knows Django already knows how to run DataGroceries.
 - **Opinionated.** Each thing works one way, chosen once and the same for everyone, so there is less to
-  learn, configure and keep working. Settings exist only to fit Gilde into your project, such as who
+  learn, configure and keep working. Settings exist only to fit DataGroceries into your project, such as who
   your people are or where notifications go, never to have a feature another way.
 - **Agents are first-class users.** What a page can do, an MCP tool can do too, through the same code
   and under the same rules. A tool runs the app's own REST view, so the pages, the API and the agents
@@ -81,17 +81,17 @@ work with AI agents.
 
 | Package | |
 |---|---|
-| [`django-gilde-board`](packages/django-gilde-board/) | The kanban ticket tracker. |
-| [`django-gilde-connect`](packages/django-gilde-connect/) | Connecting agents: personal tokens, OAuth so Claude connects with the endpoint's address alone, and a "Connect an agent" page. Not needed if your project's own API logins are enough for your agents. |
-| [`django-gilde-wiki`](packages/django-gilde-wiki/) | The wiki: pages in Markdown, in one tree. |
-| [`django-gilde-core`](packages/django-gilde-core/) | What the apps share: the one MCP endpoint, people, notifications, and the checks on every way in. Comes with every app. |
+| [`django-dg-board`](packages/django-dg-board/) | The kanban ticket tracker. |
+| [`django-dg-connect`](packages/django-dg-connect/) | Connecting agents: personal tokens, OAuth so Claude connects with the endpoint's address alone, and a "Connect an agent" page. Not needed if your project's own API logins are enough for your agents. |
+| [`django-dg-wiki`](packages/django-dg-wiki/) | The wiki: pages in Markdown, in one tree. |
+| [`django-dg-core`](packages/django-dg-core/) | What the apps share: the one MCP endpoint, people, notifications, and the checks on every way in. Comes with every app. |
 
 Django 5.2 LTS and 6.x, Python 3.11 and newer, any database Django supports.
 
 ## Getting started
 
 ```bash
-pip install django-gilde-board django-gilde-connect
+pip install django-dg-board django-dg-connect
 ```
 
 ```python
@@ -101,31 +101,31 @@ INSTALLED_APPS = [
     'rest_framework',
     'simple_history',
     'oauth2_provider',
-    'gilde.core',
-    'gilde.connect',
-    'gilde.board',
+    'datagroceries.core',
+    'datagroceries.connect',
+    'datagroceries.board',
 ]
 ```
 
 ```python
-urlpatterns = [..., path('gilde/', include('gilde.urls'))]
+urlpatterns = [..., path('dg/', include('datagroceries.urls'))]
 ```
 
-Then `manage.py migrate`, give a group the permission "Can use the board", and open `/gilde/board/`.
+Then `manage.py migrate`, give a group the permission "Can use the board", and open `/dg/board/`.
 [docs/integrating.md](docs/integrating.md) is the full guide: your own users, your own layout, your own API
 logins, notifications, and moving your tickets over from another tracker.
 
 ## Status
 
-Young, and used for its own development: Gilde's own tickets are on a Gilde board, which people and
+Young, and used for its own development: DataGroceries' own tickets are on a DataGroceries board, which people and
 agents work on together. What was decided and why is in [docs/decisions.md](docs/decisions.md). More apps
 may follow, such as a CMS and a helpdesk.
 
 ## Contact and contributing
 
-Questions are welcome in [GitHub Discussions](https://github.com/gildehq/gilde/discussions), bugs and
-wishes in [GitHub issues](https://github.com/gildehq/gilde/issues). A security problem goes privately
-through GitHub, as [SECURITY.md](SECURITY.md) says. To work on Gilde itself, start with
+Questions are welcome in [GitHub Discussions](https://github.com/datagroceries/django-dg/discussions), bugs and
+wishes in [GitHub issues](https://github.com/datagroceries/django-dg/issues). A security problem goes privately
+through GitHub, as [SECURITY.md](SECURITY.md) says. To work on DataGroceries itself, start with
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence

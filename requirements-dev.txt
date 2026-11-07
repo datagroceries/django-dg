@@ -1,8 +1,8 @@
 -r example/requirements.txt
--e packages/django-gilde-core
--e packages/django-gilde-connect
--e packages/django-gilde-board
--e packages/django-gilde-wiki
+-e packages/django-dg-core
+-e packages/django-dg-connect
+-e packages/django-dg-board
+-e packages/django-dg-wiki
 pytest==9.2.0
 pytest-django==4.14.0
 ruff==0.17.3

@@ -1,0 +1,245 @@
+// The DataGroceries apps' Markdown editor (dg_core/_editor_assets.html). Turns a textarea[data-markdown-editor]
+// into an EasyMDE editor. The stored value is the plain Markdown the user typed; pasted or dropped images
+// are uploaded to the URL on the nearest [data-upload-url] ancestor and inserted as a Markdown image. A
+// textarea marked "lazy" waits for window.dgMarkdownEditor(textarea), because an editor built while
+// hidden renders blank.
+
+// @-mentions, when the page lists the people they may reach as JSON in #dg-mention-people: "@" and the
+// start of a handle, first or last name lists the colleagues it may mean; ↑/↓ choose, Enter or Tab fill in
+// the handle that reaches them, Esc closes. Not in code.
+const mentionList = document.getElementById('dg-mention-people');
+const mentionPeople = mentionList ? JSON.parse(mentionList.textContent) : [];
+// "@" and what follows it up to the cursor, where a mention can start: not inside a word or an email address.
+const MENTION_BEFORE_CURSOR = /(?:^|[^\w@.])@([\w.-]*)$/;
+const mentionHandles = new Set(mentionPeople.map((person) => person.handle));
+
+// Marks each @handle that reaches a colleague while it is written, read as notifications.MENTION_RE reads
+// it: in any case, not after a letter, "@" or ".", and without a sentence's closing full stop.
+const mentionOverlay = {
+  token(stream) {
+    const after = stream.pos === 0 ? '' : stream.string.charAt(stream.pos - 1);
+    const found = !/[\w@.]/.test(after) && stream.match(/^@([a-z0-9][\w.-]*)/i);
+    if (found) {
+      const handle = found[1].replace(/\.+$/, '');
+      if (mentionHandles.has(handle.toLowerCase())) {
+        stream.backUp(found[1].length - handle.length);
+        return 'dg-mention';
+      }
+      return null;
+    }
+    stream.next();
+    while (!stream.eol() && stream.peek() !== '@') {
+      stream.next();
+    }
+    return null;
+  },
+};
+
+function attachMentions(cm) {
+  cm.addOverlay(mentionOverlay);
+  const menu = document.createElement('ul');
+  menu.className = 'dg-mention-menu';
+  menu.hidden = true;
+  document.body.append(menu);
+  let matches = [];
+  let active = 0;
+  let start = null;
+
+  const close = () => {
+    menu.hidden = true;
+    matches = [];
+  };
+  const pick = (person) => {
+    cm.replaceRange(`@${person.handle} `, start, cm.getCursor());
+    close();
+    cm.focus();
+  };
+  const render = () => {
+    menu.replaceChildren(...matches.map((person, index) => {
+      const item = document.createElement('li');
+      item.classList.toggle('active', index === active);
+      const name = document.createElement('span');
+      name.textContent = person.name;
+      const handle = document.createElement('span');
+      handle.className = 'dg-mention-handle';
+      handle.textContent = `@${person.handle}`;
+      item.append(name, handle);
+      // On mousedown, so the editor keeps its focus and its cursor.
+      item.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        pick(person);
+      });
+      return item;
+    }));
+  };
+  const update = () => {
+    const cursor = cm.getCursor();
+    const found = MENTION_BEFORE_CURSOR.exec(cm.getLine(cursor.line).slice(0, cursor.ch));
+    // The markdown mode marks code as "comment".
+    if (!found || (cm.getTokenTypeAt(cursor) || '').includes('comment')) {
+      close();
+      return;
+    }
+    const typed = found[1].toLowerCase();
+    matches = mentionPeople
+      .filter((person) => person.handle.startsWith(typed) || person.name.toLowerCase().split(/\s+/).some((word) => word.startsWith(typed)))
+      .slice(0, 8);
+    if (!matches.length) {
+      close();
+      return;
+    }
+    start = { line: cursor.line, ch: cursor.ch - found[1].length - 1 };
+    active = 0;
+    const place = cm.cursorCoords(start, 'page');
+    menu.style.left = `${place.left}px`;
+    menu.style.top = `${place.bottom + 2}px`;
+    menu.hidden = false;
+    render();
+  };
+
+  cm.on('change', update);
+  // Moving the cursor away from the mention closes the list; moving into one does not open it.
+  cm.on('cursorActivity', () => {
+    if (!menu.hidden) {
+      update();
+    }
+  });
+  cm.on('blur', close);
+  // The list's keys go before the editor's own, and no further, so Esc closes only the list.
+  cm.on('keydown', (_cm, event) => {
+    if (menu.hidden) {
+      return;
+    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      active = (active + (event.key === 'ArrowDown' ? 1 : matches.length - 1)) % matches.length;
+      render();
+    } else if (event.key === 'Enter' || event.key === 'Tab') {
+      pick(matches[active]);
+    } else if (event.key === 'Escape') {
+      close();
+    } else {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+  });
+}
+
+// The writing help, from #dg-editor-help, opens under the editor. Left open, it opens by itself under
+// the next large editor too, for a page or a description, but not under a small one for a comment.
+const helpTemplate = document.getElementById('dg-editor-help');
+const HELP_KEY = 'dg-editor-help';
+
+function rememberHelp(open) {
+  try {
+    window.localStorage.setItem(HELP_KEY, open ? 'open' : '');
+  } catch {
+    // Without storage the help simply starts closed.
+  }
+}
+
+function helpWasOpen() {
+  try {
+    return window.localStorage.getItem(HELP_KEY) === 'open';
+  } catch {
+    return false;
+  }
+}
+
+function toggleHelp(editor, open) {
+  const container = editor.codemirror.getWrapperElement().closest('.EasyMDEContainer');
+  let help = container.nextElementSibling;
+  if (!help || !help.classList.contains('dg-editor-help')) {
+    help = helpTemplate.content.firstElementChild.cloneNode(true);
+    if (!editor.options.uploadImage) {
+      help.querySelectorAll('[data-needs-upload]').forEach((row) => row.remove());
+    }
+    help.hidden = true;
+    container.after(help);
+  }
+  help.hidden = open === undefined ? !help.hidden : !open;
+  container.querySelector('.editor-toolbar .help')?.classList.toggle('active', !help.hidden);
+  return !help.hidden;
+}
+
+window.dgMarkdownEditor = (textarea) => {
+  if (textarea.easyMDE) {
+    return textarea.easyMDE;
+  }
+  const form = textarea.closest('form');
+  const uploadHolder = textarea.closest('[data-upload-url]');
+  textarea.easyMDE = new EasyMDE({
+    element: textarea,
+    spellChecker: false,
+    status: false,
+    forceSync: true,
+    autoDownloadFontAwesome: false,
+    minHeight: textarea.rows > 6 ? '220px' : '90px',
+    uploadImage: Boolean(uploadHolder),
+    imageUploadEndpoint: uploadHolder ? uploadHolder.dataset.uploadUrl : undefined,
+    imageCSRFToken: form.querySelector('[name=csrfmiddlewaretoken]').value,
+    imagePathAbsolute: true,
+    imageMaxSize: 20 * 1024 * 1024,
+    imageAccept: 'image/png, image/jpeg, image/gif, image/webp',
+    // An image on a line of its own shows under it while writing.
+    previewImagesInEditor: true,
+    toolbar: [
+      { name: 'bold', action: EasyMDE.toggleBold, className: 'bi bi-type-bold', title: gettext('Bold') },
+      { name: 'italic', action: EasyMDE.toggleItalic, className: 'bi bi-type-italic', title: gettext('Italic') },
+      { name: 'heading', action: EasyMDE.toggleHeadingSmaller, className: 'bi bi-type-h2', title: gettext('Heading') },
+      '|',
+      { name: 'quote', action: EasyMDE.toggleBlockquote, className: 'bi bi-quote', title: gettext('Quote') },
+      { name: 'unordered-list', action: EasyMDE.toggleUnorderedList, className: 'bi bi-list-ul', title: gettext('List') },
+      { name: 'ordered-list', action: EasyMDE.toggleOrderedList, className: 'bi bi-list-ol', title: gettext('Numbered list') },
+      { name: 'code', action: EasyMDE.toggleCodeBlock, className: 'bi bi-code', title: gettext('Code') },
+      { name: 'link', action: EasyMDE.drawLink, className: 'bi bi-link-45deg', title: gettext('Link') },
+      ...(uploadHolder
+        ? [{ name: 'upload-image', action: EasyMDE.drawUploadedImage, className: 'bi bi-image', title: gettext('Image') }]
+        : []),
+      '|',
+      { name: 'preview', action: EasyMDE.togglePreview, className: 'bi bi-eye', title: gettext('Preview'), noDisable: true },
+      ...(helpTemplate
+        ? [{
+          name: 'help',
+          action: (editor) => rememberHelp(toggleHelp(editor)),
+          className: 'bi bi-question-circle',
+          title: gettext('How to write'),
+          noDisable: true,
+        }]
+        : []),
+    ],
+  });
+  if (helpTemplate && textarea.rows > 6 && helpWasOpen()) {
+    toggleHelp(textarea.easyMDE, true);
+  }
+  if (mentionPeople.length) {
+    attachMentions(textarea.easyMDE.codemirror);
+  }
+  return textarea.easyMDE;
+};
+
+document.querySelectorAll('textarea[data-markdown-editor]:not([data-markdown-editor="lazy"])').forEach(window.dgMarkdownEditor);
+
+// An editor in a <details>, as for a reply or an edit under a comment, is built when the details opens; built
+// while hidden it renders blank. [data-dg-editor-cancel] in it puts the text back and closes it.
+document.addEventListener('toggle', (event) => {
+  const details = event.target;
+  const textarea = details instanceof HTMLDetailsElement && details.open
+    ? details.querySelector('textarea[data-markdown-editor="lazy"]')
+    : null;
+  if (textarea) {
+    window.dgMarkdownEditor(textarea).codemirror.focus();
+  }
+}, true);
+
+document.addEventListener('click', (event) => {
+  const cancel = event.target.closest('[data-dg-editor-cancel]');
+  const details = cancel?.closest('details');
+  if (!details) {
+    return;
+  }
+  const form = details.querySelector('form');
+  form.reset();
+  form.querySelectorAll('textarea').forEach((textarea) => textarea.easyMDE?.value(textarea.defaultValue));
+  details.open = false;
+});

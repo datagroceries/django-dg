@@ -1,7 +1,7 @@
 # The wiki, inside
 
-How django-gilde-wiki is built and why, for contributors and agents working on it. What it offers and
-how to install it are in its [README](../packages/django-gilde-wiki/README.md).
+How django-dg-wiki is built and why, for contributors and agents working on it. What it offers and
+how to install it are in its [README](../packages/django-dg-wiki/README.md).
 
 ## Principles of the wiki
 
@@ -11,7 +11,7 @@ part of a page one job, sparing with features. On top of those:
 - **One tree.** There are no spaces, books or folders apart from pages: a page with pages under it is
   all of those. Its text is what elsewhere is an index page.
 - **An address is a page's place.** A page lives at the slugs of its ancestors and its own
-  (`gilde/wiki/engineering/deploying/`). Renaming or moving changes it, and the old address keeps leading
+  (`dg/wiki/engineering/deploying/`). Renaming or moving changes it, and the old address keeps leading
   to the page, so a link never breaks.
 - **Links follow.** A link written in the wiki names a page as people do, and is rewritten when that
   page, or the page the link is in, gets another address.
@@ -36,13 +36,13 @@ part of a page one job, sparing with features. On top of those:
 
 ### Integrations
 
-- `[[...]]` links in every Gilde app's Markdown, so a ticket can link to a page.
+- `[[...]]` links in every DataGroceries app's Markdown, so a ticket can link to a page.
 - A ticket lists the wiki pages that name its key.
 - AI agents read and write pages through the REST API and the MCP tools, as the person who connected them.
 
 ### Scope
 
-- An app of its own that imports only from `gilde.core`, so any Django project can install it.
+- An app of its own that imports only from `datagroceries.core`, so any Django project can install it.
 
 ## How it works
 
@@ -50,7 +50,7 @@ part of a page one job, sparing with features. On top of those:
 unique among them, and a `path`, the slugs of its ancestors and its own, unique in the wiki. `Page.save`
 keeps them right: a new title or parent gives a new path to the page and everything under it, and each
 old path becomes a `FormerPath`, which leads to the page until a page takes that address. The wiki's own
-pages are under `-/` (`gilde/wiki/-/search/`, `.../deploying/-/edit/`), which no page's address can be, as
+pages are under `-/` (`dg/wiki/-/search/`, `.../deploying/-/edit/`), which no page's address can be, as
 a slug never starts with a dash. `Link` keeps the links in a page's text, by the address they name and
 the page that is. `Comment`, `Watcher` and `Attachment` (on core's `attachments.Attachment`) are the
 wiki's own, as the board has its own. `Page.language` and `Page.original` make translations: every

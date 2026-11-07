@@ -5,8 +5,8 @@ from django.contrib.auth.models import Group as UserGroup
 from django.contrib.auth.models import Permission
 from django.core.management.base import BaseCommand
 
-from gilde.board.models import Column, Group, Relation, Ticket
-from gilde.wiki.models import Page
+from datagroceries.board.models import Column, Group, Relation, Ticket
+from datagroceries.wiki.models import Page
 
 DEMO_USER = 'demo'
 DEMO_PASSWORD = 'demo'
@@ -34,7 +34,7 @@ class Command(BaseCommand):
         )
         # Who may use the board and the wiki is a permission each, given as a host project would: through a group.
         team, _ = UserGroup.objects.get_or_create(name='Team')
-        uses = Permission.objects.filter(content_type__app_label__in=('gilde_board', 'gilde_wiki'), codename='use')
+        uses = Permission.objects.filter(content_type__app_label__in=('dg_board', 'dg_wiki'), codename='use')
         team.permissions.add(*uses)
         ann.groups.add(team)
         self.seed_wiki(demo)

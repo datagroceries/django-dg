@@ -1,6 +1,6 @@
-# Gilde's own instance on web1; copied to /etc/caddy/sites/gilde.caddy. Source: the Gilde repository,
+# DataGroceries' own instance on web1; copied to /etc/caddy/sites/gilde.caddy. Source: the DataGroceries repository,
 # deploy/web1/.
-gilde.datagroceries.com {
+hq.datagroceries.com {
 	handle_path /static/* {
 		root * /srv/gilde/static
 		file_server

@@ -1,10 +1,10 @@
-# Publishes one package to PyPI when its tag is pushed, such as django-gilde-board-v1.0.0, after every
+# Publishes one package to PyPI when its tag is pushed, such as django-dg-board-v1.0.0, after every
 # test in ci.yml has passed. Through PyPI's trusted publishing: no token is stored. docs/releasing.md says how.
 name: Release
 
 on:
   push:
-    tags: ['django-gilde-*-v*']
+    tags: ['django-dg-*-v*']
 
 permissions:
   contents: read

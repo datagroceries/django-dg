@@ -24,14 +24,14 @@ def _next(request) -> str:
     wanted = request.POST.get('next') or request.GET.get('next') or ''
     if url_has_allowed_host_and_scheme(wanted, {request.get_host()}, require_https=request.is_secure()):
         return wanted
-    return reverse('gilde_board:board')
+    return reverse('dg_board:board')
 
 
 def welcome(request):
     return render(
         request,
         'demo/welcome.html',
-        {'next': _next(request), 'mcp_url': request.build_absolute_uri(reverse('gilde_core:mcp'))},
+        {'next': _next(request), 'mcp_url': request.build_absolute_uri(reverse('dg_core:mcp'))},
     )
 
 

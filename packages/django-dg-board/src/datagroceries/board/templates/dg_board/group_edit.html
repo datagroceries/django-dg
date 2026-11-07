@@ -1,0 +1,102 @@
+{% extends 'dg_core/base.html' %}
+{% load i18n dg_board %}
+
+{% block title %}{% blocktranslate %}{{ group }} settings{% endblocktranslate %} · {% tracker_name %}{% endblock %}
+
+{% block extra_head %}{% include 'dg_board/_assets.html' %}{% endblock %}
+
+{% block content %}
+<div class="py-3">
+  <nav class="tk-crumbs mb-3">
+    {% include 'dg_board/_logo.html' %}
+    <i class="bi bi-chevron-right small"></i>
+    <a href="{% url 'dg_board:board' %}?group={{ group.slug }}">{{ group }}</a>
+    <i class="bi bi-chevron-right small"></i>
+    <span>{% translate "Settings" %}</span>
+  </nav>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="card mb-3">
+      <div class="card-header"><h5 class="mb-0"><i class="bi bi-collection"></i> {% translate "Group" %}</h5></div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-5">{% field form.name %}</div>
+          <div class="col-md-4">{% field form.slug %}</div>
+          <div class="col-md-3">{% field form.position %}</div>
+        </div>
+        <div class="row">
+          <div class="col-md-5">{% field form.done_days %}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header"><h5 class="mb-0"><i class="bi bi-layout-three-columns"></i> {% translate "Columns" %}</h5></div>
+      <div class="card-body">
+        <p class="text-muted small">
+          {% blocktranslate trimmed %}
+            Columns show left to right by position. The category says what a column means across groups:
+            a ticket in a <em>done</em> column counts as closed. A column that still holds tickets cannot be deleted.
+            Save to get another empty row.
+          {% endblocktranslate %}
+        </p>
+        {{ formset.management_form }}
+        {% form_errors formset %}
+        <table class="table align-middle">
+          <thead><tr><th>{% translate "Name" %}</th><th>{% translate "Category" %}</th><th style="width: 8rem">{% translate "Position" %}</th><th>{% translate "Delete" %}</th></tr></thead>
+          <tbody>
+            {% for column_form in formset %}
+              <tr>
+                <td>{{ column_form.id }}{% field column_form.name label=False %}</td>
+                <td>{% field column_form.category label=False %}</td>
+                <td>{% field column_form.position label=False %}</td>
+                <td>{% if column_form.instance.pk %}{% field column_form.DELETE label=False %}{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
+  </form>
+
+  <div class="card mt-4 border-danger-subtle">
+    <div class="card-header"><h5 class="mb-0"><i class="bi bi-trash"></i> {% translate "Delete group" %}</h5></div>
+    <div class="card-body">
+      {% if ticket_count %}
+        <p class="text-muted">
+          {% blocktranslate trimmed count count=ticket_count %}
+            {{ group }} still holds {{ count }} ticket. Move it yourself if it belongs somewhere specific, or move
+            it here. It lands in the column of the same name (else the same kind) and keeps its history.
+          {% plural %}
+            {{ group }} still holds {{ count }} tickets. Move the ones that belong somewhere specific yourself; the
+            rest can move here in one go. Each lands in the column of the same name (else the same kind) and keeps
+            its history. If it stops halfway, press it again: the moved tickets stay moved and the rest follow.
+          {% endblocktranslate %}
+        </p>
+        {% if other_groups %}
+          <form method="post" action="{% url 'dg_board:group_delete' group.slug %}" class="d-flex flex-wrap align-items-center gap-2"
+                data-confirm="{% blocktranslate count count=ticket_count %}Move {{ count }} ticket and delete {{ group }}?{% plural %}Move {{ count }} tickets and delete {{ group }}?{% endblocktranslate %}"
+                onsubmit="return confirm(this.dataset.confirm)">
+            {% csrf_token %}
+            <span>{% translate "Move them to" %}</span>
+            <select name="move_to" class="form-select w-auto" required>
+              {% for other in other_groups %}<option value="{{ other.pk }}">{{ other }}</option>{% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-danger">{% blocktranslate count count=ticket_count %}Move {{ count }} ticket and delete {{ group }}{% plural %}Move {{ count }} tickets and delete {{ group }}{% endblocktranslate %}</button>
+          </form>
+        {% else %}
+          <p class="mb-0 text-muted">{% translate "There is no other group to move them to." %}</p>
+        {% endif %}
+      {% else %}
+        <p class="text-muted">{% blocktranslate trimmed %}Deletes {{ group }} and its columns. Tickets that were ever in it keep showing its name in their history.{% endblocktranslate %}</p>
+        <form method="post" action="{% url 'dg_board:group_delete' group.slug %}" data-confirm="{% blocktranslate %}Delete {{ group }} and its columns?{% endblocktranslate %}" onsubmit="return confirm(this.dataset.confirm)">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger">{% blocktranslate %}Delete {{ group }}{% endblocktranslate %}</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

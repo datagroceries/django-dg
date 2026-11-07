@@ -1,6 +1,6 @@
 # Copied to /etc/systemd/system/; enabled with `systemctl enable --now gilde-backup.timer`.
 [Unit]
-Description=Dump Gilde's database every night
+Description=Dump DataGroceries' database every night
 
 [Timer]
 OnCalendar=*-*-* 03:30

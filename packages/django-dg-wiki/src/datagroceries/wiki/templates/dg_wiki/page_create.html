@@ -1,0 +1,10 @@
+{% extends 'dg_wiki/_wiki.html' %}
+{% load i18n %}
+
+{% block page_title %}{% translate "New page" %}{% endblock %}
+
+{% block main %}
+{% include 'dg_wiki/_crumbs.html' %}
+<h1 class="h3 mb-3">{% translate "New page" %}</h1>
+{% include 'dg_wiki/_new_page_form.html' %}
+{% endblock %}

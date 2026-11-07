@@ -1,7 +1,7 @@
-# The nightly dump of Gilde's database; copied to /etc/systemd/system/, run by gilde-backup.timer.
+# The nightly dump of DataGroceries' database; copied to /etc/systemd/system/, run by gilde-backup.timer.
 # Kept 14 days in /srv/gilde/backups. It guards against mistakes, not against losing the server.
 [Unit]
-Description=Dump Gilde's database
+Description=Dump DataGroceries' database
 After=postgresql.service
 
 [Service]
@@ -10,8 +10,8 @@ User=gilde
 Group=gilde
 # The dumps are for the gilde user alone.
 UMask=0077
-ExecStart=/bin/sh -c 'pg_dump --format=custom gilde > /srv/gilde/backups/gilde-$(date +%%F).dump'
-ExecStart=/usr/bin/find /srv/gilde/backups -name 'gilde-*.dump' -mtime +14 -delete
+ExecStart=/bin/sh -c 'pg_dump --format=custom gilde > /srv/gilde/backups/dg-$(date +%%F).dump'
+ExecStart=/usr/bin/find /srv/gilde/backups -name 'dg-*.dump' -mtime +14 -delete
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict

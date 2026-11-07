@@ -1,0 +1,46 @@
+[project]
+name = "django-dg-wiki"
+version = "0.1.0.dev0"
+description = "A wiki for Django that people and AI agents write together, next to the board."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Jasper Cramwinckel" }]
+keywords = ["django", "wiki", "knowledge base", "documentation", "mcp", "ai agents"]
+dependencies = [
+    "django-dg-core",
+    "Django>=5.2",
+    "django-simple-history",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    "Topic :: Office/Business :: Groupware",
+]
+
+[project.urls]
+Homepage = "https://github.com/datagroceries/django-dg"
+Source = "https://github.com/datagroceries/django-dg"
+Documentation = "https://github.com/datagroceries/django-dg/blob/main/docs/integrating.md"
+Changelog = "https://github.com/datagroceries/django-dg/blob/main/packages/django-dg-wiki/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/datagroceries"]

@@ -1,4 +1,4 @@
-# Gilde: instructions for agents
+# DataGroceries: instructions for agents
 
 - Code, comments, docs and commit messages are in English. Texts people see are marked for translation,
   and the Dutch `.po` files are updated with them.

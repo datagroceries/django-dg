@@ -1,0 +1,11 @@
+{% load static dg_board %}
+{% ticket_theme %}
+<script src="{% url 'dg_core:javascript_catalog' %}"></script>
+<script src="{% static 'dg_board/vendor/htmx/htmx.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'dg_board/vendor/tom-select/tom-select.bootstrap5.min.css' %}">
+<link rel="stylesheet" href="{% static 'dg_board/tickets.css' %}">
+<script src="{% static 'dg_board/vendor/tom-select/tom-select.complete.min.js' %}"></script>
+<script src="{% static 'dg_board/selects.js' %}" defer></script>
+<script src="{% static 'dg_board/shortcuts.js' %}" data-new-ticket-url="{% url 'dg_board:ticket_create' %}" defer></script>
+<script src="{% static 'dg_board/peek.js' %}" defer></script>
+<script src="{% static 'dg_board/copy_link.js' %}" defer></script>

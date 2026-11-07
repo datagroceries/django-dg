@@ -1,0 +1,6 @@
+{% load dg_board %}
+{# The board's wordmark: three kanban columns in a tile, then its name. Size it with font-size. #}
+<a class="tk-logo" href="{% url 'dg_board:board' %}" aria-label="{% tracker_name %}">
+  <span class="tk-logo-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+  <span class="tk-logo-word">{% tracker_name %}</span>
+</a>

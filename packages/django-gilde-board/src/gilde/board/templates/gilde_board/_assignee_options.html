@@ -1,5 +1,0 @@
-{% load i18n gilde_board %}
-{# An assignee select's options, the two quick ones first. data-data's "choice" is what the list shows; the field shows the name. #}
-<option value="" data-data='{"choice": "{% translate "Unassign" %}"}'>{% translate "Unassigned" %}</option>
-<option value="{{ request.user.pk }}" data-data='{"choice": "{% translate "Assign to me" %}"}'{% if request.user == assignee %} selected{% endif %}>{{ request.user|person }}</option>
-{% for user in users %}{% if user != request.user %}<option value="{{ user.pk }}"{% if user == assignee %} selected{% endif %}>{{ user|person }}</option>{% endif %}{% endfor %}

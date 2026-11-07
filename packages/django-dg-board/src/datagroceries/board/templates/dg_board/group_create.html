@@ -1,0 +1,26 @@
+{% extends 'dg_core/base.html' %}
+{% load i18n dg_board %}
+
+{% block title %}{% translate "New group" %} · {% tracker_name %}{% endblock %}
+
+{% block extra_head %}{% include 'dg_board/_assets.html' %}{% endblock %}
+
+{% block content %}
+<div class="py-3">
+  <nav class="tk-crumbs mb-3">
+    {% include 'dg_board/_logo.html' %}
+    <i class="bi bi-chevron-right small"></i>
+    <span>{% translate "New group" %}</span>
+  </nav>
+  <div class="card" style="max-width: 40rem">
+    <div class="card-header"><h5 class="mb-0"><i class="bi bi-plus-lg"></i> {% translate "New group" %}</h5></div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {% for form_field in form %}{% field form_field %}{% endfor %}
+        <button type="submit" class="btn btn-primary">{% translate "Create and add columns" %}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

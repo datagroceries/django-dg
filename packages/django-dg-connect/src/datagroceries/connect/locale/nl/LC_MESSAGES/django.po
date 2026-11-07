@@ -1,0 +1,335 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-07 13:18+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: DataGroceries\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps.py:8
+msgid "Connected agents"
+msgstr "Verbonden agents"
+
+#: models.py:27
+msgid "Until revoked"
+msgstr "Tot ingetrokken"
+
+#: models.py:27
+msgid "30 days"
+msgstr "30 dagen"
+
+#: models.py:27
+msgid "90 days"
+msgstr "90 dagen"
+
+#: models.py:27
+msgid "A year"
+msgstr "Een jaar"
+
+#: models.py:35
+msgid "What uses it, e.g. \"Claude Code on my laptop\"."
+msgstr "Wat het gebruikt, bijvoorbeeld \"Claude Code op mijn laptop\"."
+
+#: models.py:37
+msgid "The areas the token opens."
+msgstr "De apps die het token opent."
+
+#: models.py:39
+msgid "Empty: until revoked."
+msgstr "Leeg: tot het wordt ingetrokken."
+
+#: models.py:45
+msgid "API token"
+msgstr "API-token"
+
+#: templates/dg_connect/authorize.html:4 templates/dg_connect/authorize.html:22
+#, python-format
+msgid "Connect %(name)s"
+msgstr "%(name)s verbinden"
+
+#: templates/dg_connect/authorize.html:9
+msgid "Cannot connect"
+msgstr "Verbinden lukt niet"
+
+#: templates/dg_connect/authorize.html:13
+#, python-format
+msgid ""
+"The app from <strong>%(host)s</strong> may not connect by signing in here. "
+"Make a personal token for it under <a href=\"%(connect_url)s\">Connect an "
+"agent</a> instead."
+msgstr ""
+"De app van <strong>%(host)s</strong> mag hier niet verbinden door in te "
+"loggen. Maak er in plaats daarvan een persoonlijk token voor onder <a "
+"href=\"%(connect_url)s\">Verbind een agent</a>."
+
+#: templates/dg_connect/authorize.html:23
+#, python-format
+msgid "%(name)s asks to act as you, %(person)s, in:"
+msgstr "%(name)s vraagt om als jou, %(person)s, te werken in:"
+
+#: templates/dg_connect/authorize.html:26
+msgid ""
+"It reaches only what you may use yourself, and loses an app the moment you "
+"do. You can disconnect it at any time under Connect an agent."
+msgstr ""
+"Het kan alleen bij wat je zelf mag gebruiken, en verliest een app zodra jij "
+"die verliest. Je kunt het altijd loskoppelen onder Verbind een agent."
+
+#: templates/dg_connect/authorize.html:30
+#, python-format
+msgid "After allowing, you go back to <strong>%(host)s</strong>."
+msgstr "Na toestaan ga je terug naar <strong>%(host)s</strong>."
+
+#: templates/dg_connect/authorize.html:37
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: templates/dg_connect/authorize.html:38
+msgid "Allow"
+msgstr "Toestaan"
+
+#: templates/dg_connect/connect.html:4 templates/dg_connect/connect.html:8
+msgid "Connect an agent"
+msgstr "Verbind een agent"
+
+#: templates/dg_connect/connect.html:10
+msgid ""
+"An agent such as Claude works here as you: it reaches only what you may use "
+"yourself, and loses an app the moment you do. What it changes says so in the "
+"history."
+msgstr ""
+"Een agent zoals Claude werkt hier als jou: hij kan alleen bij wat je zelf "
+"mag gebruiken, en verliest een app zodra jij die verliest. Wat hij "
+"verandert, staat zo in de geschiedenis."
+
+#: templates/dg_connect/connect.html:17
+msgid "Claude: claude.ai, Desktop and mobile"
+msgstr "Claude: claude.ai, Desktop en mobiel"
+
+#: templates/dg_connect/connect.html:20
+msgid ""
+"In Claude, open <strong>Settings › Connectors</strong>, choose <strong>Add "
+"custom connector</strong>, and paste this address. Claude then asks you to "
+"sign in here and allow it."
+msgstr ""
+"Open in Claude <strong>Settings › Connectors</strong>, kies <strong>Add "
+"custom connector</strong> en plak dit adres. Claude vraagt je dan om hier in "
+"te loggen en het toe te staan."
+
+#: templates/dg_connect/connect.html:27
+#: templates/dg_connect/token_created.html:17
+msgid "Copied"
+msgstr "Gekopieerd"
+
+#: templates/dg_connect/connect.html:28
+#: templates/dg_connect/token_created.html:19
+msgid "Copy"
+msgstr "Kopiëren"
+
+#: templates/dg_connect/connect.html:33
+msgid ""
+"Claude reaches this site from Anthropic's servers, so only when it is on the "
+"internet over HTTPS. On an internal network, use Claude Code instead."
+msgstr ""
+"Claude bereikt deze site vanaf de servers van Anthropic, dus alleen als hij "
+"via HTTPS op internet staat. Gebruik op een intern netwerk Claude Code."
+
+#: templates/dg_connect/connect.html:45
+msgid ""
+"Run this once, then <code>/mcp</code> in Claude Code to sign in here in your "
+"browser:"
+msgstr ""
+"Voer dit één keer uit, en daarna <code>/mcp</code> in Claude Code om hier in "
+"je browser in te loggen:"
+
+#: templates/dg_connect/connect.html:51
+msgid "VS Code (Copilot in agent mode)"
+msgstr "VS Code (Copilot in agentmodus)"
+
+#: templates/dg_connect/connect.html:53
+msgid ""
+"Put this in <code>.vscode/mcp.json</code> and start the server: VS Code asks "
+"you to sign in here in your browser."
+msgstr ""
+"Zet dit in <code>.vscode/mcp.json</code> en start de server: VS Code vraagt "
+"je dan om hier in je browser in te loggen."
+
+#: templates/dg_connect/connect.html:59
+msgid "Connected apps"
+msgstr "Verbonden apps"
+
+#: templates/dg_connect/connect.html:65
+#, python-format
+msgid "signed in %(date)s"
+msgstr "ingelogd op %(date)s"
+
+#: templates/dg_connect/connect.html:68
+#, python-format
+msgid "Disconnect %(name)s? It stops working at once."
+msgstr "%(name)s loskoppelen? Het werkt dan meteen niet meer."
+
+#: templates/dg_connect/connect.html:71
+msgid "Disconnect"
+msgstr "Loskoppelen"
+
+#: templates/dg_connect/connect.html:75
+msgid "No app has signed in as you yet."
+msgstr "Er heeft nog geen app als jou ingelogd."
+
+#: templates/dg_connect/connect.html:80
+msgid "Personal tokens"
+msgstr "Persoonlijke tokens"
+
+#: templates/dg_connect/connect.html:82
+msgid ""
+"For scripts, CI and agents that cannot sign in the way Claude does. A "
+"program sends the token with every request as <code>Authorization: Bearer "
+"&lt;token&gt;</code>. Make one per program, so you can revoke it on its own."
+msgstr ""
+"Voor scripts, CI en agents die niet kunnen inloggen zoals Claude. Een "
+"programma stuurt het token bij elk verzoek mee als <code>Authorization: "
+"Bearer &lt;token&gt;</code>. Maak er één per programma, zodat je het los "
+"kunt intrekken."
+
+#: templates/dg_connect/connect.html:90
+msgid "Your tokens"
+msgstr "Je tokens"
+
+#: templates/dg_connect/connect.html:98
+msgid "expired"
+msgstr "verlopen"
+
+#: templates/dg_connect/connect.html:98
+msgid "stopped: unused for three months"
+msgstr "gestopt: drie maanden niet gebruikt"
+
+#: templates/dg_connect/connect.html:98
+#, python-format
+msgid "expires %(date)s"
+msgstr "verloopt op %(date)s"
+
+#: templates/dg_connect/connect.html:98
+msgid "until revoked"
+msgstr "tot ingetrokken"
+
+#: templates/dg_connect/connect.html:99
+#, python-format
+msgid "last used %(date)s"
+msgstr "laatst gebruikt op %(date)s"
+
+#: templates/dg_connect/connect.html:99
+msgid "never used"
+msgstr "nooit gebruikt"
+
+#: templates/dg_connect/connect.html:103
+msgid "Revoke this token? Whatever uses it stops working at once."
+msgstr "Dit token intrekken? Wat het gebruikt, werkt dan meteen niet meer."
+
+#: templates/dg_connect/connect.html:106
+msgid "Revoke"
+msgstr "Intrekken"
+
+#: templates/dg_connect/connect.html:110
+msgid "You have no tokens yet."
+msgstr "Je hebt nog geen tokens."
+
+#: templates/dg_connect/connect.html:116
+msgid "New token"
+msgstr "Nieuw token"
+
+#: templates/dg_connect/connect.html:120
+msgid "What uses it"
+msgstr "Wat het gebruikt"
+
+#: templates/dg_connect/connect.html:122
+msgid "The nightly report script"
+msgstr "Het nachtelijke rapportscript"
+
+#: templates/dg_connect/connect.html:123
+msgid "What it may open"
+msgstr "Wat het mag openen"
+
+#: templates/dg_connect/connect.html:130
+msgid "How long it lives"
+msgstr "Hoe lang het geldig is"
+
+#: templates/dg_connect/connect.html:134
+msgid "Make token"
+msgstr "Token maken"
+
+#: templates/dg_connect/connect.html:140
+msgid "A connection or a token stops after three months without use."
+msgstr "Een verbinding of token stopt na drie maanden zonder gebruik."
+
+#: templates/dg_connect/no_access.html:4 templates/dg_connect/no_access.html:8
+msgid "Nothing to connect to"
+msgstr "Niets om mee te verbinden"
+
+#: templates/dg_connect/no_access.html:10
+msgid ""
+"You may not use any of the apps here yet, so an agent could do nothing as "
+"you. Ask whoever runs this site to let you in, then connect again."
+msgstr ""
+"Je mag hier nog geen enkele app gebruiken, dus een agent kan niets als jou "
+"doen. Vraag de beheerder van deze site om je toegang te geven, en verbind "
+"dan opnieuw."
+
+#: templates/dg_connect/token_created.html:4
+msgid "Token made"
+msgstr "Token gemaakt"
+
+#: templates/dg_connect/token_created.html:10
+#, python-format
+msgid ""
+"Copy this key now: it is not stored and cannot be shown again. Anyone who "
+"has it can act as you on %(areas)s until it is revoked or expires."
+msgstr ""
+"Kopieer deze sleutel nu: hij wordt niet bewaard en kan niet opnieuw getoond "
+"worden. Iedereen die hem heeft, kan als jou werken in %(areas)s tot hij is "
+"ingetrokken of verloopt."
+
+#: templates/dg_connect/token_created.html:23
+msgid ""
+"Keep it where your program keeps its secrets, never in code or a message you "
+"share. A program sends it with every request as the header "
+"<code>Authorization: Bearer &lt;key&gt;</code>. To give Claude Code the "
+"tools of every app here:"
+msgstr ""
+"Bewaar hem waar je programma zijn geheimen bewaart, nooit in code of een "
+"bericht dat je deelt. Een programma stuurt hem bij elk verzoek mee als de "
+"header <code>Authorization: Bearer &lt;key&gt;</code>. Zo geef je Claude "
+"Code de tools van elke app hier:"
+
+#: templates/dg_connect/token_created.html:30
+msgid "Done"
+msgstr "Klaar"
+
+#: tests/test_tokens.py:20
+msgid "Notes"
+msgstr ""
+
+#: views.py:62
+msgid "Give the token a name, at least one area and a lifetime."
+msgstr "Geef het token een naam, minstens één app en een geldigheidsduur."
+
+#: views.py:75
+#, python-format
+msgid "Revoked \"%(name)s\". Whatever used it can no longer get in."
+msgstr "\"%(name)s\" ingetrokken. Wat het gebruikte, komt er niet meer in."
+
+#: views.py:87
+#, python-format
+msgid "Disconnected %(name)s. It can no longer act as you."
+msgstr "%(name)s losgekoppeld. Het kan niet meer als jou werken."

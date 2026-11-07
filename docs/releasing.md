@@ -6,13 +6,13 @@ through PyPI's trusted publishing: no PyPI token is stored anywhere.
 ## Once, per package
 
 On PyPI, under the account that will own the packages: *Your projects › Publishing › Add a new pending
-publisher*, for each of `django-gilde-core`, `django-gilde-connect`, `django-gilde-board` and
-`django-gilde-wiki`:
+publisher*, for each of `django-dg-core`, `django-dg-connect`, `django-dg-board` and
+`django-dg-wiki`:
 
 | Field | Value |
 |---|---|
-| Owner | `gildehq` |
-| Repository | `gilde` |
+| Owner | `datagroceries` |
+| Repository | `django-dg` |
 | Workflow | `release.yml` |
 | Environment | `pypi` |
 
@@ -23,12 +23,12 @@ nothing is published without a click.
 
 1. Set the version in the package's `pyproject.toml`, and a section for it at the top of its
    `CHANGELOG.md`, with the date. Core first when an app needs a new core: an app's dependency on
-   `django-gilde-core` names the lowest version it works with.
+   `django-dg-core` names the lowest version it works with.
 2. Commit, push, and wait for CI to pass.
 3. Tag and push the tag, for example:
 
    ```bash
-   git tag django-gilde-board-v1.0.0 && git push origin django-gilde-board-v1.0.0
+   git tag django-dg-board-v1.0.0 && git push origin django-dg-board-v1.0.0
    ```
 
 4. Approve the `pypi` environment in the run on GitHub. The workflow runs every test again, builds the

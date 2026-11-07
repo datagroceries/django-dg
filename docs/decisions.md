@@ -5,6 +5,8 @@ with a note that says what replaced it.
 
 ## 2026-11-05: Starting Gilde
 
+*The name no longer holds: Gilde became DataGroceries (2026-11-07, below).*
+
 - **Name.** Gilde, Dutch for guild: craftspeople and apprentices, people and agents, working together
   by shared rules. Packages are called `django-gilde-<app>`; `gilde` and `django-gilde` were free on
   PyPI.
@@ -166,6 +168,8 @@ Claude still connects with one URL. Worked out in a design proposal, tried in a 
 
 ## 2026-11-06: GitHub organisation and domain
 
+*No longer holds: the organisation becomes `datagroceries`, the domain datagroceries.com (2026-11-07, below).*
+
 - **gildehq.com** and the GitHub organisation **`gildehq`**, matching, without "Django" in the name; the
   packages keep `django-gilde-*` on PyPI, where people look for Django apps. The public repository will be
   `gildehq/gilde`, starting from a new history; the private one keeps the old.
@@ -199,3 +203,19 @@ Claude still connects with one URL. Worked out in a design proposal, tried in a 
   helpers, what the REST APIs share, and `backlinks`, the registry through which a ticket lists the wiki
   pages that name it. Each app keeps its own tables for comments, watchers and files.
 - How it is built: [wiki.md](wiki.md).
+
+## 2026-11-07: Gilde becomes DataGroceries
+
+- **Why.** Gilde Software B.V. holds the EU trademark "GILDE by CRAFTVIEW" (018977686, registered June
+  2024) for software and IT services: the same word, in the same field. Renaming before the repository goes
+  public and the packages reach PyPI costs a day; after, it would cost every project that installed them.
+- **DataGroceries**, the name of Jasper's company, whose domain he has held for years: nobody can say it
+  imitates another, and it needs nothing new bought or registered. Hofje and Steading, checked as well,
+  were free, but a name of its own would be one more thing to keep.
+- **The names.** `django-dg-<app>` on PyPI, short; `datagroceries.<app>` to import, as a module name has no
+  hyphen and `dg` is taken on PyPI; `dg_<app>` as app labels, so tables, permissions, templates and static
+  files; `DG_*` settings; `dg-` in CSS. The GitHub organisation `datagroceries`, the repository `django-dg`.
+- **Where it runs.** The own instance at hq.datagroceries.com, the demo at demo.datagroceries.com; the
+  server's own names (its user, folders and services) stay `gilde` for now, as nobody sees them.
+- Since nothing was released, each app starts again from one migration; the own instance's data moved to
+  the new tables. The logo stays: a house with the apps under one roof.

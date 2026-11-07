@@ -9,11 +9,11 @@ from django.contrib.auth.models import Group as UserGroup
 from django.contrib.auth.models import Permission
 from django.db import transaction
 
-from gilde.board.models import Column, Comment, Group, Label, Relation, Ticket, Watcher
-from gilde.core import history
-from gilde.wiki.models import Comment as PageComment
-from gilde.wiki.models import Page
-from gilde.wiki.models import Watcher as PageWatcher
+from datagroceries.board.models import Column, Comment, Group, Label, Relation, Ticket, Watcher
+from datagroceries.core import history
+from datagroceries.wiki.models import Comment as PageComment
+from datagroceries.wiki.models import Page
+from datagroceries.wiki.models import Watcher as PageWatcher
 
 # The user group whose members may use the board and the wiki: the team and every visitor.
 MEMBERS = 'Members'
@@ -52,7 +52,7 @@ def seed():
     users = get_user_model().objects
     members = UserGroup.objects.create(name=MEMBERS)
     members.permissions.add(
-        *Permission.objects.filter(content_type__app_label__in=('gilde_board', 'gilde_wiki'), codename='use')
+        *Permission.objects.filter(content_type__app_label__in=('dg_board', 'dg_wiki'), codename='use')
     )
     ann, bob, chloe = (users.create_user(username, first_name=first, last_name=last) for username, first, last in TEAM)
     members.user_set.add(ann, bob, chloe)

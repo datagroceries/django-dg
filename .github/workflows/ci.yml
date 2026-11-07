@@ -1,5 +1,5 @@
 # Tests and ruff on every push and pull request: on every Django and Python version the packages support,
-# on SQLite as in the example project, and once on PostgreSQL, as Gilde's own instance runs.
+# on SQLite as in the example project, and once on PostgreSQL, as DataGroceries' own instance runs.
 name: CI
 
 on:
@@ -44,8 +44,8 @@ jobs:
           cache-dependency-path: '**/pyproject.toml'
       # The packages with their lower bounds only, as a project would install them, plus one Django.
       - run: >
-          pip install -e packages/django-gilde-core -e packages/django-gilde-connect
-          -e packages/django-gilde-board -e packages/django-gilde-wiki pytest==9.2.0 pytest-django==4.14.0 "Django~=${{ matrix.django }}.0"
+          pip install -e packages/django-dg-core -e packages/django-dg-connect
+          -e packages/django-dg-board -e packages/django-dg-wiki pytest==9.2.0 pytest-django==4.14.0 "Django~=${{ matrix.django }}.0"
       - run: python -m django --version
       - run: pytest -q
 
@@ -56,15 +56,15 @@ jobs:
       postgres:
         image: postgres:18
         env:
-          POSTGRES_USER: gilde
-          POSTGRES_PASSWORD: gilde
-          POSTGRES_DB: gilde
+          POSTGRES_USER: datagroceries
+          POSTGRES_PASSWORD: datagroceries
+          POSTGRES_DB: datagroceries
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U gilde" --health-interval 5s --health-timeout 5s --health-retries 10
+          --health-cmd "pg_isready -U datagroceries" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       POSTGRES_HOST: localhost
-      POSTGRES_PASSWORD: gilde
+      POSTGRES_PASSWORD: datagroceries
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7

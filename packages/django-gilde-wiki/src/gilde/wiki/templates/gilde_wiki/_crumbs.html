@@ -1,5 +1,0 @@
-{% load gilde_wiki %}<nav class="wk-crumbs mb-2">
-  <a href="{% url 'gilde_wiki:home' %}">{% wiki_name %}</a>
-  {% for ancestor in ancestors %}<i class="bi bi-chevron-right"></i><a href="{{ ancestor.get_absolute_url }}">{{ ancestor.title }}</a>{% endfor %}
-  {% if last %}<i class="bi bi-chevron-right"></i><a href="{{ last.get_absolute_url }}">{{ last.title }}</a>{% endif %}
-</nav>

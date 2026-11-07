@@ -1,9 +1,9 @@
 # The public demo on web1. Installed from the repository's root, so the packages come from this checkout
 # and a deploy is a git pull.
--e packages/django-gilde-core
--e packages/django-gilde-connect
--e packages/django-gilde-board
--e packages/django-gilde-wiki
+-e packages/django-dg-core
+-e packages/django-dg-connect
+-e packages/django-dg-board
+-e packages/django-dg-wiki
 -r ../../example/requirements.txt
 gunicorn==26.2.0
 sentry-sdk==2.73.0

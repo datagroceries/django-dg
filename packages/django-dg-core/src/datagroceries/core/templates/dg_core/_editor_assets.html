@@ -1,0 +1,9 @@
+{% load static dg_core %}{% comment %}
+The Markdown editor (editor.js) for a page's textarea[data-markdown-editor], in a .dg-editor. A page that
+wants @-mentions suggested puts the people they may reach before it, as JSON in #dg-mention-people. The
+writing help its "?" opens is in #dg-editor-help.
+{% endcomment %}{% markdown_help %}<script src="{% url 'dg_core:javascript_catalog' %}"></script>
+<link rel="stylesheet" href="{% static 'dg_core/vendor/easymde/easymde.min.css' %}">
+<link rel="stylesheet" href="{% static 'dg_core/editor.css' %}">
+<script src="{% static 'dg_core/vendor/easymde/easymde.min.js' %}"></script>
+<script src="{% static 'dg_core/editor.js' %}" defer></script>

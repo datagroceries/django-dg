@@ -1,12 +1,12 @@
-"""The public demo on web1, demo.gildehq.com: anyone gets an account with one click and connects Claude to
+"""The public demo on web1, demo.datagroceries.com: anyone gets an account with one click and connects Claude to
 it, and every night it starts again from the same board and wiki. How it runs is in README.md next to this
 project.
 
 To run it on a laptop, from this folder:
 
     mkdir -p /tmp/gilde-demo/data
-    DJANGO_DEBUG=1 GILDE_DEMO_HOME=/tmp/gilde-demo DJANGO_SECRET_KEY=x python manage.py reset_demo
-    DJANGO_DEBUG=1 GILDE_DEMO_HOME=/tmp/gilde-demo DJANGO_SECRET_KEY=x python manage.py runserver 8003
+    DJANGO_DEBUG=1 DG_DEMO_HOME=/tmp/gilde-demo DJANGO_SECRET_KEY=x python manage.py reset_demo
+    DJANGO_DEBUG=1 DG_DEMO_HOME=/tmp/gilde-demo DJANGO_SECRET_KEY=x python manage.py runserver 8003
 """
 
 import os
@@ -15,7 +15,7 @@ import pathlib
 import sentry_sdk
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
-HOME = pathlib.Path(os.environ.get('GILDE_DEMO_HOME', '/srv/gilde-demo'))
+HOME = pathlib.Path(os.environ.get('DG_DEMO_HOME', '/srv/gilde-demo'))
 
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
@@ -30,24 +30,24 @@ if os.environ.get('SENTRY_DSN'):
         max_request_body_size='never',
     )
 DEBUG = os.environ.get('DJANGO_DEBUG') == '1'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if DEBUG else ['demo.gildehq.com']
-CSRF_TRUSTED_ORIGINS = ['https://demo.gildehq.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if DEBUG else ['demo.datagroceries.com']
+CSRF_TRUSTED_ORIGINS = ['https://demo.datagroceries.com']
 
 # Caddy ends HTTPS, redirects plain HTTP to HTTPS itself, and passes on which it was.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = CSRF_COOKIE_SECURE = not DEBUG
 SECURE_HSTS_SECONDS = 0 if DEBUG else 365 * 24 * 60 * 60
 # Names of its own, so a laptop running the example project as well keeps both sign-ins.
-SESSION_COOKIE_NAME = 'gilde_demo_session'
-CSRF_COOKIE_NAME = 'gilde_demo_csrftoken'
+SESSION_COOKIE_NAME = 'dg_demo_session'
+CSRF_COOKIE_NAME = 'dg_demo_csrftoken'
 # A visitor's account lasts until the night's reset anyway.
 SESSION_COOKIE_AGE = 24 * 60 * 60
 SILENCED_SYSTEM_CHECKS = [
     'security.W008',  # SECURE_SSL_REDIRECT: Caddy redirects
-    # HSTS for this host only: gildehq.com's other hosts need not be served here.
+    # HSTS for this host only: datagroceries.com's other hosts need not be served here.
     'security.W005',
     'security.W021',
-    # http redirect URIs: Claude Code signs in through a loopback address (gilde.connect.conf).
+    # http redirect URIs: Claude Code signs in through a loopback address (datagroceries.connect.conf).
     'oauth2_provider.W008',
 ]
 
@@ -61,10 +61,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'simple_history',
     'oauth2_provider',
-    'gilde.core',
-    'gilde.connect',
-    'gilde.board',
-    'gilde.wiki',
+    'datagroceries.core',
+    'datagroceries.connect',
+    'datagroceries.board',
+    'datagroceries.wiki',
     'demo',
 ]
 
@@ -97,7 +97,7 @@ TEMPLATES = [
     },
 ]
 
-# SQLite, apart from Gilde's own instance: the demo is public, and the nightly reset empties it. Writes
+# SQLite, apart from DataGroceries' own instance: the demo is public, and the nightly reset empties it. Writes
 # take the lock at once and wait their turn, rather than fail when two visitors save at the same moment.
 DATABASES = {
     'default': {
@@ -141,5 +141,5 @@ LOGGING = {
     'loggers': {'django': {'handlers': ['console'], 'level': 'WARNING'}},
 }
 
-GILDE_BOARD_KEY_PREFIX = 'DEMO'
-GILDE_BOARD_DISPLAY_TIMEZONE = 'Europe/Amsterdam'
+DG_BOARD_KEY_PREFIX = 'DEMO'
+DG_BOARD_DISPLAY_TIMEZONE = 'Europe/Amsterdam'

@@ -1,19 +1,19 @@
-# Gilde on web1
+# DataGroceries on web1
 
-Gilde's own instance, at https://gilde.datagroceries.com: Jasper's tickets on the board and the wiki,
+DataGroceries' own instance, at https://hq.datagroceries.com: Jasper's tickets on the board and the wiki,
 with Claude connected. The first installation outside the example project, on PostgreSQL. It runs on web1, a small
 Hetzner Cloud server with Ubuntu 26.04, next to other sites, behind Caddy. The server itself is described
-in its own documentation, which is not public; here is only what is Gilde's. `ssh web1` below is the
+in its own documentation, which is not public; here is only what is DataGroceries'. `ssh web1` below is the
 server, as an SSH alias.
 
 | Path | What |
 | --- | --- |
 | `/srv/gilde/app` | A clone of this repository, through a read-only GitHub deploy key (`/srv/gilde/.ssh/id_ed25519`, "web1 (read-only)" under the repository's Deploy keys) |
 | `/srv/gilde/venv` | The virtualenv, with the packages installed editable from the clone |
-| `/srv/gilde/.env` | `DJANGO_SECRET_KEY`, made on the server; `EMAIL_HOST` and `EMAIL_HOST_USER`, the SMTP server and Gilde's mailbox; `EMAIL_HOST_PASSWORD`, the mailbox's password, put there by Jasper; `GILDE_BOARD_GITHUB_WEBHOOK_SECRET`, shared with the repository's webhook; and `SENTRY_DSN`; mode 600 |
+| `/srv/gilde/.env` | `DJANGO_SECRET_KEY`, made on the server; `EMAIL_HOST` and `EMAIL_HOST_USER`, the SMTP server and DataGroceries' mailbox; `EMAIL_HOST_PASSWORD`, the mailbox's password, put there by Jasper; `DG_BOARD_GITHUB_WEBHOOK_SECRET`, shared with the repository's webhook; and `SENTRY_DSN`; mode 600 |
 | `/srv/gilde/static`, `/srv/gilde/media` | `collectstatic`'s output, served by Caddy; uploaded attachments |
 | `/srv/gilde/backups` | The nightly dumps, 14 days |
-| PostgreSQL 18, database `gilde` | Owned by the role `gilde`, reached through the socket as the system user `gilde`, without a password |
+| PostgreSQL 18, database `datagroceries` | Owned by the role `gilde`, reached through the socket as the system user `gilde`, without a password |
 
 The project in this folder, `hq`, is all the code of its own: settings, URLs and WSGI. The service runs
 gunicorn on `127.0.0.1:8002` ([gilde.service](gilde.service)); Caddy serves the site
@@ -30,13 +30,13 @@ install -d -o gilde -g gilde -m 755 /srv/gilde/static
 install -d -o gilde -g gilde -m 750 /srv/gilde/media
 install -d -o gilde -g gilde -m 700 /srv/gilde/backups
 sudo -u postgres createuser gilde
-sudo -u postgres createdb --owner gilde gilde
+sudo -u postgres createdb --owner gilde datagroceries
 sudo -u gilde -H ssh-keygen -t ed25519 -N '' -C 'web1 gilde deploy key' -f /srv/gilde/.ssh/id_ed25519
 # add the .pub as a read-only deploy key, from the laptop (the organisation must allow deploy keys):
-#   gh repo deploy-key add <file> --repo gildehq/gilde --title 'web1 (read-only)'
+#   gh repo deploy-key add <file> --repo datagroceries/django-dg --title 'web1 (read-only)'
 # GitHub's host key, checked against `gh api meta --jq .ssh_key_fingerprints`
 ssh-keyscan -t ed25519 github.com | sudo -u gilde tee /srv/gilde/.ssh/known_hosts
-sudo -u gilde -H git clone git@github.com:gildehq/gilde.git /srv/gilde/app
+sudo -u gilde -H git clone git@github.com:datagroceries/django-dg.git /srv/gilde/app
 sudo -u gilde -H python3 -m venv /srv/gilde/venv
 # the secret key, never printed
 install -o gilde -g gilde -m 600 /dev/null /srv/gilde/.env
@@ -54,8 +54,8 @@ asked before, such as a home router, keeps its "no such name" for up to an hour 
 TTL), while Claude's servers find it at once.
 
 ```bash
-hcloud zone add-records --record <web1's IPv4 address> datagroceries.com gilde A
-hcloud zone add-records --record <web1's IPv6 address> datagroceries.com gilde AAAA
+hcloud zone add-records --record <web1's IPv4 address> datagroceries.com hq A
+hcloud zone add-records --record <web1's IPv6 address> datagroceries.com hq AAAA
 ```
 
 Jasper's account, with a password typed on the server and never stored anywhere else:
@@ -81,7 +81,7 @@ systemctl restart gilde
 ```
 
 The service and Caddy files are copied by hand when they change. `check --deploy` warns that only
-superusers may use the board until a group gets its permission (`gilde.W003`).
+superusers may use the board until a group gets its permission (`dg.W003`).
 
 ## Backups
 
@@ -90,7 +90,7 @@ superusers may use the board until a group gets its permission (`gilde.W003`).
 mistake, not against losing the server. To restore one, into an empty database:
 
 ```bash
-sudo -u gilde pg_restore --clean --if-exists --dbname gilde /srv/gilde/backups/gilde-<date>.dump
+sudo -u gilde pg_restore --clean --if-exists --dbname gilde /srv/gilde/backups/dg-<date>.dump
 ```
 
 ## Logs
@@ -105,18 +105,18 @@ details.
 ## GitHub
 
 Commits on `main`, branches and pull requests that name a `G-` ticket show in its Code panel (the board's
-README, "GitHub"). The repository has a webhook to `https://gilde.datagroceries.com/gilde/board/github/webhook/`:
+README, "GitHub"). The repository has a webhook to `https://hq.datagroceries.com/dg/board/github/webhook/`:
 JSON, the events Pushes, Pull requests and Branch or tag creation, and the secret that is
-`GILDE_BOARD_GITHUB_WEBHOOK_SECRET` in `/srv/gilde/.env`. It was made with a fresh secret written to both
+`DG_BOARD_GITHUB_WEBHOOK_SECRET` in `/srv/gilde/.env`. It was made with a fresh secret written to both
 at once, never printed. The webhook's Recent deliveries on GitHub show each delivery and the answer; one
 refused while the site was down or not yet deployed can be redelivered there.
 
-There is no `GILDE_BOARD_GITHUB_TOKEN`: only `manage.py backfill_github` needs one, to read history from
+There is no `DG_BOARD_GITHUB_TOKEN`: only `manage.py backfill_github` needs one, to read history from
 before the webhook, and the repository has none that names a ticket.
 
 ## Mail
 
-Notifications go out over SMTP through Hetzner's webhosting, from a mailbox of Gilde's own, which only
+Notifications go out over SMTP through Hetzner's webhosting, from a mailbox of DataGroceries' own, which only
 sends (`hq/settings.py`). The server and the mailbox are in `/srv/gilde/.env` as `EMAIL_HOST` and
 `EMAIL_HOST_USER`, so that this public repository does not name them; Jasper's private notes have them.
 The settings switch to SMTP once `EMAIL_HOST_PASSWORD` is there too, typed on the server and never
@@ -124,7 +124,7 @@ printed. Between single quotes, so that both systemd and the shell take characte
 are; the password must hold no `'`:
 
 ```bash
-ssh -t web1 'read -rs -p "Password of the Gilde mailbox: " p && echo && printf "EMAIL_HOST_PASSWORD='"'"'%s'"'"'\n" "$p" >> /srv/gilde/.env && systemctl restart gilde'
+ssh -t web1 'read -rs -p "Password of the DataGroceries mailbox: " p && echo && printf "EMAIL_HOST_PASSWORD='"'"'%s'"'"'\n" "$p" >> /srv/gilde/.env && systemctl restart gilde'
 ```
 
 Then a test, to an address of your own:
