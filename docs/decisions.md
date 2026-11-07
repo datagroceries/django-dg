@@ -268,3 +268,7 @@ complete as we like.*
   still not a hook. In CONTRIBUTING.md and the README's design principles.
 - **Without a project of its own**, DataGroceries runs in a small one made for it, as its own instance
   does (`deploy/web1/`). The README says so instead of "nothing to run it in".
+- **The board's times follow Django's current timezone**, as the wiki's already did, so a project that
+  activates each person's own timezone gets it on every page. `DG_BOARD_DISPLAY_TIMEZONE`, one zone for
+  everyone, went. `People` does not say a person's timezone: no message to someone else has a time in
+  it yet; when one does, it gets `timezone(user)` as `language(user)`.

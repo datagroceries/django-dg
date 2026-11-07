@@ -2,7 +2,6 @@
 
 - `DG_BOARD_NAME`: what the board is called on its pages.
 - `DG_BOARD_KEY_PREFIX`: the start of every ticket's key, as in T-123.
-- `DG_BOARD_DISPLAY_TIMEZONE`: the timezone the pages show times in; `TIME_ZONE` by default.
 - `DG_BOARD_COLORS`: the colours of the column categories, of blocked tickets, and the accents that
   tell labels and people apart.
 - `DG_BOARD_GITHUB_REPOSITORY` (`owner/name`), `DG_BOARD_GITHUB_TOKEN` and
@@ -16,7 +15,6 @@ from django.utils.translation import gettext_lazy
 DEFAULTS = {
     'DG_BOARD_NAME': gettext_lazy('Board'),
     'DG_BOARD_KEY_PREFIX': 'T',
-    'DG_BOARD_DISPLAY_TIMEZONE': settings.TIME_ZONE,
     'DG_BOARD_COLORS': {
         'todo': '#6c757d',
         'in_progress': '#0d6efd',

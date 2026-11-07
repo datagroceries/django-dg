@@ -91,7 +91,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LANGUAGE_CODE = 'en'
 LANGUAGES = [('en', 'English'), ('nl', 'Nederlands')]
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Amsterdam'
 USE_TZ = True
 
 STATIC_URL = 'static/'
@@ -128,7 +128,6 @@ LOGGING = {
 }
 
 DG_BOARD_KEY_PREFIX = 'G'
-DG_BOARD_DISPLAY_TIMEZONE = 'Europe/Amsterdam'
 # Commits, branches and pull requests that name a ticket show on it. GitHub's webhook proves itself with
 # the secret in /srv/gilde/.env; without one, the board accepts no delivery.
 DG_BOARD_GITHUB_REPOSITORY = 'datagroceries/django-dg'

@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block content %}
-{% timezone display_timezone %}
 <div class="py-3" data-upload-url="{% url 'dg_board:attachment_upload' %}?ticket={{ ticket.pk }}">
   <div class="d-flex justify-content-between align-items-center gap-2">
     <nav class="tk-crumbs">
@@ -175,7 +174,7 @@
 
       <div class="d-flex justify-content-between align-items-baseline">
         <h2 class="tk-section-title">{% translate "Activity" %}</h2>
-        <span class="tk-small tk-muted">{% blocktranslate with zone=display_timezone %}Hover a time for the exact time ({{ zone }}){% endblocktranslate %}</span>
+        <span class="tk-small tk-muted">{% get_current_timezone as zone %}{% blocktranslate %}Hover a time for the exact time ({{ zone }}){% endblocktranslate %}</span>
       </div>
       <div class="tk-timeline">
         {# Newest first, so the box to write the next comment comes first too. #}
@@ -404,7 +403,6 @@
   </div>
 </div>
 <div id="tk-drop-overlay" class="tk-drop-overlay" aria-hidden="true"><span><i class="bi bi-paperclip"></i> {% blocktranslate with key=ticket.key %}Drop to attach to {{ key }}{% endblocktranslate %}</span></div>
-{% endtimezone %}
 {% endblock %}
 
 {% block extra_scripts %}

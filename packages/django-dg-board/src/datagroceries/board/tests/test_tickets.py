@@ -1220,3 +1220,14 @@ class NotificationTests(TicketTestCase):
         self.client.post(ticket.get_absolute_url(), {'action': 'watch'})
 
         self.assertFalse(ticket.watchers.filter(user=self.user).exists())
+
+
+class TimezoneTests(TicketTestCase):
+    def test_times_are_in_the_zone_django_has_active(self):
+        """As the project's own pages: TIME_ZONE, or each person's own, activated in a middleware."""
+        ticket = self.make_ticket()
+
+        with timezone.override('Asia/Tokyo'):
+            page = self.client.get(ticket.get_absolute_url())
+
+        self.assertContains(page, 'Hover a time for the exact time (Asia/Tokyo)')

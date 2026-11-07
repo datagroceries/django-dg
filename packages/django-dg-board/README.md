@@ -62,9 +62,11 @@ people: they can be assigned and @-mentioned. Each one's @-handle is their usern
 project that sees its people differently, such as by a nickname, a photo or rules of its own, names a
 subclass of `datagroceries.core.people.People` in `DG_PEOPLE`; that module says how.
 
-**Settings.** `DG_BOARD_NAME`, `DG_BOARD_KEY_PREFIX`, `DG_BOARD_DISPLAY_TIMEZONE` and
-`DG_BOARD_COLORS`, each with a default (`conf.py`), and the GitHub settings below. Avatars are an
-image when the project's `People` gives one, and initials otherwise (`datagroceries.core.people`).
+**Settings.** `DG_BOARD_NAME`, `DG_BOARD_KEY_PREFIX` and `DG_BOARD_COLORS`, each with a default
+(`conf.py`), and the GitHub settings below. Avatars are an image when the project's `People` gives one, and initials otherwise (`datagroceries.core.people`).
+
+**Times** are in Django's current timezone, as on the project's own pages: `TIME_ZONE`, or each
+person's own when the project activates it.
 
 **Languages.** English and Dutch, following the project's language (`django.utils.translation`); the
 JavaScript's texts through Django's JavaScript catalog (`dg/jsi18n/`). The API and the MCP tools stay

@@ -621,7 +621,6 @@ def ticket_detail(request, key):
             'users': people.members(SCOPE),
             'sizes': Ticket.Size.choices,
             'label_names': json.dumps(list(Label.objects.values_list('name', flat=True))),
-            'display_timezone': settings.DG_BOARD_DISPLAY_TIMEZONE,
             'board_url': _board_url(request, ticket.column.group),
         },
     )
@@ -657,7 +656,6 @@ def ticket_peek(request, key):
             'open_blockers': ticket.open_blockers(),
             'comments': ticket.comments.select_related('author').order_by('-created_at', '-pk')[:PEEK_COMMENTS],
             'comment_count': ticket.comments.count(),
-            'display_timezone': settings.DG_BOARD_DISPLAY_TIMEZONE,
         },
     )
 

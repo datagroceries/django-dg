@@ -72,7 +72,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LANGUAGE_CODE = 'en'
 LANGUAGES = [('en', 'English'), ('nl', 'Nederlands')]
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Amsterdam'
 USE_TZ = True
 
 STATIC_URL = 'static/'
@@ -84,4 +84,3 @@ LOGIN_URL = 'admin:login'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DG_BOARD_KEY_PREFIX = 'EX'
-DG_BOARD_DISPLAY_TIMEZONE = 'Europe/Amsterdam'

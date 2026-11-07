@@ -1,6 +1,5 @@
 {% load humanize i18n tz dg_board dg_core %}
 {# A ticket in brief, in the panel beside the board or a ticket page (peek.js); everything is changed on its page. #}
-{% timezone display_timezone %}
 <div class="tk-peek-head">
   <a href="{{ ticket.get_absolute_url }}" class="tk-key">{{ ticket.key }}</a>
   <span class="tk-chip"><i class="bi {{ ticket.column.category|category_icon }} tk-cat-{{ ticket.column.category }}"></i> <span class="text-truncate">{{ ticket.column.group }} / {{ ticket.column }}</span></span>
@@ -67,4 +66,3 @@
 {% if comment_count > comments|length %}
   <a class="tk-small" href="{{ ticket.get_absolute_url }}">{% blocktranslate count count=comment_count %}The comment on the ticket page{% plural %}All {{ count }} comments on the ticket page{% endblocktranslate %}</a>
 {% endif %}
-{% endtimezone %}

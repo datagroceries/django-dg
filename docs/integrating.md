@@ -186,7 +186,8 @@ and Dutch; another language is one more `.po` file per package. The REST API and
 English whatever the language, as they are for programs and agents. A notification is in the language
 of the person it goes to, whatever language the change was made in: Django keeps no language per person,
 so it is what your `People` class's `language(user)` says (below), and `LANGUAGE_CODE` when it says
-nothing.
+nothing. Times are in Django's current timezone, as on your own pages: `TIME_ZONE`, or each person's
+own when a middleware of yours activates it (`django.utils.timezone.activate`).
 
 DataGroceries' pages bring their own layout, `dg_core/base.html`: Bootstrap 5 and Bootstrap Icons, a thin
 bar with a link back to your site, and Django's messages. They work whatever your front end is, and all
@@ -317,7 +318,6 @@ A message goes out as a task once the change is committed:
 |---|---|---|
 | `DG_BOARD_NAME` | `'Board'` | what the board is called on its pages |
 | `DG_BOARD_KEY_PREFIX` | `'T'` | the start of every ticket's key, as in T-123 |
-| `DG_BOARD_DISPLAY_TIMEZONE` | `TIME_ZONE` | the timezone the pages show times in |
 | `DG_BOARD_COLORS` | see `conf.py` | the colours of the column categories, of blocked tickets, and the accents that tell labels and people apart |
 | `DG_BOARD_GITHUB_REPOSITORY`, `_TOKEN`, `_WEBHOOK_SECRET` | empty | link code in a GitHub repository to the tickets it mentions: see the [board's README](../packages/django-dg-board/README.md#github) |
 
