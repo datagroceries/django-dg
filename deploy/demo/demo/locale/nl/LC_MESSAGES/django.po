@@ -119,11 +119,11 @@ msgstr "Voer dit één keer uit in een terminal:"
 
 #: templates/demo/welcome.html:78
 msgid ""
-"In Claude Code, type <code>/mcp</code>, choose <em>gilde-demo</em> and sign "
+"In Claude Code, type <code>/mcp</code>, choose <em>datagroceries-demo</em> and sign "
 "in: your browser opens this site, where you click <strong>Try it</strong> if "
 "needed, then <strong>Allow</strong>."
 msgstr ""
-"Typ in Claude Code <code>/mcp</code>, kies <em>gilde-demo</em> en log in: je "
+"Typ in Claude Code <code>/mcp</code>, kies <em>datagroceries-demo</em> en log in: je "
 "browser opent deze site, waar je zo nodig op <strong>Probeer het</strong> "
 "klikt, en dan op <strong>Toestaan</strong>."
 
