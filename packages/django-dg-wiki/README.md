@@ -25,6 +25,11 @@ A wiki for a Django project, that people and AI agents write together, next to t
   ticket, while the board is installed too, the wiki pages that name it.
 - English and Dutch, following the project's language.
 
+Try it at [demo.datagroceries.com](https://demo.datagroceries.com): an account with one click, and Claude
+connected in a minute.
+
+![A wiki page in its tree, with a table of contents, a link to a ticket, the pages that link to it, and a comment](https://raw.githubusercontent.com/datagroceries/django-dg/main/docs/screenshots/wiki.png)
+
 ## Installing
 
 As every DataGroceries app, described in

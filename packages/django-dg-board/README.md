@@ -18,6 +18,13 @@ design.
 - A REST API and MCP tools, so an agent works on tickets as the person who connected it.
 - English and Dutch, following the project's language.
 
+Try it at [demo.datagroceries.com](https://demo.datagroceries.com): an account with one click, and Claude
+connected in a minute.
+
+![The board: a group's tickets in four columns, with labels, sizes, assignees and two blocked tickets](https://raw.githubusercontent.com/datagroceries/django-dg/main/docs/screenshots/board.png)
+
+![A ticket that Ann's Claude created, with a history in which each change says "via Claude"](https://raw.githubusercontent.com/datagroceries/django-dg/main/docs/screenshots/ticket.png)
+
 How the board is built, its requirements and its principles are in
 [docs/board.md](https://github.com/datagroceries/django-dg/blob/main/docs/board.md).
 

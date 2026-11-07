@@ -14,6 +14,11 @@ through one MCP endpoint.
 The apps are **the board**, a kanban ticket tracker, and **the wiki**, the team's own knowledge next to
 it.
 
+**Try it** at [demo.datagroceries.com](https://demo.datagroceries.com): an account with one click, a small
+team's board and wiki, and Claude connected in a minute. It starts again every night.
+
+![The board: a group's tickets in four columns, with labels, sizes, assignees and two blocked tickets](docs/screenshots/board.png)
+
 ## What the board does
 
 - **A kanban board** with drag and drop, groups per team or project, each with its own columns, and
@@ -30,6 +35,8 @@ it.
 - **A REST API and MCP tools** for working on tickets as on the pages: everything but deleting, uploading
   attachments, and making groups and columns.
 
+![A ticket that Ann's Claude created: its description, a related support ticket, and a history in which each change says "via Claude"](docs/screenshots/ticket.png)
+
 ## What the wiki does
 
 - **Pages in one tree**: a page with pages under it is what elsewhere is a space or a folder. Addresses
@@ -41,6 +48,23 @@ it.
 - **Comments, @-mentions and watchers**, images and files, search, translations, and pages downloaded as
   Markdown.
 - **A REST API and MCP tools** for everything the pages do but uploading and downloading files.
+
+![A wiki page in its tree, with a table of contents, a link to a ticket, the pages that link to it, and a comment](docs/screenshots/wiki.png)
+
+## What an agent does
+
+An agent connected to the endpoint gets the tools of every app installed: 12 for the board (search, read,
+create and update tickets, comment, relate, block, watch) and 13 for the wiki (search, read, write, move
+and delete pages, their versions, comments, translations, watching). It works as the person who connected
+it, so it is asked what you would ask a colleague:
+
+- *"What is assigned to me, and what is blocked?"*
+- *"Pick up DEMO-7: read it and the support ticket it relates to, and comment with a plan."*
+- *"Write a wiki page on how we deploy, from DEMO-8 and its comments, and link it from the ticket."*
+- *"Translate the Onboarding page into Dutch."*
+
+Its changes notify the same people a person's would, and the history shows them as that person's, via
+the agent.
 
 ## Why DataGroceries
 
@@ -59,6 +83,21 @@ it.
 
 DataGroceries is for teams that build on Django, want their tracker and their wiki inside their own project, and
 work with AI agents.
+
+## What it does not do
+
+Each app does a few things one way, on purpose, so some things are left out:
+
+- **It is not a service of its own.** It installs into a Django project; without one, there is nothing
+  to run it in.
+- **No sprints, estimates in points, due dates, priorities or time tracking**, and no custom fields: a
+  ticket's fields are fixed in code. A size (hours, days, weeks) and labels are what there is.
+- **No access per group yet.** Whoever may use the board sees all its groups. Access per group is
+  designed as a hook ([decisions.md](docs/decisions.md)) and comes next.
+- **No live updates.** A page shows what was there when it loaded. In the wiki, a save made on top of
+  someone else's is refused, naming them, rather than merged.
+- **English and Dutch only**, for now; another language is one more translation file.
+- **Notifications by email and Slack only**, and nothing comes in by email.
 
 ## Design principles
 
