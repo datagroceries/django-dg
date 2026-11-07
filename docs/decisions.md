@@ -219,3 +219,19 @@ Claude still connects with one URL. Worked out in a design proposal, tried in a 
   server's own names (its user, folders and services) stay `gilde` for now, as nobody sees them.
 - Since nothing was released, each app starts again from one migration; the own instance's data moved to
   the new tables. The logo stays: a house with the apps under one roof.
+
+## 2026-11-07: Hooks, not choices
+
+- **A hook the integrator replaces entirely**, with a default that is safe and needs no code for the common
+  case, wherever a project may want something its own way. The integrator programs as well as we do, so we
+  fill in nothing for them, and we assume nothing about the project beyond Django itself, so the apps fit
+  whatever setup is already there. In CONTRIBUTING.md, under "What gets in".
+- **Who may use an app stays Django's permission** ("Can use the board"), behind `People.may_use`: one tick
+  in the admin for the common case, overridable as a whole. `is_staff` was weighed and left: it means "may
+  sign in to the admin", which is not who should use a wiki. "Every signed-in user" was left too: in a
+  project where customers have accounts, it would open the board to them.
+- **Access per board group (G-32) is a hook on `People` too**, `may(user, right, group)`, which by default
+  allows everything to whoever may use the board. Not a Django authentication backend: every installation
+  would have to add it to `AUTHENTICATION_BACKENDS`, and projects with backends of their own would have to
+  fit it in. An integrator who wants restrictions uses `has_perm`, django-guardian or a model of their own
+  inside the hook.
