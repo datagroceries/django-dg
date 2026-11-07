@@ -11,8 +11,3 @@ demo.datagroceries.com {
 	}
 	reverse_proxy 127.0.0.1:8003
 }
-
-# The demo's address before the rename, until gildehq.com is given up.
-demo.gildehq.com {
-	redir https://demo.datagroceries.com{uri} permanent
-}

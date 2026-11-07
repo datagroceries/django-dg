@@ -22,9 +22,8 @@ if os.environ.get('SENTRY_DSN'):
         max_request_body_size='never',
     )
 DEBUG = False
-# The old address keeps serving until Claude is reconnected to the new one (gilde.caddy).
-ALLOWED_HOSTS = ['hq.datagroceries.com', 'gilde.datagroceries.com']
-CSRF_TRUSTED_ORIGINS = ['https://hq.datagroceries.com', 'https://gilde.datagroceries.com']
+ALLOWED_HOSTS = ['hq.datagroceries.com']
+CSRF_TRUSTED_ORIGINS = ['https://hq.datagroceries.com']
 
 # Caddy ends HTTPS, redirects plain HTTP to HTTPS itself, and passes on which it was.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

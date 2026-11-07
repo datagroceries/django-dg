@@ -7,14 +7,3 @@ hq.datagroceries.com {
 	}
 	reverse_proxy 127.0.0.1:8002
 }
-
-# The address before the rename, with its paths under /gilde/, until Claude is reconnected to the new one: its
-# requests reach the same app under /dg/, so a connected agent keeps working. Then a redirect, or gone.
-gilde.datagroceries.com {
-	handle_path /static/* {
-		root * /srv/gilde/static
-		file_server
-	}
-	uri replace /gilde/ /dg/ 1
-	reverse_proxy 127.0.0.1:8002
-}

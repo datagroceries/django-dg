@@ -92,11 +92,10 @@ content types, permissions, sessions and the admin log), relabelled `gilde_*` â†
 the sequences reset with `sqlsequencereset`, and every model's count compared. The settings in `.env` went
 from `GILDE_*` to `DG_*`.
 
-Kept until the new setup has run a while: the database `gilde`, `/srv/gilde/backups/before-rename.sql`, and
-`/srv/gilde/rename/` with the dumps and the Caddy sites as they were. gilde.datagroceries.com keeps serving
-until Claude is reconnected to hq.datagroceries.com (`gilde.caddy`); OAuth clients registered on the old
-address no longer sign in there, as the address they check now ends in `/dg/`. The server's own names (the
-user, folders and services) stay `gilde`.
+Afterwards, the same day: Claude was reconnected to hq.datagroceries.com, as OAuth clients registered on the
+old address no longer signed in there (the address they check ends in `/dg/` now). Then the old database
+`gilde`, the dumps and the backup from before the move were removed, and so were gilde.datagroceries.com and
+gildehq.com, with their DNS records. The server's own names (the user, folders and services) stay `gilde`.
 
 ## Backups
 
