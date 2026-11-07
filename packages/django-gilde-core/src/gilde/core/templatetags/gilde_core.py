@@ -6,7 +6,7 @@ from django.apps import apps
 from django.conf import settings
 from django.utils.translation import get_language_info
 
-from gilde.core import markdown, people
+from gilde.core import markdown, mentions, people
 
 register = template.Library()
 
@@ -22,6 +22,13 @@ def person_name(user) -> str:
 def render_markdown(text: str) -> str:
     """Markdown as every Gilde app shows it (gilde.core.markdown)."""
     return markdown.render(text)
+
+
+@register.simple_tag
+def mention_people(scope: str):
+    """The people an @-mention in the area `scope` reaches, for the editor's suggestions; before
+    gilde_core/_editor_assets.html."""
+    return mentions.people_json(scope)
 
 
 @register.inclusion_tag('gilde_core/_markdown_help.html')

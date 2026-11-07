@@ -15,3 +15,5 @@
   the changed words marked, and an earlier version brought back as a new one.
 - Images pasted or dropped into the editor, and files put beside a page, served only to the wiki's
   people. A page with only pages under it shows them, as an index would.
+- Comments on a page, and replies to them, written in the editor with @-mentions; watchers hear about new
+  comments, and the people mentioned in a page or a comment hear about it.

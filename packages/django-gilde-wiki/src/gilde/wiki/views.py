@@ -13,9 +13,9 @@ from gilde.core import attachments, markdown, people
 from gilde.wiki import operations
 from gilde.wiki.compare import side_by_side
 from gilde.wiki.conf import SCOPE
-from gilde.wiki.forms import ArrangeForm, MoveForm, NewPageForm, PageForm, fingerprint
-from gilde.wiki.models import Attachment, FormerPath, Page
-from gilde.wiki.templatetags.gilde_wiki import tree_context
+from gilde.wiki.forms import ArrangeForm, CommentForm, MoveForm, NewPageForm, PageForm, fingerprint
+from gilde.wiki.models import Attachment, Comment, FormerPath, Page
+from gilde.wiki.templatetags.gilde_wiki import render_context, tree_context
 
 wiki_required = people.may_use_required(SCOPE)
 
@@ -65,7 +65,7 @@ def page(request, path):
         if former is not None:
             return redirect(former.page)
         return _missing(request, path)
-    html, headings = markdown.render_document(found.body, context={'wiki_page': found})
+    html, headings = markdown.render_document(found.body, context=render_context(found))
     last_change = _last_change(found)
     context = {
         'page': found,
@@ -78,6 +78,9 @@ def page(request, path):
         'last_change': last_change,
         'last_changed_by': _name(_changed_by(found, last_change)),
         'last_changed_via': _via(last_change),
+        'comments': _comments(found),
+        'comment_form': CommentForm(page=found),
+        'watchers': [watcher.user for watcher in found.watchers.select_related('user')],
     }
     return render(request, 'gilde_wiki/page.html', context)
 
@@ -290,3 +293,51 @@ def page_attach(request, path):
 @wiki_required
 def attachment(request, pk, name):
     return attachments.serve(get_object_or_404(Attachment, pk=pk))
+
+
+def _comments(page: Page) -> list[Comment]:
+    """The page's comments, oldest first, each with its replies; each says through which agent it was
+    written (`via`) and whether it was changed after (`edited`)."""
+    comments = list(page.comments.filter(parent=None).select_related('author').prefetch_related('replies__author'))
+    ids = [comment.pk for comment in page.comments.all()]
+    records = Comment.history.filter(id__in=ids)
+    created = {record.id: record for record in records.filter(history_type='+')}
+    edited = set(records.filter(history_type='~').values_list('id', flat=True))
+    for comment in comments:
+        for each in (comment, *comment.replies.all()):
+            each.via, each.edited = _via(created.get(each.pk)), each.pk in edited
+    return comments
+
+
+@wiki_required
+@require_POST
+def comment_create(request, path):
+    shown = _page(path)
+    form = CommentForm(request.POST, page=shown)
+    if not form.is_valid():
+        messages.error(request, _('A comment needs text.'))
+        return redirect(f'{shown.get_absolute_url()}#comments')
+    made = operations.comment(request, shown, form.cleaned_data['body'], form.cleaned_data['parent'])
+    return redirect(made)
+
+
+@wiki_required
+@require_POST
+def comment_edit(request, path, pk):
+    """Only by its author."""
+    shown = _page(path)
+    edited = get_object_or_404(shown.comments, pk=pk, author=request.user)
+    body = request.POST.get('body', '').strip()
+    if body:
+        operations.edit_comment(request, edited, body)
+    else:
+        messages.error(request, _('A comment needs text; the old one is kept.'))
+    return redirect(edited)
+
+
+@wiki_required
+@require_POST
+def page_watch(request, path):
+    shown = _page(path)
+    operations.watch(request, shown, request.POST.get('watching') == 'yes')
+    return redirect(f'{shown.get_absolute_url()}#comments')

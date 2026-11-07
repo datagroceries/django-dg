@@ -19,5 +19,8 @@ urlpatterns = [
     path('<path:path>/-/history/<int:version>/restore/', views.page_restore, name='page_restore'),
     path('<path:path>/-/upload/', views.page_upload, name='page_upload'),
     path('<path:path>/-/attach/', views.page_attach, name='page_attach'),
+    path('<path:path>/-/comments/', views.comment_create, name='comment_create'),
+    path('<path:path>/-/comments/<int:pk>/', views.comment_edit, name='comment_edit'),
+    path('<path:path>/-/watch/', views.page_watch, name='page_watch'),
     path('<path:path>/', views.page, name='page'),
 ]

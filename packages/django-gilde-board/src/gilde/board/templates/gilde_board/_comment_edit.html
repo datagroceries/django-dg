@@ -8,6 +8,6 @@
     <input type="hidden" name="comment" value="{{ comment.pk }}">
     <textarea name="body" class="form-control form-control-sm mb-2" rows="{% if comment.parent_id %}3{% else %}8{% endif %}" data-markdown-editor="lazy">{{ comment.body }}</textarea>
     <button type="submit" class="btn btn-sm btn-primary">{% translate "Save" %}</button>
-    <button type="button" class="btn btn-sm btn-link" data-tk-edit-cancel>{% translate "Cancel" %}</button>
+    <button type="button" class="btn btn-sm btn-link" data-gilde-editor-cancel>{% translate "Cancel" %}</button>
   </form>
 </details>

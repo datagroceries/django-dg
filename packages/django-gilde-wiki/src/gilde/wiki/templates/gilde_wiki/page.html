@@ -3,6 +3,8 @@
 
 {% block page_title %}{{ page.title }}{% endblock %}
 
+{% block wiki_head %}{% mention_people 'wiki' %}{% include 'gilde_core/_editor_assets.html' %}{% endblock %}
+
 {% block main %}
 {% include 'gilde_wiki/_crumbs.html' %}
 <div class="wk-heading">
@@ -93,4 +95,6 @@
     </details>
   </section>
 </div>
+
+{% include 'gilde_wiki/_comments.html' %}
 {% endblock %}

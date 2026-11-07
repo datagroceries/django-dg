@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 10:21+0100\n"
+"POT-Creation-Date: 2026-11-07 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -36,6 +36,10 @@ msgstr "Titel"
 #: forms.py:102
 msgid "That place is not in the tree."
 msgstr "Die plek staat niet in de boom."
+
+#: forms.py:117
+msgid "Leave a comment."
+msgstr "Schrijf een reactie."
 
 #: links.py:118
 msgid "[[Deploying]]"
@@ -115,9 +119,88 @@ msgstr ""
 "Deze pagina komt te diep in de boom, of haar titel is te lang, voor een "
 "adres."
 
-#: operations.py:71 templates/gilde_wiki/page.html:21
+#: models.py:233
+msgid "comment"
+msgstr "reactie"
+
+#: models.py:248
+msgid "A reply cannot be replied to; reply to the comment above it instead."
+msgstr ""
+"Op een antwoord kun je niet antwoorden; antwoord op de reactie erboven."
+
+#: models.py:250
+msgid "A reply must be on the same page as its comment."
+msgstr "Een antwoord moet op dezelfde pagina staan als de reactie."
+
+#: notifications.py:38
+#, python-format
+msgid "%(person)s mentioned you in %(page)s"
+msgstr "%(person)s noemde je in %(page)s"
+
+#: notifications.py:54
+#, python-format
+msgid "%(person)s mentioned you on %(page)s"
+msgstr "%(person)s noemde je bij %(page)s"
+
+#: notifications.py:57
+#, python-format
+msgid "%(person)s commented on %(page)s"
+msgstr "%(person)s reageerde op %(page)s"
+
+#: operations.py:81 templates/gilde_wiki/page.html:23
 msgid "Move or delete the pages under this page first."
 msgstr "Verplaats of verwijder eerst de pagina's onder deze pagina."
+
+#: templates/gilde_wiki/_comment_edit.html:2 templates/gilde_wiki/page.html:13
+msgid "Edit"
+msgstr "Bewerken"
+
+#: templates/gilde_wiki/_comment_edit.html:6
+#: templates/gilde_wiki/page_edit.html:20
+msgid "Save"
+msgstr "Opslaan"
+
+#: templates/gilde_wiki/_comment_edit.html:7
+#: templates/gilde_wiki/_comments.html:34
+#: templates/gilde_wiki/page_edit.html:21
+#: templates/gilde_wiki/page_move.html:20
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: templates/gilde_wiki/_comment_head.html:3
+msgid "edited"
+msgstr "bewerkt"
+
+#: templates/gilde_wiki/_comments.html:5
+msgid "Comments"
+msgstr "Reacties"
+
+#: templates/gilde_wiki/_comments.html:10
+msgid "Stop watching"
+msgstr "Niet meer volgen"
+
+#: templates/gilde_wiki/_comments.html:13
+msgid "Watch"
+msgstr "Volgen"
+
+#: templates/gilde_wiki/_comments.html:18
+msgid "Watching:"
+msgstr "Volgers:"
+
+#: templates/gilde_wiki/_comments.html:19
+msgid "Watchers hear about new comments. Mention someone with @ to tell them."
+msgstr ""
+"Volgers horen van nieuwe reacties. Noem iemand met @ om die persoon in te "
+"lichten."
+
+#: templates/gilde_wiki/_comments.html:28
+#: templates/gilde_wiki/_comments.html:33
+msgid "Reply"
+msgstr "Antwoorden"
+
+#: templates/gilde_wiki/_comments.html:52
+msgid "Comment"
+msgstr "Reageren"
 
 #: templates/gilde_wiki/_new_page_form.html:14
 msgid "Create and write"
@@ -188,76 +271,72 @@ msgstr "Pagina bestaat niet"
 msgid "No page has the address <code>%(path)s</code>. Start it?"
 msgstr "Geen pagina heeft het adres <code>%(path)s</code>. Beginnen?"
 
-#: templates/gilde_wiki/page.html:11
-msgid "Edit"
-msgstr "Bewerken"
-
-#: templates/gilde_wiki/page.html:13
+#: templates/gilde_wiki/page.html:15
 msgid "More"
 msgstr "Meer"
 
-#: templates/gilde_wiki/page.html:15
+#: templates/gilde_wiki/page.html:17
 msgid "New page under this one"
 msgstr "Nieuwe pagina hieronder"
 
-#: templates/gilde_wiki/page.html:16 templates/gilde_wiki/page_move.html:19
+#: templates/gilde_wiki/page.html:18 templates/gilde_wiki/page_move.html:19
 msgid "Move"
 msgstr "Verplaatsen"
 
-#: templates/gilde_wiki/page.html:17
+#: templates/gilde_wiki/page.html:19
 msgid "History"
 msgstr "Geschiedenis"
 
-#: templates/gilde_wiki/page.html:21 templates/gilde_wiki/page.html:25
+#: templates/gilde_wiki/page.html:23 templates/gilde_wiki/page.html:27
 msgid "Delete"
 msgstr "Verwijderen"
 
-#: templates/gilde_wiki/page.html:24
+#: templates/gilde_wiki/page.html:26
 msgid "Delete this page? Its history stays."
 msgstr "Deze pagina verwijderen? Haar geschiedenis blijft bewaard."
 
-#: templates/gilde_wiki/page.html:35
+#: templates/gilde_wiki/page.html:37
 #, python-format
 msgid "Last changed by %(person)s, %(when)s"
 msgstr "Laatst gewijzigd door %(person)s, %(when)s"
 
-#: templates/gilde_wiki/page.html:46
+#: templates/gilde_wiki/page.html:48
 msgid "Write an introduction"
 msgstr "Schrijf een inleiding"
 
-#: templates/gilde_wiki/page.html:48
+#: templates/gilde_wiki/page.html:50
 msgid "This page is empty."
 msgstr "Deze pagina is leeg."
 
-#: templates/gilde_wiki/page.html:48
+#: templates/gilde_wiki/page.html:50
 msgid "Write it"
 msgstr "Begin met schrijven"
 
-#: templates/gilde_wiki/page.html:53
+#: templates/gilde_wiki/page.html:55
 msgid "On this page"
 msgstr "Op deze pagina"
 
-#: templates/gilde_wiki/page.html:62
+#: templates/gilde_wiki/page.html:64
 msgid "Pages under this one"
 msgstr "Pagina's hieronder"
 
-#: templates/gilde_wiki/page.html:68
+#: templates/gilde_wiki/page.html:70
 msgid "Pages that link here"
 msgstr "Pagina's die hierheen linken"
 
-#: templates/gilde_wiki/page.html:73
+#: templates/gilde_wiki/page.html:75
 msgid "Files"
 msgstr "Bestanden"
 
-#: templates/gilde_wiki/page.html:85
+#: templates/gilde_wiki/page.html:87
 msgid "Add a file"
 msgstr "Bestand toevoegen"
 
-#: templates/gilde_wiki/page.html:89
+#: templates/gilde_wiki/page.html:91
 msgid "File"
 msgstr "Bestand"
 
-#: templates/gilde_wiki/page.html:90
+#: templates/gilde_wiki/page.html:92
 msgid "Upload"
 msgstr "Uploaden"
 
@@ -290,15 +369,6 @@ msgstr "De tekst is hetzelfde."
 #, python-format
 msgid "Editing %(title)s"
 msgstr "%(title)s bewerken"
-
-#: templates/gilde_wiki/page_edit.html:20
-msgid "Save"
-msgstr "Opslaan"
-
-#: templates/gilde_wiki/page_edit.html:21
-#: templates/gilde_wiki/page_move.html:20
-msgid "Cancel"
-msgstr "Annuleren"
 
 #: templates/gilde_wiki/page_history.html:4
 #, python-format
@@ -341,7 +411,7 @@ msgstr "Iemand"
 msgid "via %(name)s"
 msgstr "via %(name)s"
 
-#: views.py:123
+#: views.py:126
 #, python-format
 msgid ""
 "%(who)s saved this page while you were editing it. Your text is still here: "
@@ -352,47 +422,55 @@ msgstr ""
 "nog: open de pagina in een ander tabblad om die van hen te zien, voeg de "
 "twee samen en sla opnieuw op om die van hen te vervangen."
 
-#: views.py:153
+#: views.py:156
 #, python-format
 msgid "“%(title)s” is deleted."
 msgstr "“%(title)s” is verwijderd."
 
-#: views.py:179
+#: views.py:182
 msgid "Created"
 msgstr "Gemaakt"
 
-#: views.py:182
+#: views.py:185
 #, python-format
 msgid "Brought back the version of %(when)s"
 msgstr "De versie van %(when)s teruggezet"
 
-#: views.py:185
+#: views.py:188
 #, python-format
 msgid "Renamed to “%(title)s”"
 msgstr "Hernoemd naar “%(title)s”"
 
-#: views.py:187
+#: views.py:190
 msgid "Text changed"
 msgstr "Tekst gewijzigd"
 
-#: views.py:190
+#: views.py:193
 #, python-format
 msgid "Moved under “%(title)s”"
 msgstr "Verplaatst naar onder “%(title)s”"
 
-#: views.py:190
+#: views.py:193
 msgid "Moved to the top"
 msgstr "Naar boven verplaatst"
 
-#: views.py:261
+#: views.py:264
 #, python-format
 msgid "The version of %(when)s is back."
 msgstr "De versie van %(when)s is teruggezet."
 
-#: views.py:282
+#: views.py:285
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
+
+#: views.py:318
+msgid "A comment needs text."
+msgstr "Een reactie heeft tekst nodig."
+
+#: views.py:334
+msgid "A comment needs text; the old one is kept."
+msgstr "Een reactie heeft tekst nodig; de oude blijft staan."
 
 #~ msgid "Markdown."
 #~ msgstr "Markdown."

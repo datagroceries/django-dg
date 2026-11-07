@@ -886,13 +886,13 @@ class TicketLinkTests(TicketTestCase):
     def test_a_mention_of_a_colleague_is_marked_but_not_in_code_or_an_email_address(self):
         html = render_markdown('Ask @Anna, not @nobody. Mail anna@example.com, or see `@anna`, or @anna.')
 
-        self.assertIn('<span class="tk-mention" title="Anna Tester">@Anna</span>,', html)
-        self.assertIn('<span class="tk-mention" title="Anna Tester">@anna</span>.', html)
-        self.assertEqual(html.count('tk-mention'), 2)
+        self.assertIn('<span class="gilde-mention" title="Anna Tester">@Anna</span>,', html)
+        self.assertIn('<span class="gilde-mention" title="Anna Tester">@anna</span>.', html)
+        self.assertEqual(html.count('gilde-mention'), 2)
         self.assertIn('<code>@anna</code>', html)
 
     def test_no_class_but_the_mention_s_survives(self):
-        html = render_markdown('<span class="text-danger tk-mention">@nobody</span>')
+        html = render_markdown('<span class="text-danger gilde-mention">@nobody</span>')
 
         self.assertNotIn('text-danger', html)
 

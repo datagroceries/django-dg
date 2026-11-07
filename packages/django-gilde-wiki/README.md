@@ -16,9 +16,10 @@ A wiki for a Django project, that people and AI agents write together, next to t
 - Every save kept, with who made it and through which agent; two versions compared side by side, and an
   earlier one brought back. A save is refused when someone else saved the page in the meantime.
 - Images in the text, pasted or dropped into the editor, and files beside a page.
+- Comments and replies, with @-mentions; the people watching a page hear about new comments.
 - English and Dutch, following the project's language.
 
-It is being built: comments, search, translations, the board's
+It is being built: search, translations, the board's
 tickets and the MCP tools follow.
 
 ## Installing

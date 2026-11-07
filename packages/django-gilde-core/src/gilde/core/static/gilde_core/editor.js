@@ -125,8 +125,8 @@ function attachMentions(cm) {
   });
 }
 
-// The writing help, from #gilde-editor-help, opens under the editor and stays open, or closed, for the
-// next editor too.
+// The writing help, from #gilde-editor-help, opens under the editor. Left open, it opens by itself under
+// the next large editor too, for a page or a description, but not under a small one for a comment.
 const helpTemplate = document.getElementById('gilde-editor-help');
 const HELP_KEY = 'gilde-editor-help';
 
@@ -209,7 +209,7 @@ window.gildeMarkdownEditor = (textarea) => {
         : []),
     ],
   });
-  if (helpTemplate && helpWasOpen()) {
+  if (helpTemplate && textarea.rows > 6 && helpWasOpen()) {
     toggleHelp(textarea.easyMDE, true);
   }
   if (mentionPeople.length) {
@@ -219,3 +219,27 @@ window.gildeMarkdownEditor = (textarea) => {
 };
 
 document.querySelectorAll('textarea[data-markdown-editor]:not([data-markdown-editor="lazy"])').forEach(window.gildeMarkdownEditor);
+
+// An editor in a <details>, as for a reply or an edit under a comment, is built when the details opens; built
+// while hidden it renders blank. [data-gilde-editor-cancel] in it puts the text back and closes it.
+document.addEventListener('toggle', (event) => {
+  const details = event.target;
+  const textarea = details instanceof HTMLDetailsElement && details.open
+    ? details.querySelector('textarea[data-markdown-editor="lazy"]')
+    : null;
+  if (textarea) {
+    window.gildeMarkdownEditor(textarea).codemirror.focus();
+  }
+}, true);
+
+document.addEventListener('click', (event) => {
+  const cancel = event.target.closest('[data-gilde-editor-cancel]');
+  const details = cancel?.closest('details');
+  if (!details) {
+    return;
+  }
+  const form = details.querySelector('form');
+  form.reset();
+  form.querySelectorAll('textarea').forEach((textarea) => textarea.easyMDE?.value(textarea.defaultValue));
+  details.open = false;
+});

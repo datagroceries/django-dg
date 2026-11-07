@@ -1,24 +1,18 @@
-"""The board's references in Markdown (gilde.core.markdown): "see T-123" links to that ticket, and "@jaap"
-shows as a mention of that colleague, in every Gilde app's Markdown while the board is installed.
-
-Both mark only what names something real: "UTF-8" or "SHA-256" stay text, and so does an @-word that names
-no member.
+"""The board's reference in Markdown (gilde.core.markdown): "see T-123" links to that ticket, in every
+Gilde app's Markdown while the board is installed. It marks only what names a ticket: "UTF-8" or "SHA-256"
+stay text.
 """
 
 import re
-import typing
 import xml.etree.ElementTree as ET
 
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from gilde.board.conf import SCOPE
 from gilde.board.models import KEY_RE, Ticket
-from gilde.core import markdown, people
+from gilde.core import markdown
 
 CANDIDATE_RE = re.compile(r'\b[A-Z][A-Z0-9]*-\d+\b')
-# The handles notifications.MENTION_RE notifies, without a sentence's closing full stop.
-MENTION_TEXT_RE = re.compile(r'(?<![\w@.])@[a-z0-9](?:[a-z0-9._-]*[a-z0-9_-])?', re.IGNORECASE)
 
 
 def resolve_keys(keys: set[str]) -> dict[str, Ticket]:
@@ -44,27 +38,3 @@ class TicketLinks(markdown.Reference):
         link = ET.Element('a', href=found.get_absolute_url(), title=found.title)
         link.text = match
         return link
-
-
-class Mentions(markdown.Reference):
-    """ "@jaap" names the person whose @-handle is "jaap" (gilde.core.people), as a notification does
-    (notifications.mentioned_users)."""
-
-    name = 'ticket_mentions'
-    priority = 4
-    pattern = MENTION_TEXT_RE
-    classes: typing.ClassVar = {'span': {'tk-mention'}}
-
-    @classmethod
-    def help(cls):
-        return [('@…', _('Type the start of a name to mention a colleague, who hears about it.'))]
-
-    def resolve(self, matches):
-        by_handle = people.by_handle(SCOPE)
-        # Each spelling as written, so "@Anna" and "@anna" are both found.
-        return {match: by_handle[match[1:].lower()] for match in matches if match[1:].lower() in by_handle}
-
-    def element(self, match, found):
-        mention = ET.Element('span', {'class': 'tk-mention', 'title': people.name(found)})
-        mention.text = match
-        return mention

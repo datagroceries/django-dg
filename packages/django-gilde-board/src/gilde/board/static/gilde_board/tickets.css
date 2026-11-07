@@ -137,8 +137,8 @@ img.tk-avatar { object-fit: cover; background: var(--bs-secondary-bg); }
 .sortable-ghost { opacity: .35; }
 .sortable-chosen { box-shadow: 0 6px 16px rgba(0, 0, 0, .12); }
 
-/* An @-mention in rendered text, like a chip, so the colleague it notified stands out. */
-.tk-mention { padding: 0 .3em; border-radius: .3rem; font-weight: 600; color: var(--tk-in-progress);
+/* An @-mention (gilde_core/gilde.css) in the board's own colour. */
+.gilde-mention { padding: 0 .3em; border-radius: .3rem; font-weight: 600; color: var(--tk-in-progress);
               background: color-mix(in srgb, var(--tk-in-progress) 12%, transparent); white-space: nowrap; }
 
 /* Ticket page */

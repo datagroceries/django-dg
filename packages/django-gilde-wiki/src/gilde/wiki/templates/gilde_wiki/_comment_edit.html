@@ -1,0 +1,9 @@
+{% load i18n %}<details>
+  <summary><i class="bi bi-pencil"></i> {% translate "Edit" %}</summary>
+  <form method="post" action="{% url 'gilde_wiki:comment_edit' page.path item.pk %}" class="gilde-editor mt-2">
+    {% csrf_token %}
+    <textarea name="body" rows="{% if item.parent_id %}3{% else %}6{% endif %}" data-markdown-editor="lazy" class="form-control">{{ item.body }}</textarea>
+    <button type="submit" class="btn btn-sm btn-primary mt-2">{% translate "Save" %}</button>
+    <button type="button" class="btn btn-sm btn-link mt-2" data-gilde-editor-cancel>{% translate "Cancel" %}</button>
+  </form>
+</details>

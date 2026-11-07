@@ -1,0 +1,5 @@
+/* What every Gilde app's pages share (gilde_core/base.html). */
+
+/* An @-mention in rendered text (gilde.core.mentions), like a chip, so the colleague it reaches stands out. */
+.gilde-mention { padding: 0 .3em; border-radius: .3rem; font-weight: 600; color: var(--bs-primary);
+                 background: color-mix(in srgb, var(--bs-primary) 12%, transparent); white-space: nowrap; }

@@ -8,23 +8,16 @@ Each person reads a message in their own language (gilde.core.people.language), 
 page or the API that made the change was in, so a message is a sentence still to translate.
 """
 
-import re
-
 from django.utils.translation import gettext_lazy as _
 
 from gilde.board.conf import SCOPE
 from gilde.board.models import Column, Ticket, Watcher
-from gilde.core import notifications, people
-
-# "@jasper" names the member whose handle is "jasper" (gilde.core.people).
-MENTION_RE = re.compile(r'(?<![\w@.])@([a-z0-9][a-z0-9._-]*)', re.IGNORECASE)
-SNIPPET_LENGTH = 300
+from gilde.core import mentions, notifications, people
 
 
 def mentioned_users(text: str) -> list:
     """The people @-mentioned in `text`."""
-    handles = {handle.lower().rstrip('.') for handle in MENTION_RE.findall(text or '')}
-    return people.mentioned(SCOPE, handles) if handles else []
+    return mentions.mentioned(SCOPE, text)
 
 
 def watch(ticket: Ticket, *users):
@@ -36,21 +29,6 @@ def watch(ticket: Ticket, *users):
 def _url(request, ticket: Ticket, anchor: str = '') -> str:
     """The address of the ticket's page, or with `anchor` ("#comment-12") of a place on it."""
     return request.build_absolute_uri(f'{ticket.get_absolute_url()}{anchor}')
-
-
-def _snippet(text: str) -> str:
-    text = text.strip()
-    return text[:SNIPPET_LENGTH].rstrip() + '…' if len(text) > SNIPPET_LENGTH else text
-
-
-def _say(sentence, **names):
-    """`sentence` with `names` filled in, in the language active when it is said."""
-    return lambda: str(sentence) % names
-
-
-def _send(users, actor, summary, url: str, quote: str = ''):
-    """Tell `users`, but not `actor`, `summary` (from _say), each in their own language."""
-    notifications.notify([user for user in users if user.pk != actor.pk], summary, url, quote)
 
 
 def _watchers(ticket: Ticket, *excluded) -> list:
@@ -68,8 +46,10 @@ def ticket_created(request, ticket: Ticket):
 def assigned(request, ticket: Ticket):
     """Tell the new assignee, who also starts watching."""
     watch(ticket, ticket.assignee)
-    summary = _say(_('%(person)s assigned %(ticket)s to you'), person=people.name(request.user), ticket=ticket)
-    _send([ticket.assignee], request.user, summary, _url(request, ticket))
+    summary = notifications.say(
+        _('%(person)s assigned %(ticket)s to you'), person=people.name(request.user), ticket=ticket
+    )
+    notifications.send([ticket.assignee], request.user, summary, _url(request, ticket))
 
 
 def text_written(request, ticket: Ticket, before: str, after: str, anchor: str = ''):
@@ -78,8 +58,10 @@ def text_written(request, ticket: Ticket, before: str, after: str, anchor: str =
     before_ids = {user.pk for user in mentioned_users(before)}
     new = [user for user in mentioned_users(after) if user.pk not in before_ids]
     watch(ticket, *new)
-    summary = _say(_('%(person)s mentioned you in %(ticket)s'), person=people.name(request.user), ticket=ticket)
-    _send(new, request.user, summary, _url(request, ticket, anchor))
+    summary = notifications.say(
+        _('%(person)s mentioned you in %(ticket)s'), person=people.name(request.user), ticket=ticket
+    )
+    notifications.send(new, request.user, summary, _url(request, ticket, anchor))
 
 
 def commented(request, comment):
@@ -88,27 +70,35 @@ def commented(request, comment):
     watch(ticket, author)
     mentioned = mentioned_users(comment.body)
     watch(ticket, *mentioned)
-    quote = _snippet(comment.body)
+    quote = notifications.snippet(comment.body)
     # Straight to the comment, not the top of a long ticket.
     url = _url(request, ticket, f'#comment-{comment.pk}')
     names = {'person': people.name(author), 'ticket': ticket}
-    _send(mentioned, author, _say(_('%(person)s mentioned you on %(ticket)s'), **names), url, quote)
-    _send(_watchers(ticket, *mentioned), author, _say(_('%(person)s commented on %(ticket)s'), **names), url, quote)
+    notifications.send(
+        mentioned, author, notifications.say(_('%(person)s mentioned you on %(ticket)s'), **names), url, quote
+    )
+    notifications.send(
+        _watchers(ticket, *mentioned),
+        author,
+        notifications.say(_('%(person)s commented on %(ticket)s'), **names),
+        url,
+        quote,
+    )
 
 
 def moved(request, ticket: Ticket, *, was_done: bool):
     """Tell the watchers when a ticket enters a done column."""
     if ticket.column.category == Column.Category.DONE and not was_done:
-        summary = _say(
+        summary = notifications.say(
             _('%(person)s moved %(ticket)s to %(column)s'),
             person=people.name(request.user),
             ticket=ticket,
             column=ticket.column,
         )
-        _send(_watchers(ticket), request.user, summary, _url(request, ticket))
+        notifications.send(_watchers(ticket), request.user, summary, _url(request, ticket))
 
 
 def blocked(request, ticket: Ticket, reason: str):
     sentence = _('%(person)s blocked %(ticket)s') if ticket.is_blocked else _('%(person)s unblocked %(ticket)s')
-    summary = _say(sentence, person=people.name(request.user), ticket=ticket)
-    _send(_watchers(ticket), request.user, summary, _url(request, ticket), _snippet(reason))
+    summary = notifications.say(sentence, person=people.name(request.user), ticket=ticket)
+    notifications.send(_watchers(ticket), request.user, summary, _url(request, ticket), notifications.snippet(reason))

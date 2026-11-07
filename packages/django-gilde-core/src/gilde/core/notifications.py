@@ -128,3 +128,23 @@ def _slack(method: str, data: dict) -> dict:
 
 def _slack_escape(text: str) -> str:
     return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
+SNIPPET_LENGTH = 300
+
+
+def snippet(text: str) -> str:
+    """The start of `text`, to quote in a notification."""
+    text = text.strip()
+    return text[:SNIPPET_LENGTH].rstrip() + '…' if len(text) > SNIPPET_LENGTH else text
+
+
+def say(sentence, **names):
+    """`sentence` with `names` filled in, in the language active when it is said: a summary for `send`."""
+    return lambda: str(sentence) % names
+
+
+def send(users, actor, summary, url: str, quote: str = ''):
+    """Tell `users`, but not `actor`, who made the change, `summary` (from `say`), each in their own
+    language."""
+    notify([user for user in users if user.pk != actor.pk], summary, url, quote)

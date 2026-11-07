@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 10:21+0100\n"
+"POT-Creation-Date: 2026-11-07 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -16,6 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mentions.py:56
+msgid "Type the start of a name to mention a colleague, who hears about it."
+msgstr ""
+"Typ het begin van een naam om een collega te noemen; die krijgt er bericht "
+"van."
 
 #: templates/gilde_core/_markdown_help.html:7
 #: templates/gilde_core/_markdown_help.html:8
@@ -45,8 +51,8 @@ msgid ""
 "A list, or a numbered one. Two spaces before the dash put an item under the "
 "one above."
 msgstr ""
-"Een lijst, of een genummerde. Twee spaties voor het streepje zetten een punt"
-" onder het punt erboven."
+"Een lijst, of een genummerde. Twee spaties voor het streepje zetten een punt "
+"onder het punt erboven."
 
 #: templates/gilde_core/_markdown_help.html:13
 msgid "A list of things to do, with checkboxes."
@@ -104,6 +110,6 @@ msgstr ""
 "Een nieuwe regel blijft een nieuwe regel; een lege regel begint een nieuwe "
 "alinea."
 
-#: templates/gilde_core/base.html:28
+#: templates/gilde_core/base.html:29
 msgid "Language"
 msgstr "Taal"

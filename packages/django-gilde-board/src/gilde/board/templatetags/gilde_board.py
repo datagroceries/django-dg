@@ -3,11 +3,11 @@ import zlib
 from django import forms, template
 from django.conf import settings
 from django.forms.formsets import BaseFormSet
-from django.utils.html import format_html, json_script
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 from gilde.board.conf import SCOPE
-from gilde.core import people
+from gilde.core import mentions, people
 
 register = template.Library()
 
@@ -27,8 +27,7 @@ def tracker_name() -> str:
 def mention_people():
     """The colleagues an @-mention reaches, as JSON for the editor's autocomplete: each with the handle that
     reaches them, as notifications.mentioned_users reads it."""
-    found = [{'handle': handle, 'name': people.name(user)} for handle, user in people.by_handle(SCOPE).items()]
-    return json_script(found, 'gilde-mention-people')
+    return mentions.people_json(SCOPE)
 
 
 @register.filter

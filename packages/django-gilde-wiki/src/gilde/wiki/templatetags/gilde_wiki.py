@@ -1,9 +1,22 @@
 from django import template
 from django.conf import settings
 
+from gilde.core import markdown
+from gilde.wiki.conf import SCOPE
 from gilde.wiki.models import Page
 
 register = template.Library()
+
+
+def render_context(page: Page) -> dict:
+    """What the wiki's Markdown belongs to: its page, for relative links, and the wiki, for mentions."""
+    return {'wiki_page': page, 'scope': SCOPE}
+
+
+@register.filter
+def wiki_markdown(text: str, page: Page) -> str:
+    """Markdown written on `page`, as a comment on it."""
+    return markdown.render(text, context=render_context(page))
 
 
 @register.simple_tag

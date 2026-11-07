@@ -39,22 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.addEventListener('htmx:responseError', (event) => {
     alert(interpolate(gettext('Saving failed (HTTP %s). Your text is still in the editor.'), [event.detail.xhr.status]));
   });
-  // A reply, and editing a comment or reply, open the Markdown editor once the form shows; built while
-  // hidden it renders blank.
-  document.querySelectorAll('.tk-reply-form').forEach((details) => {
-    const textarea = details.querySelector('textarea[data-markdown-editor="lazy"]');
-    details.addEventListener('toggle', () => {
-      if (textarea && details.open) {
-        window.gildeMarkdownEditor(textarea).codemirror.focus();
-      }
-    });
-    // Cancel puts the comment's own text back, for the next time the editor opens.
-    details.querySelector('[data-tk-edit-cancel]')?.addEventListener('click', () => {
-      details.querySelector('form').reset();
-      textarea?.easyMDE?.value(textarea.defaultValue);
-      details.open = false;
-    });
-  });
+  // A reply, and editing a comment or reply, open the Markdown editor in their <details> (editor.js).
 
   // "Hide done" above the relations table, on by default; a viewer who turns it off is remembered.
   const hideDone = document.getElementById('tk-hide-done');

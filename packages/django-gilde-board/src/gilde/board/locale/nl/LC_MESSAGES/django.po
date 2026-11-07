@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 10:21+0100\n"
+"POT-Creation-Date: 2026-11-07 10:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -125,7 +125,7 @@ msgstr "Beschrijf het ticket (Markdown)."
 
 #: forms.py:57 templates/gilde_board/_assignee_options.html:3
 #: templates/gilde_board/_peek.html:24 templates/gilde_board/board.html:41
-#: templatetags/gilde_board.py:68
+#: templatetags/gilde_board.py:67
 msgid "Unassigned"
 msgstr "Niet toegewezen"
 
@@ -319,37 +319,37 @@ msgstr "Branch"
 msgid "Pull request"
 msgstr "Pull request"
 
-#: notifications.py:71
+#: notifications.py:50
 #, python-format
 msgid "%(person)s assigned %(ticket)s to you"
 msgstr "%(person)s heeft %(ticket)s aan je toegewezen"
 
-#: notifications.py:81
+#: notifications.py:62
 #, python-format
 msgid "%(person)s mentioned you in %(ticket)s"
 msgstr "%(person)s noemde je in %(ticket)s"
 
-#: notifications.py:95
+#: notifications.py:78
 #, python-format
 msgid "%(person)s mentioned you on %(ticket)s"
 msgstr "%(person)s noemde je bij %(ticket)s"
 
-#: notifications.py:96
+#: notifications.py:83
 #, python-format
 msgid "%(person)s commented on %(ticket)s"
 msgstr "%(person)s reageerde op %(ticket)s"
 
-#: notifications.py:103
+#: notifications.py:93
 #, python-format
 msgid "%(person)s moved %(ticket)s to %(column)s"
 msgstr "%(person)s zette %(ticket)s in %(column)s"
 
-#: notifications.py:112
+#: notifications.py:102
 #, python-format
 msgid "%(person)s blocked %(ticket)s"
 msgstr "%(person)s blokkeerde %(ticket)s"
 
-#: notifications.py:112
+#: notifications.py:102
 #, python-format
 msgid "%(person)s unblocked %(ticket)s"
 msgstr "%(person)s deblokkeerde %(ticket)s"
@@ -988,15 +988,9 @@ msgstr "Titel van het ticket"
 msgid "Create ticket"
 msgstr "Ticket aanmaken"
 
-#: ticket_links.py:38
+#: ticket_links.py:32
 msgid "A link to that ticket."
 msgstr "Een link naar dat ticket."
-
-#: ticket_links.py:60
-msgid "Type the start of a name to mention a colleague, who hears about it."
-msgstr ""
-"Typ het begin van een naam om een collega te noemen; die krijgt er bericht "
-"van."
 
 #: views.py:44
 msgid "All tickets"
@@ -1074,3 +1068,8 @@ msgstr ""
 #, python-format
 msgid "Deleted %(group)s."
 msgstr "%(group)s verwijderd."
+
+#~ msgid "Type the start of a name to mention a colleague, who hears about it."
+#~ msgstr ""
+#~ "Typ het begin van een naam om een collega te noemen; die krijgt er "
+#~ "bericht van."

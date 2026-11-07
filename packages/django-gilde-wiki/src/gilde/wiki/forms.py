@@ -4,7 +4,7 @@ import typing
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from gilde.wiki.models import Page, flatten
+from gilde.wiki.models import Comment, Page, flatten
 
 
 def fingerprint(page: Page) -> str:
@@ -104,3 +104,22 @@ class ArrangeForm(forms.Form):
         moved.parent = parent
         moved.clean()
         return data
+
+
+class CommentForm(forms.ModelForm):
+    """A comment on `page`, or a reply to one of its comments (`parent`)."""
+
+    class Meta:
+        model = Comment
+        fields = ('body', 'parent')
+        widgets: typing.ClassVar = {
+            'body': forms.Textarea(
+                attrs={'data-markdown-editor': 'true', 'rows': 4, 'placeholder': _('Leave a comment.')}
+            ),
+            'parent': forms.HiddenInput,
+        }
+
+    def __init__(self, *args, page: Page, **kwargs):
+        super().__init__(*args, instance=Comment(page=page), **kwargs)
+        self.fields['body'].label = ''
+        self.fields['parent'].queryset = page.comments.filter(parent=None)

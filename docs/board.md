@@ -103,9 +103,10 @@ extension; the address without the name, which older text links to, still works.
 - Title and description edits carry a fingerprint of the text they started from. If somebody changed
   that text meanwhile, the save is refused and names them; changes to other fields never get in the
   way.
-- A ticket key in any Markdown text links to that ticket, with its title on hover, and an `@jasper`
-  that names a colleague shows as a mention, with their name on hover (`ticket_links.py`, references in core's
-  Markdown, so in other Gilde apps too); keys and handles that name nobody, or sit in code, stay text.
+- A ticket key in any Markdown text links to that ticket, with its title on hover (`ticket_links.py`, a
+  reference in core's Markdown, so in other Gilde apps too), and an `@jasper` that names a colleague shows
+  as a mention, with their name on hover (core's `mentions`); keys and handles that name nobody, or sit in
+  code, stay text.
 - On the board: a new ticket starts in a column, from the "+" at its head (`c` takes the first
   column's); a "+" between cards opens a title field in place (Enter adds, Esc stops). The search
   filters the board as it is typed; Enter on a key (`T-12`, or its number alone) or a

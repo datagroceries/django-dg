@@ -222,3 +222,44 @@ class Attachment(attachments.Attachment):
 
     def get_absolute_url(self):
         return reverse('gilde_wiki:attachment', args=[self.pk, self.url_name])
+
+
+class Comment(models.Model):
+    """A comment on a page, or a reply to one. Replies go one level deep."""
+
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='gilde_wiki_comments')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    body = models.TextField(_('comment'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
+
+    class Meta:
+        ordering = ('created_at', 'id')
+
+    def __str__(self):
+        return f'Comment {self.pk} on {self.page.path}'
+
+    def get_absolute_url(self):
+        return f'{self.page.get_absolute_url()}#comment-{self.pk}'
+
+    def clean(self):
+        if self.parent is not None and self.parent.parent_id is not None:
+            raise ValidationError(_('A reply cannot be replied to; reply to the comment above it instead.'))
+        if self.parent is not None and self.parent.page_id != self.page_id:
+            raise ValidationError(_('A reply must be on the same page as its comment.'))
+
+
+class Watcher(models.Model):
+    """Someone who hears about the comments on a page (notifications.py). Its creator, the people who
+    write it or comment on it, and the people @-mentioned in it watch it of themselves; anyone can start
+    or stop watching on the page."""
+
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='watchers')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='gilde_wiki_watched')
+
+    class Meta:
+        constraints = (models.UniqueConstraint(fields=('page', 'user'), name='gilde_wiki_watcher_once'),)
+
+    def __str__(self):
+        return f'{self.user} watches {self.page.path}'
