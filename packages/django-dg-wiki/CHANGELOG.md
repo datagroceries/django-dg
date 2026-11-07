@@ -1,5 +1,13 @@
 # Changelog of django-dg-wiki
 
+## 1.1.0 (2026-11-07)
+
+Needs django-dg-core 1.1.0.
+
+- Notifications go through core's new notifier, which a project can take over entirely; each says what
+  happened (`mentioned` or `commented`) and which page it is about. By default an email with the page as
+  its subject, in one thread per page.
+
 ## 1.0.0 (2026-11-07)
 
 The first release: pages in Markdown in one tree, at addresses that follow it, put in order by dragging,

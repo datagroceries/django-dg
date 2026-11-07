@@ -1,7 +1,12 @@
 # Changelog of django-dg-board
 
-## Unreleased
+## 1.1.0 (2026-11-07)
 
+Needs django-dg-core 1.1.0.
+
+- Notifications go through core's new notifier, which a project can take over entirely; each says what
+  happened (`assigned`, `mentioned`, `commented`, `blocked`, `unblocked` or `done`) and which ticket it
+  is about. By default an email with the ticket as its subject, in one thread per ticket.
 - **Breaking:** `DG_BOARD_DISPLAY_TIMEZONE` is gone. The pages show times in Django's current timezone,
   as the wiki and the project's own pages do: `TIME_ZONE`, or each person's own when the project
   activates it in a middleware. A project that set it sets `TIME_ZONE` instead.

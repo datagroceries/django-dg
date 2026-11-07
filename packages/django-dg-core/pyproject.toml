@@ -1,6 +1,6 @@
 [project]
 name = "django-dg-core"
-version = "1.0.0"
+version = "1.1.0"
 description = "What the DataGroceries apps share: one MCP endpoint for all of them, people, notifications, and the checks on every way in."
 readme = "README.md"
 license = "MIT"

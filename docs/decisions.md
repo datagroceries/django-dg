@@ -261,7 +261,8 @@ complete as we like.*
 - **The default email is a good one**: from templates a project overrides, with the ticket or page as
   subject and in one thread (`In-Reply-To`/`References`), HTML beside the text, and why it came.
 - **Not backwards compatible.** 1.0 was a day old, so `DG_NOTIFICATIONS` and `DG_SLACK_BOT_TOKEN` went
-  without a transition; the changelog says so.
+  without a transition; the changelog says so. Released as 1.1.0 of core, board and wiki rather than
+  2.0.0, for the same reason; board and wiki 1.1.0 need core 1.1.0.
 
 ## 2026-11-07: A good default, and room to integrate fully
 

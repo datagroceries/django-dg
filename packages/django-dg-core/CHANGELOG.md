@@ -1,6 +1,9 @@
 # Changelog of django-dg-core
 
-## Unreleased
+## 1.1.0 (2026-11-07)
+
+Not backwards compatible, though a minor version: 1.0 was a day old and hardly anyone had it. Board and
+wiki 1.1.0 need it, and 1.0 of either does not work with it.
 
 - **Notifications are a hook.** How someone hears about a change is a subclass of
   `datagroceries.core.notifications.Notifier`, named in `DG_NOTIFIER`; the default is an email, as before.
