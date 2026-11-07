@@ -14,6 +14,7 @@
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-file-earmark-plus"></i> {% translate "New page under this one" %}</a></li>
         <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_move' page.path %}"><i class="bi bi-arrow-right-square"></i> {% translate "Move" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_history' page.path %}"><i class="bi bi-clock-history"></i> {% translate "History" %}</a></li>
         <li><hr class="dropdown-divider"></li>
         <li>
           {% if children %}
@@ -31,13 +32,21 @@
 </div>
 {% if last_change %}
   <p class="wk-muted small mb-4">
-    {% blocktranslate with person=last_changed_by when=last_change.history_date|naturaltime %}Last changed by {{ person }}, {{ when }}{% endblocktranslate %}{% if last_changed_via %} {{ last_changed_via }}{% endif %}
+    <a class="link-secondary link-underline-opacity-0 link-underline-opacity-75-hover" href="{% url 'gilde_wiki:page_history' page.path %}">{% blocktranslate with person=last_changed_by when=last_change.history_date|naturaltime %}Last changed by {{ person }}, {{ when }}{% endblocktranslate %}{% if last_changed_via %} {{ last_changed_via }}{% endif %}</a>
   </p>
 {% endif %}
 
 <div class="wk-page">
   <article class="wk-prose">
-    {% if page.body %}{{ html }}{% else %}<p class="wk-muted fst-italic">{% translate "This page is empty." %} <a href="{% url 'gilde_wiki:page_edit' page.path %}">{% translate "Write it" %}</a></p>{% endif %}
+    {% if page.body %}
+      {{ html }}
+    {% elif children %}
+      {# A page that only holds others shows them: what an index page would. #}
+      <ul class="wk-index">{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
+      <p class="wk-muted small"><a class="link-secondary" href="{% url 'gilde_wiki:page_edit' page.path %}">{% translate "Write an introduction" %}</a></p>
+    {% else %}
+      <p class="wk-muted fst-italic">{% translate "This page is empty." %} <a href="{% url 'gilde_wiki:page_edit' page.path %}">{% translate "Write it" %}</a></p>
+    {% endif %}
   </article>
   {% if headings %}
     <aside class="wk-contents">
@@ -47,20 +56,41 @@
   {% endif %}
 </div>
 
-{% if children or backlinks %}
-  <div class="wk-related">
-    {% if children %}
-      <section>
-        <div class="wk-panel-title">{% translate "Pages under this one" %}</div>
-        <ul>{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
-      </section>
-    {% endif %}
-    {% if backlinks %}
-      <section>
-        <div class="wk-panel-title">{% translate "Pages that link here" %}</div>
-        <ul>{% for linking in backlinks %}<li><a href="{{ linking.get_absolute_url }}">{{ linking.title }}</a></li>{% endfor %}</ul>
-      </section>
-    {% endif %}
-  </div>
-{% endif %}
+<div class="wk-related">
+  {% if children and page.body %}
+    <section>
+      <div class="wk-panel-title">{% translate "Pages under this one" %}</div>
+      <ul>{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
+    </section>
+  {% endif %}
+  {% if backlinks %}
+    <section>
+      <div class="wk-panel-title">{% translate "Pages that link here" %}</div>
+      <ul>{% for linking in backlinks %}<li><a href="{{ linking.get_absolute_url }}">{{ linking.title }}</a></li>{% endfor %}</ul>
+    </section>
+  {% endif %}
+  <section>
+    <div class="wk-panel-title">{% translate "Files" %}</div>
+    {% for attachment in attachments %}
+      {% if attachment.is_image %}
+        <a class="wk-thumb" href="{{ attachment.get_absolute_url }}" target="_blank" title="{{ attachment.name }}"><img src="{{ attachment.get_absolute_url }}" alt="{{ attachment.name }}" loading="lazy"></a>
+      {% endif %}
+    {% endfor %}
+    <ul>
+      {% for attachment in attachments %}{% if not attachment.is_image %}
+        <li><i class="bi bi-file-earmark wk-muted"></i> <a href="{{ attachment.get_absolute_url }}">{{ attachment.name }}</a> <span class="wk-muted small">{{ attachment.size|filesizeformat }}</span></li>
+      {% endif %}{% endfor %}
+    </ul>
+    <details>
+      <summary class="small wk-muted"><i class="bi bi-upload"></i> {% translate "Add a file" %}</summary>
+      <form method="post" action="{% url 'gilde_wiki:page_attach' page.path %}" enctype="multipart/form-data" class="mt-2">
+        {% csrf_token %}
+        <div class="input-group input-group-sm">
+          <input type="file" name="file" class="form-control" required aria-label="{% translate 'File' %}">
+          <button type="submit" class="btn btn-outline-secondary">{% translate "Upload" %}</button>
+        </div>
+      </form>
+    </details>
+  </section>
+</div>
 {% endblock %}

@@ -11,11 +11,12 @@ A wiki for a Django project, that people and AI agents write together, next to t
 - Links between pages, `[[Engineering/Deploying]]`, also from a ticket's text. A page lists the pages
   that link to it, and the links follow it when it is renamed or moved.
 - The Markdown editor of every Gilde app, and a table of contents beside a long page.
-- Every save kept, with who made it and through which agent; a save is refused when someone else saved
-  the page in the meantime.
+- Every save kept, with who made it and through which agent; two versions compared side by side, and an
+  earlier one brought back. A save is refused when someone else saved the page in the meantime.
+- Images in the text, pasted or dropped into the editor, and files beside a page.
 - English and Dutch, following the project's language.
 
-It is being built: comments, attachments, search, translations, the board's
+It is being built: comments, search, translations, the board's
 tickets and the MCP tools follow.
 
 ## Installing

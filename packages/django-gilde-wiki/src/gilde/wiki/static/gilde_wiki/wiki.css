@@ -70,6 +70,35 @@
               border-top: 1px solid var(--bs-border-color); }
 .wk-related ul, .wk-recent { list-style: none; padding: 0; }
 .wk-related li, .wk-recent li { padding: .2rem 0; }
+.wk-related > section { min-width: 12rem; }
+.wk-thumb { display: inline-block; margin: 0 .4rem .4rem 0; }
+.wk-thumb img { height: 4rem; max-width: 8rem; object-fit: cover; border-radius: .3rem; border: 1px solid var(--bs-border-color); }
+.wk-index { padding-left: 1.2rem; }
+
+/* The versions of a page, and two of them side by side. */
+.wk-versions { list-style: none; padding: 0; max-width: 50rem; }
+.wk-versions > li { padding: .6rem 0; border-bottom: 1px solid var(--bs-border-color); }
+.wk-version-actions { display: flex; gap: 1rem; font-size: .8125rem; margin-top: .2rem; }
+.wk-compare { border: 1px solid var(--bs-border-color); border-radius: .5rem; overflow: hidden; }
+.wk-compare-heads, .wk-compare-row { display: grid; grid-template-columns: 1fr 1fr; }
+.wk-compare-heads { background: var(--bs-tertiary-bg); border-bottom: 1px solid var(--bs-border-color); }
+.wk-version-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem; flex-wrap: wrap;
+                   padding: .5rem .75rem; font-size: .875rem; }
+.wk-version-head + .wk-version-head, .wk-compare-row > div + div { border-left: 1px solid var(--bs-border-color); }
+.wk-compare-row > div { display: flex; padding: .1rem .75rem; font-family: var(--bs-font-monospace); font-size: .8125rem;
+                        min-width: 0; }
+.wk-text { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.wk-compare-title > div { font-family: inherit; font-weight: 600; font-size: 1rem; padding: .4rem .75rem; }
+.wk-line { flex: none; width: 2.5rem; color: var(--bs-secondary-color); user-select: none; }
+.wk-compare del { background: var(--bs-danger-bg-subtle); color: var(--bs-danger-text-emphasis); text-decoration: line-through; }
+.wk-compare ins { background: var(--bs-success-bg-subtle); color: var(--bs-success-text-emphasis); text-decoration: none; }
+.wk-compare-folded { padding: .25rem .75rem; font-size: .75rem; color: var(--bs-secondary-color); background: var(--bs-tertiary-bg);
+                     border-top: 1px solid var(--bs-border-color); border-bottom: 1px solid var(--bs-border-color); }
+@media (max-width: 767.98px) {
+  .wk-compare-heads, .wk-compare-row { grid-template-columns: 1fr; }
+  .wk-version-head + .wk-version-head, .wk-compare-row > div + div { border-left: 0; }
+  .wk-compare-row.wk-same > div + div { display: none; }
+}
 
 /* Dragging a page in the tree: onto the top or bottom edge of another, or onto its middle. */
 .wk-tree .wk-dragging a { opacity: .5; }

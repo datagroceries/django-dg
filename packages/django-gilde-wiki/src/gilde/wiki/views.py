@@ -1,17 +1,20 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.utils import formats, timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
-from gilde.core import markdown, people
+from gilde.core import attachments, markdown, people
 from gilde.wiki import operations
+from gilde.wiki.compare import side_by_side
 from gilde.wiki.conf import SCOPE
 from gilde.wiki.forms import ArrangeForm, MoveForm, NewPageForm, PageForm, fingerprint
-from gilde.wiki.models import FormerPath, Page
+from gilde.wiki.models import Attachment, FormerPath, Page
 from gilde.wiki.templatetags.gilde_wiki import tree_context
 
 wiki_required = people.may_use_required(SCOPE)
@@ -70,6 +73,7 @@ def page(request, path):
         'headings': headings if len(headings) >= CONTENTS_FROM else [],
         'ancestors': found.ancestors(),
         'children': found.children.all(),
+        'attachments': found.attachments.all(),
         'backlinks': Page.objects.filter(links__target=found).exclude(pk=found.pk).order_by('title').distinct(),
         'last_change': last_change,
         'last_changed_by': _name(_changed_by(found, last_change)),
@@ -163,3 +167,126 @@ def tree_arrange(request):
     current = Page.objects.filter(pk=request.POST.get('current') or None).first()
     tree = render_to_string('gilde_wiki/_tree.html', tree_context(current, also_open=page), request)
     return JsonResponse({'tree': tree, 'url': current.get_absolute_url() if current else None})
+
+
+def _when(moment) -> str:
+    return formats.date_format(timezone.localtime(moment), 'SHORT_DATETIME_FORMAT')
+
+
+def _changes(record, previous, earlier: dict, parents: dict) -> list[str]:
+    """What `record` changed since `previous`, the version before it, in words."""
+    if previous is None:
+        return [_('Created')]
+    if record.restored_from:
+        restored = earlier.get(record.restored_from)
+        return [_('Brought back the version of %(when)s') % {'when': _when(restored.history_date) if restored else '?'}]
+    changes = []
+    if record.title != previous.title:
+        changes.append(_('Renamed to “%(title)s”') % {'title': record.title})
+    if record.body != previous.body:
+        changes.append(_('Text changed'))
+    if record.parent_id != previous.parent_id:
+        parent = parents.get(record.parent_id)
+        changes.append(_('Moved under “%(title)s”') % {'title': parent.title} if parent else _('Moved to the top'))
+    return changes
+
+
+@wiki_required
+def page_history(request, path):
+    """Every version of the page, newest first, with who made it and what it changed."""
+    shown = _page(path)
+    records = list(shown.history.select_related('history_user'))
+    earlier = {record.history_id: record for record in records}
+    parents = Page.objects.in_bulk({record.parent_id for record in records if record.parent_id})
+    versions = [
+        {
+            'record': record,
+            'previous': previous,
+            'by': _name(_changed_by(shown, record)),
+            'via': _via(record),
+            'changes': _changes(record, previous, earlier, parents),
+        }
+        for record, previous in zip(records, [*records[1:], None], strict=True)
+    ]
+    context = {'page': shown, 'ancestors': shown.ancestors(), 'versions': versions}
+    return render(request, 'gilde_wiki/page_history.html', context)
+
+
+def _before(page: Page, record):
+    """The version of the page just before `record`, if any."""
+    same_moment = Q(history_date=record.history_date, history_id__lt=record.history_id)
+    return page.history.filter(Q(history_date__lt=record.history_date) | same_moment).first()
+
+
+def _says(page: Page, record) -> bool:
+    """Whether the page says now what it said in `record`."""
+    return (record.title, record.body) == (page.title, page.body)
+
+
+@wiki_required
+def page_compare(request, path, version):
+    """A version of the page beside the one before it, or beside the version `with` names."""
+    shown = _page(path)
+    record = get_object_or_404(shown.history.select_related('history_user'), history_id=version)
+    if request.GET.get('with'):
+        other = get_object_or_404(shown.history.select_related('history_user'), history_id=request.GET['with'])
+    else:
+        other = _before(shown, record)
+    if other is None:
+        older, newer = None, record
+    else:
+        older, newer = sorted([other, record], key=lambda each: (each.history_date, each.history_id))
+    sides = [
+        {'record': each, 'by': _name(_changed_by(shown, each)), 'current': _says(shown, each)} if each else None
+        for each in (older, newer)
+    ]
+    context = {
+        'page': shown,
+        'ancestors': shown.ancestors(),
+        'older': sides[0],
+        'newer': sides[1],
+        'title_changed': older is not None and older.title != newer.title,
+        'rows': side_by_side(older.body if older else '', newer.body),
+        'latest': shown.history.first(),
+    }
+    return render(request, 'gilde_wiki/page_compare.html', context)
+
+
+@wiki_required
+@require_POST
+def page_restore(request, path, version):
+    shown = _page(path)
+    record = get_object_or_404(shown.history, history_id=version)
+    operations.restore(request, shown, record)
+    messages.success(request, _('The version of %(when)s is back.') % {'when': _when(record.history_date)})
+    return redirect(shown)
+
+
+@wiki_required
+@require_POST
+def page_upload(request, path):
+    """Where the Markdown editor uploads the images pasted or dropped into a page's text."""
+    shown = _page(path)
+    return attachments.editor_upload(request, lambda upload: operations.attach(request, shown, upload))
+
+
+@wiki_required
+@require_POST
+def page_attach(request, path):
+    """A file put beside the page."""
+    shown = _page(path)
+    upload = request.FILES.get('file')
+    if upload is not None and upload.size > attachments.MAX_BYTES:
+        messages.error(
+            request,
+            _('%(name)s is larger than %(size)s MB.')
+            % {'name': upload.name, 'size': attachments.MAX_BYTES // 1024 // 1024},
+        )
+    elif upload is not None:
+        operations.attach(request, shown, upload)
+    return redirect(shown)
+
+
+@wiki_required
+def attachment(request, pk, name):
+    return attachments.serve(get_object_or_404(Attachment, pk=pk))

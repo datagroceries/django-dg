@@ -6,11 +6,14 @@ import re
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
+from simple_history.signals import pre_create_historical_record
 
+from gilde.core import attachments
 from gilde.wiki import conf  # noqa: F401 - the wiki's settings, with their defaults
 
 SLUG_LENGTH = 100
@@ -50,6 +53,17 @@ def flatten(nodes: list[Node], depth: int = 0):
         yield from flatten(node.children, depth + 1)
 
 
+class Version(models.Model):
+    """What each version of a page keeps besides the page's own fields."""
+
+    restored_from = models.PositiveBigIntegerField(
+        null=True, blank=True, help_text='The version this one brought back, by its history_id.'
+    )
+
+    class Meta:
+        abstract = True
+
+
 class Page(models.Model):
     """A page of the wiki. A page with pages under it is what elsewhere is a space or a folder.
 
@@ -79,7 +93,7 @@ class Page(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='gilde_wiki_created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    history = HistoricalRecords(excluded_fields=['position', 'updated_at'])
+    history = HistoricalRecords(excluded_fields=['position', 'updated_at'], bases=[Version])
 
     objects = PageQuerySet.as_manager()
 
@@ -192,3 +206,19 @@ class Link(models.Model):
 
     def __str__(self):
         return f'{self.source.path} → {self.reference}'
+
+
+@receiver(pre_create_historical_record)
+def _note_restore(sender, instance, history_instance, **kwargs):
+    # Sent by the history model of every model with a history, so not filtered by sender.
+    if isinstance(instance, Page):
+        history_instance.restored_from = getattr(instance, 'restored_from', None)
+
+
+class Attachment(attachments.Attachment):
+    """A file on a page: an image in its text, or a file beside it."""
+
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='attachments')
+
+    def get_absolute_url(self):
+        return reverse('gilde_wiki:attachment', args=[self.pk, self.url_name])

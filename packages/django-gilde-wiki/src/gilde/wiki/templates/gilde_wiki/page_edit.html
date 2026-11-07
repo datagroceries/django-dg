@@ -15,7 +15,7 @@
          class="form-control form-control-lg wk-title-input mb-2{% if form.title.errors %} is-invalid{% endif %}"
          aria-label="{% translate 'Title' %}">
   {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-  <div class="gilde-editor">{{ form.body }}</div>
+  <div class="gilde-editor" data-upload-url="{% url 'gilde_wiki:page_upload' page.path %}">{{ form.body }}</div>
   <div class="d-flex gap-2 mt-3">
     <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
     <a class="btn btn-outline-secondary" href="{{ page.get_absolute_url }}">{% translate "Cancel" %}</a>

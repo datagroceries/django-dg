@@ -1,7 +1,6 @@
 """Ticket tracker: groups with their own kanban columns, tickets, relations, comments and attachments."""
 
 import datetime
-import pathlib
 import re
 import typing
 
@@ -11,11 +10,11 @@ from django.db import models, transaction
 from django.db.models import Case, F, Q, When
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from gilde.board import conf  # noqa: F401 - the board's settings, with their defaults
+from gilde.core import attachments
 
 KEY_RE = re.compile(rf'^{re.escape(settings.GILDE_BOARD_KEY_PREFIX)}-(\d+)$')
 # Room between neighbouring ranks: a ticket moved between two others takes the middle, so 16 moves
@@ -390,35 +389,13 @@ def attachment_upload_to(attachment, filename):
     return f'gilde_board/{timezone.now():%Y/%m}/{filename}'
 
 
-class Attachment(models.Model):
+class Attachment(attachments.Attachment):
     """A file on a ticket. Images pasted into the editor are uploaded before the ticket may exist,
     so the ticket is linked once the description that references it is saved."""
 
-    INLINE_CONTENT_TYPES = ('image/png', 'image/jpeg', 'image/gif', 'image/webp')
-
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, null=True, blank=True, related_name='attachments')
-    # In the default storage. The board serves a file only to the people (Attachment.get_absolute_url),
-    # so the storage must not publish it at an address of its own.
+    # Where the board kept its files before core did; its migrations name it.
     file = models.FileField(upload_to=attachment_upload_to)
-    name = models.CharField(max_length=255)
-    content_type = models.CharField(max_length=100)
-    size = models.PositiveBigIntegerField()
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='+')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ('uploaded_at', 'id')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
-        # Ends in the file's name, because the Markdown editor inserts an upload as an image only when
-        # its URL ends in an image extension. Slugified, so no space or bracket breaks the Markdown link.
-        path = pathlib.PurePath(self.name)
-        name = f'{slugify(path.stem) or "file"}{path.suffix.lower()}'
-        return reverse('gilde_board:attachment_file', args=[self.pk, name])
-
-    @property
-    def is_image(self) -> bool:
-        return self.content_type in self.INLINE_CONTENT_TYPES
+        return reverse('gilde_board:attachment_file', args=[self.pk, self.url_name])

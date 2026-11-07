@@ -1,0 +1,18 @@
+{% load i18n %}<div class="wk-version-head">
+  {% if side %}
+    <div>
+      <span class="fw-semibold">{{ side.by }}</span>
+      <span class="wk-muted">· {{ side.record.history_date|date:"SHORT_DATETIME_FORMAT" }}</span>
+      {% if side.current %}<span class="badge text-bg-secondary ms-1">{% translate "Now" %}</span>{% endif %}
+    </div>
+    {% if not side.current %}
+      {% translate "Bring this version back? The page says this again, as a new version; nothing is lost." as question %}
+      <form method="post" action="{% url 'gilde_wiki:page_restore' page.path side.record.history_id %}"
+            onsubmit="return confirm('{{ question|escapejs }}')">
+        {% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-arrow-counterclockwise"></i> {% translate "Bring back" %}</button>
+      </form>
+    {% endif %}
+  {% else %}
+    <span class="wk-muted">{% translate "Before the page" %}</span>
+  {% endif %}
+</div>

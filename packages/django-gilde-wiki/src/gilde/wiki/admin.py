@@ -1,7 +1,7 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
 
-from gilde.wiki.models import FormerPath, Page
+from gilde.wiki.models import Attachment, FormerPath, Page
 
 
 @admin.register(Page)
@@ -17,3 +17,9 @@ class FormerPathAdmin(admin.ModelAdmin):
     list_display = ('path', 'page')
     search_fields = ('path',)
     raw_id_fields = ('page',)
+
+
+@admin.register(Attachment)
+class AttachmentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'page', 'content_type', 'size', 'uploaded_by', 'uploaded_at')
+    raw_id_fields = ('page', 'uploaded_by')

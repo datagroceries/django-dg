@@ -1,0 +1,37 @@
+{% extends 'gilde_wiki/_wiki.html' %}
+{% load i18n %}
+
+{% block page_title %}{% blocktranslate with title=page.title %}Versions of {{ title }}{% endblocktranslate %}{% endblock %}
+
+{% block main %}
+{% include 'gilde_wiki/_crumbs.html' with last=page %}
+<div class="d-flex justify-content-between align-items-baseline gap-3 mb-3">
+  <h1 class="h3 mb-0">{% blocktranslate with title=page.title %}Versions of “{{ title }}”{% endblocktranslate %}</h1>
+  <a href="{% url 'gilde_wiki:page_history' page.path %}">{% translate "All versions" %}</a>
+</div>
+
+<div class="wk-compare">
+  <div class="wk-compare-heads">
+    {% include 'gilde_wiki/_version_head.html' with side=older %}
+    {% include 'gilde_wiki/_version_head.html' with side=newer %}
+  </div>
+  {% if title_changed %}
+    <div class="wk-compare-row wk-changed wk-compare-title">
+      <div><del>{{ older.record.title }}</del></div>
+      <div><ins>{{ newer.record.title }}</ins></div>
+    </div>
+  {% endif %}
+  {% for row in rows %}
+    {% if row.kind == 'folded' %}
+      <div class="wk-compare-folded">{% blocktranslate count lines=row.folded %}{{ lines }} line unchanged{% plural %}{{ lines }} lines unchanged{% endblocktranslate %}</div>
+    {% else %}
+      <div class="wk-compare-row wk-{{ row.kind }}">
+        <div>{% if row.left_number %}<span class="wk-line">{{ row.left_number }}</span><span class="wk-text">{{ row.left }}</span>{% endif %}</div>
+        <div>{% if row.right_number %}<span class="wk-line">{{ row.right_number }}</span><span class="wk-text">{{ row.right }}</span>{% endif %}</div>
+      </div>
+    {% endif %}
+  {% empty %}
+    <p class="wk-muted p-3 mb-0">{% translate "The text is the same." %}</p>
+  {% endfor %}
+</div>
+{% endblock %}

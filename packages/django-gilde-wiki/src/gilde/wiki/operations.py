@@ -6,7 +6,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils.translation import gettext as _
 
-from gilde.wiki.models import Page
+from gilde.wiki.models import Attachment, Page
 
 
 def _last_position(parent: Page | None) -> int:
@@ -50,8 +50,26 @@ def arrange(request, page: Page, parent: Page | None, before: Page | None = None
             Page.objects.filter(pk=page.pk).update(position=page.position)
 
 
+def restore(request, page: Page, version):
+    """Make the page say again what it said in `version`, one of its history records: its title and
+    text, not its place in the tree. A version of its own, so nothing is lost."""
+    page.title, page.body = version.title, version.body
+    page.restored_from = version.history_id
+    try:
+        page.save()
+    finally:
+        del page.restored_from
+
+
+def attach(request, page: Page, upload) -> Attachment:
+    return Attachment.from_upload(upload, request.user, page=page)
+
+
 def delete(request, page: Page):
-    """Delete a page that has no pages under it; its history stays."""
+    """Delete a page that has no pages under it, and its files; its history stays."""
     if page.children.exists():
         raise ValidationError(_('Move or delete the pages under this page first.'))
-    page.delete()
+    with transaction.atomic():
+        files = [attachment.file for attachment in page.attachments.all()]
+        page.delete()
+        transaction.on_commit(lambda: [file.delete(save=False) for file in files])

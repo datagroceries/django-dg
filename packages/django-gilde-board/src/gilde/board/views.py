@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
-from django.http import FileResponse, Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -35,7 +35,7 @@ from gilde.board.forms import (
     fingerprint,
 )
 from gilde.board.models import KEY_RE, Attachment, CodeReference, Column, Comment, Group, Label, Relation, Ticket
-from gilde.core import people
+from gilde.core import attachments, people
 
 board_required = people.may_use_required(SCOPE)
 
@@ -49,7 +49,6 @@ BOARD_SHOW = {
 BOARD_SESSION_KEY = 'gilde_board'
 CODE_KIND_ORDER = (CodeReference.Kind.PULL_REQUEST, CodeReference.Kind.BRANCH, CodeReference.Kind.COMMIT)
 LANE_ORDER = ('column__group__position', 'column__position', 'rank', 'id')
-MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024
 # How many of the newest comments the quick view of a ticket shows; the ticket page has them all.
 PEEK_COMMENTS = 3
 
@@ -490,14 +489,14 @@ def _act_delete(request, ticket, forms):
 
 def _act_attachment(request, ticket, forms):
     upload = request.FILES['file']
-    if upload.size > MAX_ATTACHMENT_BYTES:
+    if upload.size > attachments.MAX_BYTES:
         messages.error(
             request,
             _('%(name)s is larger than %(size)s MB.')
-            % {'name': upload.name, 'size': MAX_ATTACHMENT_BYTES // 1024 // 1024},
+            % {'name': upload.name, 'size': attachments.MAX_BYTES // 1024 // 1024},
         )
     else:
-        _create_attachment(upload, request.user, ticket)
+        Attachment.from_upload(upload, request.user, ticket=ticket)
     return redirect(ticket)
 
 
@@ -652,46 +651,21 @@ def ticket_peek(request, key):
     )
 
 
-def _create_attachment(upload, user, ticket: Ticket | None) -> Attachment:
-    return Attachment.objects.create(
-        ticket=ticket,
-        file=upload,
-        name=upload.name,
-        content_type=upload.content_type or 'application/octet-stream',
-        size=upload.size,
-        uploaded_by=user,
-    )
-
-
 @board_required
 @require_POST
 def attachment_upload(request):
-    """Image upload endpoint of the Markdown editor, in the response format EasyMDE expects."""
-    upload = request.FILES.get('image')
-    if upload is None:
-        return JsonResponse({'error': 'noFileGiven'}, status=400)
-    if upload.size > MAX_ATTACHMENT_BYTES:
-        return JsonResponse({'error': 'fileTooLarge'}, status=400)
-    if upload.content_type not in Attachment.INLINE_CONTENT_TYPES:
-        return JsonResponse({'error': 'typeNotAllowed'}, status=400)
+    """Image upload endpoint of the Markdown editor."""
     ticket = get_object_or_404(Ticket, pk=int(request.GET['ticket'])) if request.GET.get('ticket') else None
-    attachment = _create_attachment(upload, request.user, ticket)
-    return JsonResponse({'data': {'filePath': attachment.get_absolute_url()}})
+
+    def create(upload):
+        return Attachment.from_upload(upload, request.user, ticket=ticket)
+
+    return attachments.editor_upload(request, create)
 
 
 @board_required
 def attachment(request, pk, name=None):
-    attachment = get_object_or_404(Attachment, pk=pk)
-    # Only known image types are shown inline; anything else (HTML, SVG, ...) is a download, so an
-    # uploaded file can never run as a page on this site.
-    response = FileResponse(
-        attachment.file.open('rb'),
-        content_type=attachment.content_type if attachment.is_image else 'application/octet-stream',
-        as_attachment=not attachment.is_image,
-        filename=attachment.name,
-    )
-    response['X-Content-Type-Options'] = 'nosniff'
-    return response
+    return attachments.serve(get_object_or_404(Attachment, pk=pk))
 
 
 @board_required

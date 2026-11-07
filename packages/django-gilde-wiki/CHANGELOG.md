@@ -9,3 +9,7 @@
   to no page shown as one, offering to start it. A page lists the pages that link to it, and links follow
   a page that is renamed or moved.
 - Pages put in order, or under another page, by dragging them in the tree.
+- A page's history: every version with who made it and what it changed, two versions side by side with
+  the changed words marked, and an earlier version brought back as a new one.
+- Images pasted or dropped into the editor, and files put beside a page, served only to the wiki's
+  people. A page with only pages under it shows them, as an index would.
