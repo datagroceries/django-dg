@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 12:04+0000\n"
+"POT-Creation-Date: 2026-11-07 10:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -17,6 +16,94 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/gilde_core/_markdown_help.html:7
+#: templates/gilde_core/_markdown_help.html:8
+msgid "bold"
+msgstr "vet"
+
+#: templates/gilde_core/_markdown_help.html:7
+#: templates/gilde_core/_markdown_help.html:8
+msgid "italic"
+msgstr "cursief"
+
+#: templates/gilde_core/_markdown_help.html:7
+#: templates/gilde_core/_markdown_help.html:8
+msgid "struck"
+msgstr "doorgestreept"
+
+#: templates/gilde_core/_markdown_help.html:9
+msgid "Heading"
+msgstr "Kop"
+
+#: templates/gilde_core/_markdown_help.html:10
+msgid "A heading, and a smaller one under it."
+msgstr "Een kop, en een kleinere eronder."
+
+#: templates/gilde_core/_markdown_help.html:12
+msgid ""
+"A list, or a numbered one. Two spaces before the dash put an item under the "
+"one above."
+msgstr ""
+"Een lijst, of een genummerde. Twee spaties voor het streepje zetten een punt"
+" onder het punt erboven."
+
+#: templates/gilde_core/_markdown_help.html:13
+msgid "A list of things to do, with checkboxes."
+msgstr "Een lijst van dingen om te doen, met vinkjes."
+
+#: templates/gilde_core/_markdown_help.html:14
+msgid "A quote."
+msgstr "Een citaat."
+
+#: templates/gilde_core/_markdown_help.html:16
+msgid ""
+"Code in a sentence; a line of three backticks above and below a block of "
+"code."
+msgstr ""
+"Code in een zin; een regel van drie backticks boven en onder een blok code."
+
+#: templates/gilde_core/_markdown_help.html:17
+msgid "words"
+msgstr "woorden"
+
+#: templates/gilde_core/_markdown_help.html:18
+msgid "A link. An address on its own becomes a link too."
+msgstr "Een link. Een los adres wordt ook een link."
+
+#: templates/gilde_core/_markdown_help.html:19
+msgid "Name"
+msgstr "Naam"
+
+#: templates/gilde_core/_markdown_help.html:19
+msgid "Role"
+msgstr "Rol"
+
+#: templates/gilde_core/_markdown_help.html:20
+msgid "A table: a row per line, the second line under the heads."
+msgstr "Een tabel: een rij per regel, de tweede regel onder de koppen."
+
+#: templates/gilde_core/_markdown_help.html:21
+msgid "description"
+msgstr "beschrijving"
+
+#: templates/gilde_core/_markdown_help.html:22
+msgid ""
+"An image: paste or drop one into the text, and it is uploaded and put in."
+msgstr ""
+"Een afbeelding: plak of sleep er een in de tekst, dan wordt hij geüpload en "
+"ingevoegd."
+
+#: templates/gilde_core/_markdown_help.html:23
+msgid "Enter"
+msgstr "Enter"
+
+#: templates/gilde_core/_markdown_help.html:24
+msgid "A new line stays a new line; an empty line starts a new paragraph."
+msgstr ""
+"Een nieuwe regel blijft een nieuwe regel; een lege regel begint een nieuwe "
+"alinea."
+
 #: templates/gilde_core/base.html:28
 msgid "Language"
 msgstr "Taal"

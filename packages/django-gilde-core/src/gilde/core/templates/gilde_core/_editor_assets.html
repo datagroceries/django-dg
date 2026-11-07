@@ -1,7 +1,8 @@
-{% load static %}{% comment %}
+{% load static gilde_core %}{% comment %}
 The Markdown editor (editor.js) for a page's textarea[data-markdown-editor], in a .gilde-editor. A page that
-wants @-mentions suggested puts the people they may reach before it, as JSON in #gilde-mention-people.
-{% endcomment %}<script src="{% url 'gilde_core:javascript_catalog' %}"></script>
+wants @-mentions suggested puts the people they may reach before it, as JSON in #gilde-mention-people. The
+writing help its "?" opens is in #gilde-editor-help.
+{% endcomment %}{% markdown_help %}<script src="{% url 'gilde_core:javascript_catalog' %}"></script>
 <link rel="stylesheet" href="{% static 'gilde_core/vendor/easymde/easymde.min.css' %}">
 <link rel="stylesheet" href="{% static 'gilde_core/editor.css' %}">
 <script src="{% static 'gilde_core/vendor/easymde/easymde.min.js' %}"></script>

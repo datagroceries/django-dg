@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 16:22+0000\n"
+"POT-Creation-Date: 2026-11-07 10:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -18,42 +17,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: static/gilde_core/editor.js:150
+#: static/gilde_core/editor.js:187
 msgid "Bold"
 msgstr "Vet"
 
-#: static/gilde_core/editor.js:151
+#: static/gilde_core/editor.js:188
 msgid "Italic"
 msgstr "Cursief"
 
-#: static/gilde_core/editor.js:152
+#: static/gilde_core/editor.js:189
 msgid "Heading"
 msgstr "Kop"
 
-#: static/gilde_core/editor.js:154
+#: static/gilde_core/editor.js:191
 msgid "Quote"
 msgstr "Citaat"
 
-#: static/gilde_core/editor.js:155
+#: static/gilde_core/editor.js:192
 msgid "List"
 msgstr "Lijst"
 
-#: static/gilde_core/editor.js:156
+#: static/gilde_core/editor.js:193
 msgid "Numbered list"
 msgstr "Genummerde lijst"
 
-#: static/gilde_core/editor.js:157
+#: static/gilde_core/editor.js:194
 msgid "Code"
 msgstr "Code"
 
-#: static/gilde_core/editor.js:158
+#: static/gilde_core/editor.js:195
 msgid "Link"
 msgstr "Link"
 
-#: static/gilde_core/editor.js:160
+#: static/gilde_core/editor.js:197
 msgid "Image"
 msgstr "Afbeelding"
 
-#: static/gilde_core/editor.js:163
+#: static/gilde_core/editor.js:200
 msgid "Preview"
 msgstr "Voorbeeld"
+
+#: static/gilde_core/editor.js:206
+msgid "How to write"
+msgstr "Zo schrijf je"

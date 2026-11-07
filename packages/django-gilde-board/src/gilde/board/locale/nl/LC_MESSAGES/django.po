@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:22+0000\n"
+"POT-Creation-Date: 2026-11-07 10:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -18,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: activity.py:34 activity.py:132 activity.py:147 views.py:412
+#: activity.py:34 activity.py:132 activity.py:147 views.py:411
 msgid "Someone"
 msgstr "Iemand"
 
@@ -126,7 +125,7 @@ msgstr "Beschrijf het ticket (Markdown)."
 
 #: forms.py:57 templates/gilde_board/_assignee_options.html:3
 #: templates/gilde_board/_peek.html:24 templates/gilde_board/board.html:41
-#: templatetags/gilde_board.py:104
+#: templatetags/gilde_board.py:68
 msgid "Unassigned"
 msgstr "Niet toegewezen"
 
@@ -171,90 +170,90 @@ msgstr "Kolom \"%(name)s\" heeft nog tickets; verplaats die eerst."
 msgid "A group needs at least one column."
 msgstr "Een groep heeft minstens één kolom nodig."
 
-#: models.py:29 models.py:73
+#: models.py:28 models.py:72
 msgid "name"
 msgstr "naam"
 
-#: models.py:30
+#: models.py:29
 msgid "slug"
 msgstr "slug"
 
-#: models.py:32 models.py:75
+#: models.py:31 models.py:74
 msgid "position"
 msgstr "positie"
 
-#: models.py:32
+#: models.py:31
 msgid "Order of the group in the group switcher."
 msgstr "Volgorde van de groep in de groepskeuze."
 
-#: models.py:35
+#: models.py:34
 msgid "days done tickets stay on the board"
 msgstr "dagen dat afgeronde tickets op het board blijven"
 
-#: models.py:37
+#: models.py:36
 msgid ""
 "Counted from when a ticket entered a done column. Its page stays either way."
 msgstr ""
 "Gerekend vanaf het moment dat een ticket in een afgeronde kolom kwam. De "
 "pagina blijft hoe dan ook bestaan."
 
-#: models.py:68
+#: models.py:67
 msgid "To do"
 msgstr "Te doen"
 
-#: models.py:69
+#: models.py:68
 msgid "In progress"
 msgstr "Bezig"
 
-#: models.py:70
+#: models.py:69
 msgid "Done"
 msgstr "Klaar"
 
-#: models.py:74
+#: models.py:73
 msgid "category"
 msgstr "categorie"
 
-#: models.py:132
+#: models.py:131
 msgid "Hours"
 msgstr "Uren"
 
-#: models.py:133
+#: models.py:132
 msgid "Days"
 msgstr "Dagen"
 
-#: models.py:134
+#: models.py:133
 msgid "Weeks"
 msgstr "Weken"
 
-#: models.py:135
+#: models.py:134
 msgid "Months"
 msgstr "Maanden"
 
-#: models.py:136
+#: models.py:135
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: models.py:138
+#: models.py:137
 msgid "title"
 msgstr "titel"
 
-#: models.py:139
+#: models.py:138
 msgid "description"
 msgstr "beschrijving"
 
-#: models.py:139 models.py:322
+#: models.py:138 models.py:321
 msgid "Markdown."
 msgstr "Markdown."
 
-#: models.py:157
+#: models.py:156
 msgid "assignee"
 msgstr "toegewezen aan"
 
-#: models.py:160
+#: models.py:159
 msgid "size"
 msgstr "omvang"
 
-#: models.py:165
+#: models.py:164
 msgid ""
 "Empty means not estimated yet; \"unknown\" means estimated and impossible to "
 "tell."
@@ -262,61 +261,61 @@ msgstr ""
 "Leeg betekent nog niet geschat; \"onbekend\" betekent geschat en niet te "
 "zeggen."
 
-#: models.py:260
+#: models.py:259
 msgid "parent of"
 msgstr "bovenliggend aan"
 
-#: models.py:261
+#: models.py:260
 msgid "duplicate of"
 msgstr "duplicaat van"
 
-#: models.py:262
+#: models.py:261
 msgid "blocks"
 msgstr "blokkeert"
 
-#: models.py:263 models.py:270
+#: models.py:262 models.py:269
 msgid "relates to"
 msgstr "hangt samen met"
 
-#: models.py:267
+#: models.py:266
 msgid "child of"
 msgstr "subticket van"
 
-#: models.py:268
+#: models.py:267
 msgid "duplicated by"
 msgstr "gedupliceerd door"
 
-#: models.py:269
+#: models.py:268
 msgid "blocked by"
 msgstr "geblokkeerd door"
 
-#: models.py:305
+#: models.py:304
 #, python-format
 msgid "This would make a loop of \"%(type)s\" relations."
 msgstr "Dit zou een kringloop van \"%(type)s\"-relaties maken."
 
-#: models.py:322
+#: models.py:321
 msgid "comment"
 msgstr "reactie"
 
-#: models.py:339
+#: models.py:338
 msgid "A reply cannot be replied to; reply to the comment above it instead."
 msgstr ""
 "Op een antwoord kun je niet antwoorden; antwoord op de reactie erboven."
 
-#: models.py:341
+#: models.py:340
 msgid "A reply must be on the same ticket as its comment."
 msgstr "Een antwoord moet bij hetzelfde ticket horen als de reactie."
 
-#: models.py:364
+#: models.py:363
 msgid "Commit"
 msgstr "Commit"
 
-#: models.py:365
+#: models.py:364
 msgid "Branch"
 msgstr "Branch"
 
-#: models.py:366
+#: models.py:365
 msgid "Pull request"
 msgstr "Pull request"
 
@@ -989,6 +988,16 @@ msgstr "Titel van het ticket"
 msgid "Create ticket"
 msgstr "Ticket aanmaken"
 
+#: ticket_links.py:38
+msgid "A link to that ticket."
+msgstr "Een link naar dat ticket."
+
+#: ticket_links.py:60
+msgid "Type the start of a name to mention a colleague, who hears about it."
+msgstr ""
+"Typ het begin van een naam om een collega te noemen; die krijgt er bericht "
+"van."
+
 #: views.py:44
 msgid "All tickets"
 msgstr "Alle tickets"
@@ -1001,15 +1010,15 @@ msgstr "Bovenste niveau"
 msgid "Parents only"
 msgstr "Alleen bovenliggende"
 
-#: views.py:408
+#: views.py:407
 msgid "the title"
 msgstr "de titel"
 
-#: views.py:408
+#: views.py:407
 msgid "the description"
 msgstr "de beschrijving"
 
-#: views.py:411
+#: views.py:410
 #, python-format
 msgid ""
 "%(who)s changed %(what)s while you were editing it. Copy your text, reload "
@@ -1018,31 +1027,31 @@ msgstr ""
 "%(who)s veranderde %(what)s terwijl jij aan het bewerken was. Kopieer je "
 "tekst, laad de pagina opnieuw en pas het nog eens toe."
 
-#: views.py:432
+#: views.py:431
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."
 
-#: views.py:450
+#: views.py:449
 #, python-format
 msgid "Created %(child)s as a child of %(ticket)s."
 msgstr "%(child)s aangemaakt als subticket van %(ticket)s."
 
-#: views.py:487
+#: views.py:486
 #, python-format
 msgid "Deleted %(key)s."
 msgstr "%(key)s verwijderd."
 
-#: views.py:496
+#: views.py:495
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
 
-#: views.py:716
+#: views.py:690
 #, python-format
 msgid "Saved %(group)s."
 msgstr "%(group)s opgeslagen."
 
-#: views.py:747
+#: views.py:721
 #, python-format
 msgid ""
 "%(group)s still holds %(count)s tickets; choose a group to move them to."
@@ -1050,18 +1059,18 @@ msgstr ""
 "%(group)s heeft nog %(count)s tickets; kies een groep om ze naartoe te "
 "verplaatsen."
 
-#: views.py:753
+#: views.py:727
 #, python-format
 msgid "%(group)s has no columns yet."
 msgstr "%(group)s heeft nog geen kolommen."
 
-#: views.py:761
+#: views.py:735
 #, python-format
 msgid "Deleted %(group)s and moved its %(count)s tickets to %(target)s."
 msgstr ""
 "%(group)s verwijderd en de %(count)s tickets verplaatst naar %(target)s."
 
-#: views.py:764
+#: views.py:738
 #, python-format
 msgid "Deleted %(group)s."
 msgstr "%(group)s verwijderd."

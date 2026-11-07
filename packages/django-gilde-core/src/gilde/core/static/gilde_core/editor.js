@@ -125,6 +125,43 @@ function attachMentions(cm) {
   });
 }
 
+// The writing help, from #gilde-editor-help, opens under the editor and stays open, or closed, for the
+// next editor too.
+const helpTemplate = document.getElementById('gilde-editor-help');
+const HELP_KEY = 'gilde-editor-help';
+
+function rememberHelp(open) {
+  try {
+    window.localStorage.setItem(HELP_KEY, open ? 'open' : '');
+  } catch {
+    // Without storage the help simply starts closed.
+  }
+}
+
+function helpWasOpen() {
+  try {
+    return window.localStorage.getItem(HELP_KEY) === 'open';
+  } catch {
+    return false;
+  }
+}
+
+function toggleHelp(editor, open) {
+  const container = editor.codemirror.getWrapperElement().closest('.EasyMDEContainer');
+  let help = container.nextElementSibling;
+  if (!help || !help.classList.contains('gilde-editor-help')) {
+    help = helpTemplate.content.firstElementChild.cloneNode(true);
+    if (!editor.options.uploadImage) {
+      help.querySelectorAll('[data-needs-upload]').forEach((row) => row.remove());
+    }
+    help.hidden = true;
+    container.after(help);
+  }
+  help.hidden = open === undefined ? !help.hidden : !open;
+  container.querySelector('.editor-toolbar .help')?.classList.toggle('active', !help.hidden);
+  return !help.hidden;
+}
+
 window.gildeMarkdownEditor = (textarea) => {
   if (textarea.easyMDE) {
     return textarea.easyMDE;
@@ -161,8 +198,20 @@ window.gildeMarkdownEditor = (textarea) => {
         : []),
       '|',
       { name: 'preview', action: EasyMDE.togglePreview, className: 'bi bi-eye', title: gettext('Preview'), noDisable: true },
+      ...(helpTemplate
+        ? [{
+          name: 'help',
+          action: (editor) => rememberHelp(toggleHelp(editor)),
+          className: 'bi bi-question-circle',
+          title: gettext('How to write'),
+          noDisable: true,
+        }]
+        : []),
     ],
   });
+  if (helpTemplate && helpWasOpen()) {
+    toggleHelp(textarea.easyMDE, true);
+  }
   if (mentionPeople.length) {
     attachMentions(textarea.easyMDE.codemirror);
   }

@@ -9,6 +9,9 @@ import re
 import typing
 import xml.etree.ElementTree as ET
 
+from django.conf import settings
+from django.utils.translation import gettext as _
+
 from gilde.board.conf import SCOPE
 from gilde.board.models import KEY_RE, Ticket
 from gilde.core import markdown, people
@@ -30,6 +33,10 @@ class TicketLinks(markdown.Reference):
     priority = 5
     pattern = CANDIDATE_RE
 
+    @classmethod
+    def help(cls):
+        return [(f'{settings.GILDE_BOARD_KEY_PREFIX}-123', _('A link to that ticket.'))]
+
     def resolve(self, matches):
         return resolve_keys(matches)
 
@@ -47,6 +54,10 @@ class Mentions(markdown.Reference):
     priority = 4
     pattern = MENTION_TEXT_RE
     classes: typing.ClassVar = {'span': {'tk-mention'}}
+
+    @classmethod
+    def help(cls):
+        return [('@…', _('Type the start of a name to mention a colleague, who hears about it.'))]
 
     def resolve(self, matches):
         by_handle = people.by_handle(SCOPE)

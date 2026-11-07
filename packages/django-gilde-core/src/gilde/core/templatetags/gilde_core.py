@@ -24,6 +24,12 @@ def render_markdown(text: str) -> str:
     return markdown.render(text)
 
 
+@register.inclusion_tag('gilde_core/_markdown_help.html')
+def markdown_help() -> dict:
+    """How to write Markdown, and what the installed apps recognise in it, for beside the editor."""
+    return {'references': [pair for reference in markdown.REFERENCES for pair in reference.help()]}
+
+
 @functools.cache
 def translated() -> frozenset[str]:
     """The languages the installed Gilde apps speak: English, in which they are written, and every

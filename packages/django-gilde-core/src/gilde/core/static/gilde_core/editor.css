@@ -22,3 +22,12 @@
 .gilde-mention-handle { color: var(--bs-secondary-color); }
 /* An @handle that reaches a colleague, marked while it is written. No padding: it would shift the cursor. */
 .CodeMirror .cm-gilde-mention { font-weight: 600; color: var(--bs-primary); background: var(--bs-secondary-bg); border-radius: .2rem; }
+
+/* The writing help under the editor, from its "?". */
+.gilde-editor-help { margin-top: .5rem; padding: .5rem .75rem; border: 1px solid var(--bs-border-color); border-radius: .5rem;
+                     background: var(--bs-tertiary-bg); font-size: .8125rem; max-height: 22rem; overflow: auto; }
+.gilde-editor-help table { width: 100%; border-collapse: collapse; }
+.gilde-editor-help td { padding: .2rem .5rem .2rem 0; vertical-align: top; }
+.gilde-editor-help td:first-child { width: 40%; white-space: nowrap; }
+.gilde-editor-help tr + tr td { border-top: 1px solid var(--bs-border-color-translucent); }
+.gilde-editor-help code { color: inherit; background: var(--bs-body-bg); padding: .05rem .3rem; border-radius: .25rem; }

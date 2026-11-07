@@ -112,6 +112,16 @@ class PageLinks(markdown.Reference):
     pattern = LINK_RE
     classes: typing.ClassVar = {'a': {'wk-missing'}}
 
+    @classmethod
+    def help(cls):
+        return [
+            (_('[[Deploying]]'), _('A link to the wiki page whose address ends so, the highest in the tree.')),
+            (_('[[Engineering/Deploying|how we ship]]'), _('The same, with words of your own.')),
+            (_('[[/Engineering/Deploying]]'), _('The wiki page at exactly that address, from the top.')),
+            (_('[[./Rollback]] [[../Onboarding]]'), _('In a wiki page: the page under it, and the page beside it.')),
+            (_('[[New page]]'), _('A link to a page that is not there yet shows red; following it starts the page.')),
+        ]
+
     def resolve(self, matches):
         page = self.context.get('wiki_page')
         base = page.path if isinstance(page, Page) else None

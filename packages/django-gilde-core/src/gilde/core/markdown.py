@@ -54,6 +54,12 @@ class Reference(Treeprocessor):
     def context(self) -> dict:
         return self.md.gilde_context
 
+    @classmethod
+    def help(cls) -> list[tuple[str, str]]:
+        """What to write for it and what that gives, for the writing help beside the editor:
+        [(example, explanation), ...]."""
+        return []
+
     def resolve(self, matches: set[str]) -> dict:
         """What each match names, by match; matches that name nothing are left out."""
         raise NotImplementedError

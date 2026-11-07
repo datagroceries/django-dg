@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 10:04+0100\n"
+"POT-Creation-Date: 2026-11-07 10:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Gilde\n"
 "Language-Team: Dutch\n"
@@ -37,7 +37,53 @@ msgstr "Titel"
 msgid "That place is not in the tree."
 msgstr "Die plek staat niet in de boom."
 
-#: links.py:100 templates/gilde_wiki/missing.html:8
+#: links.py:118
+msgid "[[Deploying]]"
+msgstr "[[Uitrollen]]"
+
+#: links.py:118
+msgid "A link to the wiki page whose address ends so, the highest in the tree."
+msgstr ""
+"Een link naar de wikipagina waarvan het adres zo eindigt, de hoogste in de "
+"boom."
+
+#: links.py:119
+msgid "[[Engineering/Deploying|how we ship]]"
+msgstr "[[Techniek/Uitrollen|hoe we uitrollen]]"
+
+#: links.py:119
+msgid "The same, with words of your own."
+msgstr "Hetzelfde, met eigen woorden."
+
+#: links.py:120
+msgid "[[/Engineering/Deploying]]"
+msgstr "[[/Techniek/Uitrollen]]"
+
+#: links.py:120
+msgid "The wiki page at exactly that address, from the top."
+msgstr "De wikipagina op precies dat adres, vanaf de top."
+
+#: links.py:121
+msgid "[[./Rollback]] [[../Onboarding]]"
+msgstr "[[./Terugdraaien]] [[../Inwerken]]"
+
+#: links.py:121
+msgid "In a wiki page: the page under it, and the page beside it."
+msgstr "In een wikipagina: de pagina eronder, en de pagina ernaast."
+
+#: links.py:122
+msgid "[[New page]]"
+msgstr "[[Nieuwe pagina]]"
+
+#: links.py:122
+msgid ""
+"A link to a page that is not there yet shows red; following it starts the "
+"page."
+msgstr ""
+"Een link naar een pagina die er nog niet is, is rood; wie hem volgt, begint "
+"die pagina."
+
+#: links.py:141 templates/gilde_wiki/missing.html:8
 msgid "No such page yet"
 msgstr "Deze pagina bestaat nog niet"
 
@@ -91,8 +137,8 @@ msgid ""
 "Bring this version back? The page says this again, as a new version; nothing "
 "is lost."
 msgstr ""
-"Deze versie terugzetten? De pagina zegt dit weer, als nieuwe versie; er gaat"
-" niets verloren."
+"Deze versie terugzetten? De pagina zegt dit weer, als nieuwe versie; er gaat "
+"niets verloren."
 
 #: templates/gilde_wiki/_version_head.html:12
 msgid "Bring back"

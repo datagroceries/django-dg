@@ -4,6 +4,7 @@ with the board."""
 import re
 import xml.etree.ElementTree as ET
 
+from django.template import Context, Template
 from django.test import SimpleTestCase
 
 from gilde.core import markdown
@@ -58,7 +59,13 @@ class Shout(markdown.Reference):
     pattern = re.compile(r'!([A-Z]+)!')
     classes = {'strong': {'shout'}}  # noqa: RUF012
 
+    @classmethod
+    def help(cls):
+        return [('!NAME!', 'Shouts the name.')]
+
     def resolve(self, matches):
+        if 'polite' in self.context:
+            return {}
         return {match: match.strip('!') for match in matches if match != '!NOBODY!'}
 
     def element(self, match, found):
@@ -83,6 +90,16 @@ class ReferenceTests(SimpleTestCase):
         html = markdown.render('Say !HI!.', references=False)
 
         self.assertIn('Say !HI!.', html)
+
+    def test_a_reference_reads_what_the_text_belongs_to(self):
+        self.assertIn('!HI!', markdown.render('Say !HI!.', context={'polite': True}))
+
+    def test_the_writing_help_explains_markdown_and_the_references(self):
+        help_html = Template('{% load gilde_core %}{% markdown_help %}').render(Context())
+
+        self.assertIn('<template id="gilde-editor-help">', help_html)
+        self.assertIn('**bold**', help_html)
+        self.assertInHTML('<tr><td><code>!NAME!</code></td><td>Shouts the name.</td></tr>', help_html)
 
     def test_registering_twice_counts_once(self):
         markdown.register(Shout)
