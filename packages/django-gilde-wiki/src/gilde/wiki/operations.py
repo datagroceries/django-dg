@@ -24,11 +24,13 @@ def create(request, title: str, parent: Page | None = None, body: str = '') -> P
     return page
 
 
-def write(request, page: Page, title: str, body: str):
-    """A new title and text; a new title gives the page a new address. The people newly @-mentioned in the
-    text hear about it."""
+def write(request, page: Page, title: str, body: str, language: str | None = None):
+    """A new title and text, and language unless it is None; a new title gives the page a new address. The
+    people newly @-mentioned in the text hear about it."""
     before = Page.objects.values_list('body', flat=True).get(pk=page.pk)
     page.title, page.body = title, body
+    if language is not None:
+        page.language = language
     with transaction.atomic():
         page.save()
         notifications.written(request, page, before)
@@ -75,11 +77,32 @@ def attach(request, page: Page, upload) -> Attachment:
     return Attachment.from_upload(upload, request.user, page=page)
 
 
+def translate(request, page: Page, language: str, title: str) -> Page:
+    """A translation of the page into `language`, beside it, starting from its text to translate."""
+    with transaction.atomic():
+        made = Page.objects.create(
+            title=title,
+            parent=page.parent,
+            body=page.body,
+            language=language,
+            original=page.original or page,
+            creator=request.user,
+            position=_last_position(page.parent),
+        )
+        notifications.watch(made, request.user)
+    return made
+
+
 def delete(request, page: Page):
-    """Delete a page that has no pages under it, and its files; its history stays."""
+    """Delete a page that has no pages under it, and its files; its history stays. The first of its
+    translations becomes the original of the others."""
     if page.children.exists():
         raise ValidationError(_('Move or delete the pages under this page first.'))
     with transaction.atomic():
+        translations = list(page.translations.order_by('pk'))
+        if translations:
+            Page.objects.filter(pk__in=[each.pk for each in translations[1:]]).update(original=translations[0])
+            Page.objects.filter(pk=translations[0].pk).update(original=None)
         files = [attachment.file for attachment in page.attachments.all()]
         page.delete()
         transaction.on_commit(lambda: [file.delete(save=False) for file in files])

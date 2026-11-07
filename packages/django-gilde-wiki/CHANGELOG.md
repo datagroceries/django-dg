@@ -17,3 +17,7 @@
   people. A page with only pages under it shows them, as an index would.
 - Comments on a page, and replies to them, written in the editor with @-mentions; watchers hear about new
   comments, and the people mentioned in a page or a comment hear about it.
+- Search through the pages' titles and texts. A page, or a page with all under it, or the whole wiki,
+  downloaded as Markdown, with its images and the links between the pages kept.
+- A language per page, and translations beside it that link to each other and say when the page they
+  translate changed after them.

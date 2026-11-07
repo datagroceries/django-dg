@@ -89,12 +89,21 @@ def resolve(references: set[str]) -> dict[str, Page]:
     return found
 
 
-def _matches(text: str):
+def matches(text: str):
     """The links in `text`, but not those in code."""
     code = [match.span() for match in CODE_RE.finditer(text)]
     for match in LINK_RE.finditer(text):
         if not any(start <= match.start() < end for start, end in code):
             yield match
+
+
+def substitute(text: str, replace) -> str:
+    """`text` with each link outside code replaced by what `replace(match)` makes of it."""
+    pieces, last = [], 0
+    for match in matches(text):
+        pieces += [text[last : match.start()], replace(match)]
+        last = match.end()
+    return ''.join(pieces) + text[last:]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -149,7 +158,7 @@ class PageLinks(markdown.Reference):
 
 def record(page: Page):
     """Keep the links in the page's text as they are now."""
-    references = {reference(match[1], page.path) for match in _matches(page.body)}
+    references = {reference(match[1], page.path) for match in matches(page.body)}
     references = {path for path in references if path and len(path) <= PATH_LENGTH}
     found = resolve(references)
     Link.objects.filter(source=page).delete()
@@ -201,11 +210,7 @@ def _rewrite(text: str, targets: dict[str, Page], before: str, now: str) -> str:
             return match[0]
         return f'[[{new}|{label}]]' if label is not None else f'[[{new}]]'
 
-    pieces, last = [], 0
-    for match in _matches(text):
-        pieces += [text[last : match.start()], replace(match)]
-        last = match.end()
-    return ''.join(pieces) + text[last:]
+    return substitute(text, replace)
 
 
 def spelling(page: Page, written: str = '', base: str | None = None) -> str:

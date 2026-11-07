@@ -121,3 +121,16 @@
 .wk-comment-actions summary::-webkit-details-marker { display: none; }
 .wk-reply { margin: .75rem 0 0 1rem; padding: .25rem 0 0 .75rem; border-left: 2px solid var(--bs-border-color); border-radius: 0; }
 .wk-comment-new { margin-top: 1rem; }
+
+/* Searching, above the tree; and what it finds. */
+.wk-search { position: relative; margin-bottom: .75rem; }
+.wk-search .bi { position: absolute; left: .55rem; top: 50%; transform: translateY(-50%); font-size: .75rem; color: var(--bs-secondary-color); }
+.wk-search input { padding-left: 1.6rem; }
+.wk-hits { list-style: none; padding: 0; max-width: 50rem; }
+.wk-hits > li { padding: .6rem 0; border-bottom: 1px solid var(--bs-border-color); }
+.wk-hits mark { padding: 0 .1em; background: var(--bs-warning-bg-subtle); color: inherit; }
+
+/* The languages a page is in. */
+.wk-languages { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.wk-language-field { display: flex; align-items: center; gap: .5rem; }
+.wk-language-field select { width: auto; }

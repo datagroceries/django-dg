@@ -16,7 +16,9 @@
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-file-earmark-plus"></i> {% translate "New page under this one" %}</a></li>
         <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_move' page.path %}"><i class="bi bi-arrow-right-square"></i> {% translate "Move" %}</a></li>
+        {% if can_translate %}<li><a class="dropdown-item" href="{% url 'gilde_wiki:page_translate' page.path %}"><i class="bi bi-translate"></i> {% translate "Translate" %}</a></li>{% endif %}
         <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_history' page.path %}"><i class="bi bi-clock-history"></i> {% translate "History" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'gilde_wiki:page_export' page.path %}"><i class="bi bi-download"></i> {% if children %}{% translate "Download with the pages under it" %}{% else %}{% translate "Download as Markdown" %}{% endif %}</a></li>
         <li><hr class="dropdown-divider"></li>
         <li>
           {% if children %}
@@ -32,6 +34,21 @@
     </div>
   </div>
 </div>
+{% if translations or page.language %}
+  <p class="wk-languages small mb-1">
+    {% if page.language %}<span class="badge text-bg-light border">{{ page.language|language_name_local }}</span>{% endif %}
+    {% if translations %}
+      <span class="wk-muted">{% translate "Also in" %}</span>
+      {% for each in translations %}<a href="{{ each.get_absolute_url }}" lang="{{ each.language }}" hreflang="{{ each.language }}">{% if each.language %}{{ each.language|language_name_local }}{% else %}{{ each.title }}{% endif %}</a>{% if not forloop.last %} · {% endif %}{% endfor %}
+    {% endif %}
+  </p>
+{% endif %}
+{% if behind %}
+  <div class="alert alert-info py-2 small">
+    {% blocktranslate with url=behind.get_absolute_url title=behind.title %}<a href="{{ url }}">{{ title }}</a>, which this page translates, changed after this page did. It may say more by now.{% endblocktranslate %}
+    <a href="{% url 'gilde_wiki:page_history' behind.path %}">{% translate "See what changed" %}</a>
+  </div>
+{% endif %}
 {% if last_change %}
   <p class="wk-muted small mb-4">
     <a class="link-secondary link-underline-opacity-0 link-underline-opacity-75-hover" href="{% url 'gilde_wiki:page_history' page.path %}">{% blocktranslate with person=last_changed_by when=last_change.history_date|naturaltime %}Last changed by {{ person }}, {{ when }}{% endblocktranslate %}{% if last_changed_via %} {{ last_changed_via }}{% endif %}</a>
@@ -39,7 +56,7 @@
 {% endif %}
 
 <div class="wk-page">
-  <article class="wk-prose">
+  <article class="wk-prose"{% if page.language %} lang="{{ page.language }}"{% endif %}>
     {% if page.body %}
       {{ html }}
     {% elif children %}

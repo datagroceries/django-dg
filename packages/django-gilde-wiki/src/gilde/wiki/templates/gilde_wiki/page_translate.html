@@ -1,0 +1,26 @@
+{% extends 'gilde_wiki/_wiki.html' %}
+{% load i18n %}
+
+{% block page_title %}{% blocktranslate with title=page.title %}Translating {{ title }}{% endblocktranslate %}{% endblock %}
+
+{% block main %}
+{% include 'gilde_wiki/_crumbs.html' with last=page %}
+<h1 class="h3 mb-3">{% blocktranslate with title=page.title %}Translate “{{ title }}”{% endblocktranslate %}</h1>
+<form method="post" class="wk-narrow">
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+  {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+    </div>
+  {% endfor %}
+  <p class="form-text">{% translate "The translation goes beside this page, and opens in the editor with this page's text, to translate." %}</p>
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">{% translate "Translate" %}</button>
+    <a class="btn btn-outline-secondary" href="{{ page.get_absolute_url }}">{% translate "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}

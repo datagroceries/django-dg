@@ -9,6 +9,8 @@ app_name = 'gilde_wiki'
 urlpatterns = [
     path('', views.home, name='home'),
     path('-/new/', views.page_create, name='page_create'),
+    path('-/search/', views.page_search, name='search'),
+    path('-/export/', views.wiki_export, name='wiki_export'),
     path('-/arrange/', views.tree_arrange, name='tree_arrange'),
     path('-/files/<int:pk>/<str:name>', views.attachment, name='attachment'),
     path('<path:path>/-/edit/', views.page_edit, name='page_edit'),
@@ -22,5 +24,7 @@ urlpatterns = [
     path('<path:path>/-/comments/', views.comment_create, name='comment_create'),
     path('<path:path>/-/comments/<int:pk>/', views.comment_edit, name='comment_edit'),
     path('<path:path>/-/watch/', views.page_watch, name='page_watch'),
+    path('<path:path>/-/export/', views.page_export, name='page_export'),
+    path('<path:path>/-/translate/', views.page_translate, name='page_translate'),
     path('<path:path>/', views.page, name='page'),
 ]

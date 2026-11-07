@@ -1,8 +1,9 @@
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import formats, timezone
@@ -10,10 +11,10 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from gilde.core import attachments, markdown, people
-from gilde.wiki import operations
+from gilde.wiki import export, operations, search
 from gilde.wiki.compare import side_by_side
 from gilde.wiki.conf import SCOPE
-from gilde.wiki.forms import ArrangeForm, CommentForm, MoveForm, NewPageForm, PageForm, fingerprint
+from gilde.wiki.forms import ArrangeForm, CommentForm, MoveForm, NewPageForm, PageForm, TranslateForm, fingerprint
 from gilde.wiki.models import Attachment, Comment, FormerPath, Page
 from gilde.wiki.templatetags.gilde_wiki import render_context, tree_context
 
@@ -58,6 +59,13 @@ def home(request):
 
 
 @wiki_required
+def page_search(request):
+    query = request.GET.get('q', '').strip()
+    hits = search.search(query) if query else []
+    return render(request, 'gilde_wiki/search.html', {'query': query, 'hits': hits, 'most': search.MAX_HITS})
+
+
+@wiki_required
 def page(request, path):
     found = Page.objects.select_related('parent').filter(path=path).first()
     if found is None:
@@ -81,6 +89,10 @@ def page(request, path):
         'comments': _comments(found),
         'comment_form': CommentForm(page=found),
         'watchers': [watcher.user for watcher in found.watchers.select_related('user')],
+        'translations': [each for each in found.translation_group() if each.pk != found.pk],
+        'can_translate': len(settings.LANGUAGES) > len(found.translation_group()),
+        # A translation older than the latest change to its original may say something else by now.
+        'behind': found.original if found.original and found.original.updated_at > found.updated_at else None,
     }
     return render(request, 'gilde_wiki/page.html', context)
 
@@ -118,7 +130,8 @@ def page_edit(request, path):
         form = PageForm(request.POST, instance=stored)
         if form.is_valid():
             if form.cleaned_data['original'] == fingerprint(Page.objects.get(pk=stored.pk)):
-                operations.write(request, stored, form.cleaned_data['title'], form.cleaned_data['body'])
+                data = form.cleaned_data
+                operations.write(request, stored, data['title'], data['body'], data['language'])
                 return redirect(stored)
             form.add_error(
                 None,
@@ -341,3 +354,37 @@ def page_watch(request, path):
     shown = _page(path)
     operations.watch(request, shown, request.POST.get('watching') == 'yes')
     return redirect(f'{shown.get_absolute_url()}#comments')
+
+
+def _download(content, name: str, content_type: str) -> HttpResponse:
+    response = HttpResponse(content, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{name}"'
+    return response
+
+
+@wiki_required
+def page_export(request, path):
+    """The page as a Markdown file; with the pages under it, as a zip of them all."""
+    shown = _page(path)
+    if shown.children.exists():
+        return _download(export.tree_zip(request, shown), f'{shown.slug}.zip', 'application/zip')
+    return _download(export.page_markdown(request, shown), f'{shown.slug}.md', 'text/markdown; charset=utf-8')
+
+
+@wiki_required
+def wiki_export(request):
+    """Every page, as a zip of Markdown files."""
+    return _download(export.tree_zip(request, None), 'wiki.zip', 'application/zip')
+
+
+@wiki_required
+def page_translate(request, path):
+    """A translation of the page, beside it, which opens in the editor with the page's text to translate."""
+    shown = _page(path)
+    form = TranslateForm(request.POST or None, page=shown)
+    if request.method == 'POST' and form.is_valid():
+        made = operations.translate(request, shown, form.cleaned_data['language'], form.cleaned_data['title'])
+        return redirect('gilde_wiki:page_edit', made.path)
+    return render(
+        request, 'gilde_wiki/page_translate.html', {'page': shown, 'form': form, 'ancestors': shown.ancestors()}
+    )

@@ -90,6 +90,17 @@ class Page(models.Model):
     )
     path = models.CharField(max_length=PATH_LENGTH, unique=True, editable=False)
     body = models.TextField(_('text'), blank=True, default='', help_text=_('Markdown. [[Page title]] links to a page.'))
+    language = models.CharField(
+        _('language'), max_length=10, blank=True, help_text='One of settings.LANGUAGES, or empty when it says none.'
+    )
+    original = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='translations',
+        help_text='The page this one translates; the translations of a page all name the same original.',
+    )
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='gilde_wiki_created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -135,6 +146,11 @@ class Page(models.Model):
         parts = self.path.split('/')
         paths = ['/'.join(parts[:end]) for end in range(1, len(parts))]
         return sorted(Page.objects.filter(path__in=paths), key=lambda page: len(page.path))
+
+    def translation_group(self) -> list['Page']:
+        """The page in every language it is in: the original first, then its translations."""
+        original = self.original or self
+        return [original, *original.translations.order_by('language', 'pk')]
 
     def descendants(self) -> PageQuerySet:
         """Every page under this one, however deep."""

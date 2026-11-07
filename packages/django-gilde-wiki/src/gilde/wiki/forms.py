@@ -2,6 +2,7 @@ import hashlib
 import typing
 
 from django import forms
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from gilde.wiki.models import Comment, Page, flatten
@@ -51,6 +52,11 @@ class NewPageForm(forms.Form):
         return data
 
 
+def _languages(blank: bool = True, leave_out=()) -> list:
+    choices = [(code, name) for code, name in settings.LANGUAGES if code not in leave_out]
+    return [('', _('No language said')), *choices] if blank else choices
+
+
 class PageForm(forms.ModelForm):
     """The title and the text. `original` is the fingerprint of what the editor started from, so a save
     can be refused when somebody else saved the page meanwhile."""
@@ -59,7 +65,7 @@ class PageForm(forms.ModelForm):
 
     class Meta:
         model = Page
-        fields = ('title', 'body')
+        fields = ('title', 'body', 'language')
         widgets: typing.ClassVar = {
             'title': forms.TextInput(attrs={'class': 'form-control form-control-lg'}),
             'body': forms.Textarea(attrs={'data-markdown-editor': '', 'rows': 24}),
@@ -68,6 +74,12 @@ class PageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['body'].label = ''
+        self.fields['language'] = forms.ChoiceField(
+            choices=_languages(),
+            required=False,
+            label=_('Language'),
+            widget=forms.Select(attrs={'class': 'form-select'}),
+        )
         self.initial.setdefault('original', fingerprint(self.instance))
 
 
@@ -123,3 +135,30 @@ class CommentForm(forms.ModelForm):
         super().__init__(*args, instance=Comment(page=page), **kwargs)
         self.fields['body'].label = ''
         self.fields['parent'].queryset = page.comments.filter(parent=None)
+
+
+class TranslateForm(forms.Form):
+    """A translation of `page` into a language it is not in yet."""
+
+    def __init__(self, *args, page: Page, **kwargs):
+        super().__init__(*args, **kwargs)
+        taken = {each.language for each in page.translation_group()}
+        self.fields['language'] = forms.ChoiceField(
+            choices=_languages(blank=False, leave_out=taken),
+            label=_('Language'),
+            widget=forms.Select(attrs={'class': 'form-select'}),
+        )
+        self.fields['title'] = forms.CharField(
+            label=_('Title'),
+            max_length=255,
+            initial=page.title,
+            help_text=_('The title in that language.'),
+            widget=forms.TextInput(attrs={'class': 'form-control'}),
+        )
+        self.page = page
+
+    def clean(self):
+        data = super().clean()
+        if 'title' in data:
+            Page(title=data['title'], parent=self.page.parent).clean()
+        return data

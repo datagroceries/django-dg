@@ -14,6 +14,11 @@
 <div class="row py-3">
   <nav class="col-lg-3 col-xl-2 wk-sidebar" aria-label="{% translate 'Pages' %}">
     <a class="wk-name" href="{% url 'gilde_wiki:home' %}"><i class="bi bi-journal-text"></i> {% wiki_name %}</a>
+    <form method="get" action="{% url 'gilde_wiki:search' %}" class="wk-search" role="search">
+      <i class="bi bi-search"></i>
+      <input type="search" name="q" value="{{ query|default:'' }}" class="form-control form-control-sm"
+             placeholder="{% translate 'Search the wiki' %}" aria-label="{% translate 'Search the wiki' %}">
+    </form>
     <div class="wk-tree-holder" data-arrange-url="{% url 'gilde_wiki:tree_arrange' %}" data-current="{{ page.pk|default:'' }}"
          data-failed="{% translate 'Moving the page failed. The page will reload.' %}">
       {% csrf_token %}

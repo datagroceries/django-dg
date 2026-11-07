@@ -17,10 +17,13 @@ A wiki for a Django project, that people and AI agents write together, next to t
   earlier one brought back. A save is refused when someone else saved the page in the meantime.
 - Images in the text, pasted or dropped into the editor, and files beside a page.
 - Comments and replies, with @-mentions; the people watching a page hear about new comments.
+- Search through every page's title and text, and pages downloaded as Markdown: one page as a file, or
+  a page with all under it, or the whole wiki, as a zip with their images, the links between them kept.
+- A page in several languages: each translation beside it, linked to the others, and told when the page
+  it translates changed after it.
 - English and Dutch, following the project's language.
 
-It is being built: search, translations, the board's
-tickets and the MCP tools follow.
+It is being built: the board's tickets and the MCP tools follow.
 
 ## Installing
 
