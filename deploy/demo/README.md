@@ -20,7 +20,7 @@ fresh start (`manage.py reset_demo`). It runs on web1, next to DataGroceries' ow
 
 | Path | What |
 | --- | --- |
-| `/srv/gilde-demo/app` | A clone of DataGroceries' own instance's clone, `/srv/gilde/app`, so it needs no deploy key of its own |
+| `/srv/gilde-demo/app` | A clone of DataGroceries' own instance's clone, `/srv/gilde/app`, so a deploy pulls what the own instance has |
 | `/srv/gilde-demo/venv` | The virtualenv, with the packages installed editable from the clone |
 | `/srv/gilde-demo/.env` | `DJANGO_SECRET_KEY`, made on the server, and `SENTRY_DSN`; mode 600 |
 | `/srv/gilde-demo/data` | The SQLite database |
