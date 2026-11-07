@@ -3,6 +3,7 @@
 -e packages/django-gilde-core
 -e packages/django-gilde-connect
 -e packages/django-gilde-board
+-e packages/django-gilde-wiki
 -r ../../example/requirements.txt
 gunicorn==26.2.0
 sentry-sdk==2.73.0

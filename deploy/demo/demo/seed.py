@@ -1,5 +1,5 @@
-"""What a visitor finds: a small team, two groups of tickets that show what the board does, and a ticket
-of their own that suggests what to try."""
+"""What a visitor finds: a small team, two groups of tickets that show what the board does, a few wiki
+pages beside them, and a ticket of their own that suggests what to try."""
 
 import contextlib
 import types
@@ -11,8 +11,11 @@ from django.db import transaction
 
 from gilde.board.models import Column, Comment, Group, Label, Relation, Ticket, Watcher
 from gilde.core import history
+from gilde.wiki.models import Comment as PageComment
+from gilde.wiki.models import Page
+from gilde.wiki.models import Watcher as PageWatcher
 
-# The user group whose members may use the board: the team and every visitor.
+# The user group whose members may use the board and the wiki: the team and every visitor.
 MEMBERS = 'Members'
 TEAM = (
     ('ann', 'Ann', 'Smith'),
@@ -48,7 +51,9 @@ def seed():
     """Fills an empty database."""
     users = get_user_model().objects
     members = UserGroup.objects.create(name=MEMBERS)
-    members.permissions.add(Permission.objects.get(content_type__app_label='gilde_board', codename='use'))
+    members.permissions.add(
+        *Permission.objects.filter(content_type__app_label__in=('gilde_board', 'gilde_wiki'), codename='use')
+    )
     ann, bob, chloe = (users.create_user(username, first_name=first, last_name=last) for username, first, last in TEAM)
     members.user_set.add(ann, bob, chloe)
 
@@ -157,6 +162,69 @@ def seed():
     with acting_as(ann, agent='Claude'):
         Relation.objects.create(source=csv_question, target=export, type=Relation.Type.RELATES_TO)
 
+    seed_wiki(ann, bob, chloe, move)
+
+
+def page(title, creator, body, *, parent=None, position):
+    made = Page.objects.create(title=title, parent=parent, body=body, creator=creator, position=position)
+    PageWatcher.objects.create(page=made, user=creator)
+    return made
+
+
+def seed_wiki(ann, bob, chloe, move):
+    """A small tree of pages: links between them, one relative and one to a page nobody wrote yet, a
+    ticket's key, so the ticket lists the page, a second version and a comment."""
+    with acting_as(bob):
+        engineering = page('Engineering', bob, ENGINEERING, position=1)
+        deploying = page('Deploying', bob, DEPLOYING.format(check='', move=move.key), parent=engineering, position=1)
+        page('Rollback', bob, ROLLBACK, parent=engineering, position=2)
+    with acting_as(ann):
+        page('Onboarding', ann, ONBOARDING, position=2)
+    # A second version, so the page's history has two to compare.
+    with acting_as(chloe):
+        deploying.body = DEPLOYING.format(check=CHECK, move=move.key)
+        deploying.save()
+        PageWatcher.objects.create(page=deploying, user=chloe)
+        PageComment.objects.create(
+            page=deploying, author=chloe, body='Added what to check after a deploy. @bob, does that match what you do?'
+        )
+
+
+ENGINEERING = """How we build and run the website. The pages under this one say how a release goes out,
+and how to take it back.
+"""
+DEPLOYING = """## Before
+
+- The tests pass on the main branch.
+- The changelog says what changes.
+
+## Deploying
+
+1. Pull on the server.
+2. Install the requirements, migrate and collect the static files.
+3. Restart the service.
+
+## After
+
+Check the site, and the errors of the last ten minutes.{check}
+
+Something wrong? Go back as [[../Rollback]] says.
+
+The new server changes these steps: see {move}.
+"""
+CHECK = ' Open the pricing page and sign up once, as a customer would.'
+ROLLBACK = """1. Check out the release before on the server.
+2. Install its requirements. Migrations stay: a release never removes a column the one before it needs.
+3. Restart the service, and say so on the ticket of the release.
+"""
+ONBOARDING = """Welcome to the team. This page lists what to do in your first week.
+
+- [ ] Sign in to the board and the wiki.
+- [ ] Read how a release goes out in [[Deploying]].
+- [ ] Add yourself to [[Who is who]].
+- [ ] Pick up a ticket with a colleague.
+"""
+
 
 def welcome(visitor):
     """A ticket of the visitor's own, at the top of To do, that suggests what to try. Any visitor may
@@ -180,7 +248,9 @@ def welcome(visitor):
                 '- Leave a comment below that mentions @ann.\n'
                 '- Open **Connect an agent** on the board, connect Claude, and ask it: *"What is assigned to '
                 'me on the board? Move my welcome ticket to Done and say so in a comment."*\n'
-                "- Then look at this ticket's history: Claude's changes say they were made through Claude.\n\n"
+                "- Then look at this ticket's history: Claude's changes say they were made through Claude.\n"
+                "- Read the team's wiki page on releases, [[Deploying]], and edit it: the ticket it names lists "
+                'it.\n\n'
                 'Everything here, your account too, is gone tomorrow morning.'
             ),
         )

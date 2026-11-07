@@ -1,19 +1,20 @@
 # The public demo
 
 https://demo.gildehq.com: anyone gets an account with one click, without an email address or a password,
-finds a small team and a few tickets, and connects Claude to it. Every night at 04:00 (Amsterdam time) it
-starts again from the same board, so nothing a visitor does lasts, and there is nothing to moderate or keep.
+finds a small team, a few tickets and a small wiki beside them, and connects Claude to it. Every night at
+04:00 (Amsterdam time) it starts again from the same board and wiki, so nothing a visitor does lasts, and
+there is nothing to moderate or keep.
 
 The project in this folder, `demo`, is the demo's own code: the welcome page and its button
-([views.py](demo/views.py)), the board a visitor finds ([seed.py](demo/seed.py)), and the nightly fresh
-start (`manage.py reset_demo`). It runs on web1, next to Gilde's own instance ([../web1](../web1/README.md)),
-but apart from it: its own system user, service and SQLite database.
+([views.py](demo/views.py)), the board and wiki a visitor finds ([seed.py](demo/seed.py)), and the nightly
+fresh start (`manage.py reset_demo`). It runs on web1, next to Gilde's own instance
+([../web1](../web1/README.md)), but apart from it: its own system user, service and SQLite database.
 
 - **Accounts**: "Try it" makes `visitor-1234`, named Visitor 1234, with no password, puts them in the
-  group that may use the board, and gives them a welcome ticket that suggests what to try. At most 1000 a
-  day. Claude signs in through the same browser session.
-- **What a visitor may do**: everything a person on a board may do, deleting tickets and groups included.
-  Other visitors see it until the night; the welcome page says so.
+  group that may use the board and the wiki, and gives them a welcome ticket that suggests what to try. At
+  most 1000 a day. Claude signs in through the same browser session.
+- **What a visitor may do**: everything a person on a board or in a wiki may do, deleting tickets, groups
+  and pages included. Other visitors see it until the night; the welcome page says so.
 - **No mail**: visitors have no address, so notifications go nowhere.
 - **Uploads**: up to 5 MB each (Caddy), gone at night with the rest.
 
@@ -44,7 +45,7 @@ sudo -u gilde-demo -H python3 -m venv /srv/gilde-demo/venv
 # the secret key, never printed
 install -o gilde-demo -g gilde-demo -m 600 /dev/null /srv/gilde-demo/.env
 echo "DJANGO_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')" > /srv/gilde-demo/.env
-# then the deploy steps below, then the board to start from:
+# then the deploy steps below, then the board and wiki to start from:
 manage reset_demo
 cp /srv/gilde-demo/app/deploy/demo/gilde-demo.service /srv/gilde-demo/app/deploy/demo/gilde-demo-reset.* /etc/systemd/system/
 systemctl daemon-reload

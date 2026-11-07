@@ -1,5 +1,6 @@
 """The public demo on web1, demo.gildehq.com: anyone gets an account with one click and connects Claude to
-it, and every night it starts again from the same board. How it runs is in README.md next to this project.
+it, and every night it starts again from the same board and wiki. How it runs is in README.md next to this
+project.
 
 To run it on a laptop, from this folder:
 
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
     'gilde.core',
     'gilde.connect',
     'gilde.board',
+    'gilde.wiki',
     'demo',
 ]
 

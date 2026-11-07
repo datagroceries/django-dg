@@ -11,8 +11,8 @@
   </div>
   <p class="lead">
     {% blocktranslate trimmed %}
-      A kanban board that people and AI agents work on together, from Django apps you install in a project of
-      your own.
+      A kanban board and a wiki that people and AI agents work on together, from Django apps you install in a
+      project of your own.
     {% endblocktranslate %}
   </p>
 
@@ -20,13 +20,14 @@
     <p>{% blocktranslate with name=user|person_name trimmed %}You are <strong>{{ name }}</strong> here.{% endblocktranslate %}</p>
     <div class="d-flex flex-wrap gap-2 mb-4">
       <a class="btn btn-primary" href="{{ next }}">{% translate "Open the board" %}</a>
+      <a class="btn btn-outline-secondary" href="{% url 'gilde_wiki:home' %}">{% translate "Open the wiki" %}</a>
       <a class="btn btn-outline-secondary" href="{% url 'gilde_connect:connect' %}">{% translate "Connect an agent" %}</a>
     </div>
   {% else %}
     <p>
       {% blocktranslate trimmed %}
-        Get an account of your own with one click: no email address, no password. A small team and a few
-        tickets are there already, with one ticket for you that suggests what to try.
+        Get an account of your own with one click: no email address, no password. A small team, a few tickets
+        and a few wiki pages are there already, with one ticket for you that suggests what to try.
       {% endblocktranslate %}
     </p>
     <form method="post" action="{% url 'try_it' %}" class="mb-4">
