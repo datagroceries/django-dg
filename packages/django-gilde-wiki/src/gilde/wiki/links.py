@@ -4,12 +4,15 @@ so a ticket can link to a page too.
 
 A link names a page by its address, written in titles or in slugs: "Engineering/Deploying" and
 "engineering/deploying" are the same. The end of an address will do: "[[Deploying]]" finds
-"engineering/deploying", the page highest in the tree if several addresses end so. An address a page had
-before a rename or a move still finds it. A link to no page shows as one, and leads to where that page
-can be started.
+"engineering/deploying", the page highest in the tree if several addresses end so. An address that
+starts with "/" is the whole address, from the top: "[[/Deploying]]" finds only the page "deploying". In
+a wiki page, "." is that page and ".." the page above it: "[[./Rollback]]" is the page "Rollback" under
+it, "[[../Onboarding]]" the page "Onboarding" beside it. Elsewhere, as in a ticket, such a link stays
+text. An address a page had before a rename or a move still finds it. A link to no page shows as one,
+and leads to where that page can be started.
 
 The wiki keeps the links in its own pages (Link): to list what links to a page, and to rewrite them when
-a page they name gets another address, so they keep saying where the page is.
+a page they name, or the page they are in, gets another address, so they keep saying where the page is.
 """
 
 import dataclasses
@@ -32,29 +35,54 @@ CODE_RE = re.compile(r'^(```|~~~).*?^\1|`[^`\n]+`', re.MULTILINE | re.DOTALL)
 UNSAFE_RE = re.compile(r'[/|\[\]]')
 
 
-def reference(written: str) -> str:
-    """The address a link names, each part as a slug: "Engineering/Deploying" names
-    "engineering/deploying". Empty when it names none."""
-    return '/'.join(slug for slug in (slug_of(part) for part in written.split('/')) if slug)
+RELATIVE = ('.', '..')
+
+
+def reference(written: str, base: str | None = None) -> str:
+    """The address a link names, each part as a slug: "Engineering/Deploying" names the page whose
+    address is or ends in "engineering/deploying". A whole address is written with "/" before it:
+    "/Engineering/Deploying" names "/engineering/deploying", and so does "./Deploying" in the page at
+    `base`, "engineering". Empty when it names none, as a relative link without a page to start from."""
+    parts = written.strip().split('/')
+    if parts[0].strip() in RELATIVE:
+        if base is None:
+            return ''
+        slugs = base.split('/')
+        for part in parts:
+            if part.strip() == '..':
+                if not slugs:
+                    return ''
+                slugs.pop()
+            elif slug := slug_of(part):
+                slugs.append(slug)
+        return f'/{"/".join(slugs)}' if slugs else ''
+    path = '/'.join(slug for slug in (slug_of(part) for part in parts) if slug)
+    return f'/{path}' if path and written.strip().startswith('/') else path
 
 
 def resolve(references: set[str]) -> dict[str, Page]:
     """The pages these addresses name, by address; addresses that name no page are left out."""
     references = {reference for reference in references if reference}
+    paths = {reference.removeprefix('/') for reference in references}
     fields = ('id', 'parent_id', 'title', 'slug', 'path')
-    found = {page.path: page for page in Page.objects.filter(path__in=references).only(*fields)}
-    rest = references - found.keys()
-    if rest:
+    at = {page.path: page for page in Page.objects.filter(path__in=paths).only(*fields)}
+    if rest := paths - at.keys():
         formers = FormerPath.objects.filter(path__in=rest).select_related('page')
-        found |= {former.path: former.page for former in formers.only('path', *(f'page__{f}' for f in fields))}
-        rest -= found.keys()
-    if rest:
-        ends = Q()
-        for end in rest:
-            ends |= Q(path__endswith=f'/{end}')
+        at |= {former.path: former.page for former in formers.only('path', *(f'page__{f}' for f in fields))}
+    found = {
+        reference: at[reference.removeprefix('/')] for reference in references if reference.removeprefix('/') in at
+    }
+    # What is left are ends of addresses; a whole address that names no page names none.
+    ends = {reference for reference in references - found.keys() if not reference.startswith('/')}
+    if ends:
+        query = Q()
+        for end in ends:
+            query |= Q(path__endswith=f'/{end}')
         # The highest in the tree first.
-        candidates = sorted(Page.objects.filter(ends).only(*fields), key=lambda page: (page.path.count('/'), page.path))
-        for end in rest:
+        candidates = sorted(
+            Page.objects.filter(query).only(*fields), key=lambda page: (page.path.count('/'), page.path)
+        )
+        for end in ends:
             page = next((page for page in candidates if page.path.endswith(f'/{end}')), None)
             if page is not None:
                 found[end] = page
@@ -85,29 +113,33 @@ class PageLinks(markdown.Reference):
     classes: typing.ClassVar = {'a': {'wk-missing'}}
 
     def resolve(self, matches):
-        written = {match: LINK_RE.fullmatch(match)[1] for match in matches}
-        found = resolve({reference(text) for text in written.values()})
+        page = self.context.get('wiki_page')
+        base = page.path if isinstance(page, Page) else None
+        names = {match: reference(LINK_RE.fullmatch(match)[1], base) for match in matches}
+        found = resolve(set(names.values()))
         result = {}
-        for match, text in written.items():
-            if path := reference(text):
-                result[match] = found.get(path) or Missing(path, text.split('/')[-1].strip())
+        for match, name in names.items():
+            if name:
+                title = LINK_RE.fullmatch(match)[1].split('/')[-1].strip()
+                result[match] = found.get(name) or Missing(name.removeprefix('/'), title)
         return result
 
     def element(self, match, found):
-        text, label = LINK_RE.fullmatch(match).groups()
+        label = (LINK_RE.fullmatch(match)[2] or '').strip()
         if isinstance(found, Missing):
             href = f'{reverse("gilde_wiki:page", args=[found.path])}?{urlencode({"title": found.title})}'
             link = ET.Element('a', {'href': href, 'class': 'wk-missing', 'title': _('No such page yet')})
-            link.text = (label or text).strip()
+            # As a link to a page shows its title: the name, not the way there.
+            link.text = label or found.title
         else:
             link = ET.Element('a', href=found.get_absolute_url())
-            link.text = (label or '').strip() or found.title
+            link.text = label or found.title
         return link
 
 
 def record(page: Page):
     """Keep the links in the page's text as they are now."""
-    references = {reference(match[1]) for match in _matches(page.body)}
+    references = {reference(match[1], page.path) for match in _matches(page.body)}
     references = {path for path in references if path and len(path) <= PATH_LENGTH}
     found = resolve(references)
     Link.objects.filter(source=page).delete()
@@ -128,15 +160,16 @@ def refresh(slugs: set[str]):
 
 
 def follow(moved: dict[int, str]) -> set[int]:
-    """After the pages `moved` (their old addresses by id) got new ones: the links to them in the wiki's
-    pages name the new addresses. Each page so changed is saved, with a history record of its own. The
-    ids of those pages."""
+    """After the pages `moved` (their old addresses by id) got new ones: the links in the wiki's pages
+    that named them, and the relative links in the moved pages themselves, say where their pages are now.
+    Each page so changed is saved, with a history record of its own. The ids of those pages."""
     targets = {}
-    for link in Link.objects.filter(target__in=moved).select_related('target'):
+    links = Link.objects.filter(Q(target__in=moved) | Q(source__in=moved)).exclude(target=None)
+    for link in links.select_related('target'):
         targets.setdefault(link.source_id, {})[link.reference] = link.target
     rewritten = set()
     for source in Page.objects.filter(pk__in=targets):
-        body = _rewrite(source.body, targets[source.pk])
+        body = _rewrite(source.body, targets[source.pk], before=moved.get(source.pk, source.path), now=source.path)
         if body != source.body:
             source.body = body
             source.save()
@@ -144,15 +177,17 @@ def follow(moved: dict[int, str]) -> set[int]:
     return rewritten
 
 
-def _rewrite(text: str, targets: dict[str, Page]) -> str:
+def _rewrite(text: str, targets: dict[str, Page], before: str, now: str) -> str:
+    """`text`, of the page at `now`, that was at `before` when its links named `targets`, with each link
+    naming its page as it is now, written the way it was."""
+
     def replace(match):
         written, label = match.groups()
-        old = reference(written)
-        target = targets.get(old)
+        target = targets.get(reference(written, before))
         if target is None:
             return match[0]
-        new = spelling(target, parts=old.count('/') + 1, slugs=written.strip() == old)
-        if reference(new) == old:
+        new = spelling(target, written, now)
+        if reference(new, now) == reference(written, now):
             return match[0]
         return f'[[{new}|{label}]]' if label is not None else f'[[{new}]]'
 
@@ -163,19 +198,35 @@ def _rewrite(text: str, targets: dict[str, Page]) -> str:
     return ''.join(pieces) + text[last:]
 
 
-def spelling(page: Page, parts: int = 1, slugs: bool = False) -> str:
-    """How a link names `page`: the end of its address of at least `parts` parts that finds it, in titles
-    or, if `slugs`, slugs. A title that gives another slug than its page's, or holds what a link cannot,
-    is written as the slug."""
+def spelling(page: Page, written: str = '', base: str | None = None) -> str:
+    """How a link names `page`, the way `written`, a link to it, was written: from the top ("/..."),
+    from `base`, the address of the page it is in ("./...", "../..."), or by as few parts at the end of
+    its address as it had and still find it; in titles or, if `written` was in slugs, slugs. A title that
+    gives another slug than its page's, or holds what a link cannot, is written as its slug."""
+    parts = [part.strip() for part in written.strip().removeprefix('/').split('/')]
+    slugs = bool(written) and all(part in RELATIVE or part == slug_of(part) for part in parts)
     chain = [*page.ancestors(), page]
 
-    def part(each: Page) -> str:
-        if slugs or UNSAFE_RE.search(each.title) or slug_of(each.title) != each.slug:
-            return each.slug
-        return each.title.strip()
+    def spelled(pages: list[Page]) -> list[str]:
+        return [
+            each.slug
+            if slugs or UNSAFE_RE.search(each.title) or slug_of(each.title) != each.slug
+            else each.title.strip()
+            for each in pages
+        ]
 
-    for count in range(min(parts, len(chain)), len(chain) + 1):
-        written = '/'.join(part(each) for each in chain[-count:])
-        if resolve({reference(written)}).get(reference(written)) == page:
-            return written
+    if written.strip().startswith('/'):
+        return '/' + '/'.join(spelled(chain))
+    if parts[0] in RELATIVE and base is not None:
+        here, there = base.split('/'), page.path.split('/')
+        shared = 0
+        while shared < min(len(here), len(there)) and here[shared] == there[shared]:
+            shared += 1
+        up = len(here) - shared
+        return '/'.join(['..'] * up or ['.']) + ''.join(f'/{part}' for part in spelled(chain[shared:]))
+    least = len([part for part in parts if part])
+    for count in range(min(max(least, 1), len(chain)), len(chain) + 1):
+        candidate = '/'.join(spelled(chain[-count:]))
+        if resolve({reference(candidate)}).get(reference(candidate)) == page:
+            return candidate
     return page.path

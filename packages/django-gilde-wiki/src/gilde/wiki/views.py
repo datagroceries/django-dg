@@ -65,7 +65,7 @@ def page(request, path):
         if former is not None:
             return redirect(former.page)
         return _missing(request, path)
-    html, headings = markdown.render_document(found.body)
+    html, headings = markdown.render_document(found.body, context={'wiki_page': found})
     last_change = _last_change(found)
     context = {
         'page': found,

@@ -30,7 +30,7 @@ class LinkTests(WikiTestCase):
 
         self.assertInHTML(
             '<a class="wk-missing" href="/gilde/wiki/engineering/release-notes/?title=Release+notes" '
-            'title="No such page yet" rel="noopener noreferrer">Engineering/Release notes</a>',
+            'title="No such page yet" rel="noopener noreferrer">Release notes</a>',
             html,
         )
         response = self.client.get('/gilde/wiki/engineering/release-notes/?title=Release+notes')
@@ -163,3 +163,81 @@ class ArrangeTests(WikiTestCase):
         self.assertEqual(self.arrange(self.first, parent=under).status_code, 400)
         self.assertEqual(self.arrange(self.second, before=under).status_code, 400)
         self.assertEqual(self.titles(), ['First', 'Second', 'Third'])
+
+
+class PlacedLinkTests(WikiTestCase):
+    """Links from the top ("/...") and from the page they are in ("./...", "../...")."""
+
+    def setUp(self):
+        super().setUp()
+        self.engineering = self.make_page('Engineering')
+        self.deploying = self.make_page('Deploying', self.engineering)
+        self.rollback = self.make_page('Rollback', self.deploying)
+        self.top = self.make_page('Deploying')
+
+    def html(self, page):
+        return self.client.get(page.get_absolute_url()).content.decode()
+
+    def test_a_whole_address_names_that_page_only(self):
+        self.assertIn('href="/gilde/wiki/deploying/"', markdown.render('[[/Deploying]]'))
+        self.assertIn('href="/gilde/wiki/engineering/deploying/"', markdown.render('[[/Engineering/Deploying]]'))
+        self.assertIn('class="wk-missing"', markdown.render('[[/Rollback]]'))
+
+    def test_links_from_the_page_they_are_in(self):
+        self.deploying.body = '[[./Rollback]], [[..]], [[../../Deploying|the other]] and [[./Checks]]'
+        self.deploying.save()
+
+        html = self.html(self.deploying)
+
+        self.assertIn(
+            '<a href="/gilde/wiki/engineering/deploying/rollback/" rel="noopener noreferrer">Rollback</a>', html
+        )
+        self.assertIn('<a href="/gilde/wiki/engineering/" rel="noopener noreferrer">Engineering</a>', html)
+        self.assertIn('<a href="/gilde/wiki/deploying/" rel="noopener noreferrer">the other</a>', html)
+        self.assertIn('href="/gilde/wiki/engineering/deploying/checks/?title=Checks"', html)
+        self.assertEqual(
+            set(Link.objects.filter(source=self.deploying).values_list('reference', 'target')),
+            {
+                ('/engineering/deploying/rollback', self.rollback.pk),
+                ('/engineering', self.engineering.pk),
+                ('/deploying', self.top.pk),
+                ('/engineering/deploying/checks', None),
+            },
+        )
+
+    def test_outside_a_page_a_relative_link_stays_text(self):
+        self.assertEqual(markdown.render('[[./Rollback]]'), '<p>[[./Rollback]]</p>')
+
+    def test_relative_links_stay_as_they_are_when_their_pages_move_together(self):
+        self.deploying.body = 'See [[./Rollback]].'
+        self.deploying.save()
+        operations = self.make_page('Operations')
+
+        self.deploying.parent = operations
+        self.deploying.save()
+
+        self.deploying.refresh_from_db()
+        self.assertEqual(self.deploying.body, 'See [[./Rollback]].')
+        self.assertEqual(Link.objects.get(source=self.deploying).target, self.rollback)
+
+    def test_a_relative_link_follows_when_the_page_it_is_in_moves(self):
+        self.rollback.body = 'Back to [[../../../Onboarding]] or [[/Engineering]].'
+        self.rollback.save()
+        onboarding = self.make_page('Onboarding')
+
+        self.rollback.parent = self.engineering
+        self.rollback.save()
+
+        self.rollback.refresh_from_db()
+        self.assertEqual(self.rollback.body, 'Back to [[../../Onboarding]] or [[/Engineering]].')
+        self.assertEqual(Link.objects.get(source=self.rollback, reference='/onboarding').target, onboarding)
+
+    def test_a_relative_and_a_whole_link_follow_a_renamed_page(self):
+        self.engineering.body = '[[./Deploying/Rollback]] and [[/engineering/deploying]]'
+        self.engineering.save()
+
+        self.deploying.title = 'Shipping'
+        self.deploying.save()
+
+        self.engineering.refresh_from_db()
+        self.assertEqual(self.engineering.body, '[[./Shipping/Rollback]] and [[/engineering/shipping]]')

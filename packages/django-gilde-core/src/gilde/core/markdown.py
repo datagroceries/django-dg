@@ -41,13 +41,18 @@ class Reference(Treeprocessor):
     left alone, and only what names something real is marked: "UTF-8" or "SHA-256" stay text.
 
     `name` and `priority` place it among Python-Markdown's tree processors; `classes` are the classes its
-    elements may keep through sanitising, as {tag: {class, ...}}.
+    elements may keep through sanitising, as {tag: {class, ...}}. `context` is what the caller of `render`
+    said the text belongs to, such as {'wiki_page': page}, so a reference can be relative to it.
     """
 
     name: str
     priority: int = 5
     pattern: re.Pattern
     classes: dict[str, set[str]] = {}  # noqa: RUF012 - read only
+
+    @property
+    def context(self) -> dict:
+        return self.md.gilde_context
 
     def resolve(self, matches: set[str]) -> dict:
         """What each match names, by match; matches that name nothing are left out."""
@@ -177,7 +182,7 @@ def _anchor(value: str, separator: str) -> str:
     return f'h-{toc.slugify(value, separator)}'
 
 
-def _convert(text: str, references: bool, headings: bool) -> tuple[SafeString, list]:
+def _convert(text: str, references: bool, headings: bool, context: dict | None) -> tuple[SafeString, list]:
     md = markdown.Markdown(
         extensions=[
             'fenced_code',
@@ -192,6 +197,7 @@ def _convert(text: str, references: bool, headings: bool) -> tuple[SafeString, l
             *([toc.TocExtension(slugify=_anchor, toc_depth=HEADING_LEVELS)] if headings else []),
         ],
     )
+    md.gilde_context = context or {}
     html = md.convert(text)
     classes = {'li': {'task-list-item'}}
     for reference in REFERENCES if references else ():
@@ -220,18 +226,21 @@ def _anchors_only(tag: str, attribute: str, value: str) -> str | None:
     return value
 
 
-def render(text: str, *, references: bool = True) -> SafeString:
+def render(text: str, *, references: bool = True, context: dict | None = None) -> SafeString:
     """`text` as HTML, with what the installed apps recognise marked up, unless `references` is False, as
-    on a public page whose visitors could not open what they name. nh3 strips whatever raw HTML the
+    on a public page whose visitors could not open what they name. `context` is what the text belongs to,
+    for the references (Reference.context). nh3 strips whatever raw HTML the
     Markdown let through and every class but the references' and the task item's, and makes every input
     that is left a disabled checkbox."""
-    return _convert(text, references, headings=False)[0]
+    return _convert(text, references, headings=False, context=context)[0]
 
 
-def render_document(text: str, *, references: bool = True) -> tuple[SafeString, list[Heading]]:
+def render_document(
+    text: str, *, references: bool = True, context: dict | None = None
+) -> tuple[SafeString, list[Heading]]:
     """`text` as `render` makes it, with an id on each heading, and the headings of levels 2 to 4 for a
     table of contents, in order."""
-    html, tokens = _convert(text, references, headings=True)
+    html, tokens = _convert(text, references, headings=True, context=context)
     found = []
 
     def walk(tokens):
