@@ -88,8 +88,9 @@ work with AI agents.
 
 Each app does a few things one way, on purpose, so some things are left out:
 
-- **It is not a service of its own.** It installs into a Django project; without one, there is nothing
-  to run it in.
+- **It is not a service to sign up for.** It runs in a Django project: one you already have, or a small
+  one of its own when you want only the board and the wiki. DataGroceries' own instance is such a project,
+  a settings file and a URL include ([deploy/web1](deploy/web1/)).
 - **No sprints, estimates in points, due dates, priorities or time tracking**, and no custom fields: a
   ticket's fields are fixed in code. A size (hours, days, weeks) and labels are what there is.
 - **No access per group yet.** Whoever may use the board sees all its groups. Access per group is
@@ -108,6 +109,11 @@ Each app does a few things one way, on purpose, so some things are left out:
   you choose the worker, and no Celery or Redis is needed), its translation machinery for the pages'
   languages, forms, messages and system checks. Whoever
   knows Django already knows how to run DataGroceries.
+- **A good default, and room to integrate fully.** Whatever your project already has its own way, such
+  as its people and their accounts, its sign-in, its permissions, its languages, your agents' ways in,
+  how people hear about things and its layout, DataGroceries does well out of the box, and your project
+  can always take it over entirely. So the apps become part of your project rather than sit beside it: one
+  account, one sign-in, the same language everywhere.
 - **Opinionated.** Each thing works one way, chosen once and the same for everyone, so there is less to
   learn, configure and keep working. Settings exist only to fit DataGroceries into your project, such as who
   your people are or where notifications go, never to have a feature another way.

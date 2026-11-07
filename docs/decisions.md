@@ -223,6 +223,9 @@ Claude still connects with one URL. Worked out in a design proposal, tried in a 
 
 ## 2026-11-07: Hooks, not choices
 
+*Sharpened the same day by "A good default, and room to integrate fully": the defaults may be as
+complete as we like.*
+
 - **A hook the integrator replaces entirely**, with a default that is safe and needs no code for the common
   case, wherever a project may want something its own way. The integrator programs as well as we do, so we
   fill in nothing for them, and we assume nothing about the project beyond Django itself, so the apps fit
@@ -252,3 +255,16 @@ Claude still connects with one URL. Worked out in a design proposal, tried in a 
 - **Slack left core** for a dozen lines in integrating.md, with email for whoever Slack cannot reach.
 - **Not backwards compatible.** 1.0 was a day old, so `DG_NOTIFICATIONS` and `DG_SLACK_BOT_TOKEN` went
   without a transition; the changelog says so.
+
+## 2026-11-07: A good default, and room to integrate fully
+
+- **The point is not that the integrator does everything, but that they can.** Permissions, sign-in for
+  agents and now notifications each raised the question how much DataGroceries should do itself. The
+  answer is the same each time: a default as good as we can make it, needing no code, and a hook through
+  which the project takes the whole thing over, so the apps become part of it rather than sit beside it.
+- **What it is for:** nobody makes an account twice or signs in twice, and no part speaks another
+  language, or shows another time, than the rest of the project.
+- **It replaces "we fill in nothing for them"** in "Hooks, not choices". A choice from a menu of ours is
+  still not a hook. In CONTRIBUTING.md and the README's design principles.
+- **Without a project of its own**, DataGroceries runs in a small one made for it, as its own instance
+  does (`deploy/web1/`). The README says so instead of "nothing to run it in".

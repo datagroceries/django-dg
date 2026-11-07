@@ -52,11 +52,14 @@ One repository, a package per app, each released to PyPI on its own:
   (an app's `operations.py`), so both follow the same rules and notify the same people.
 - **Django first.** What Django has, DataGroceries uses, before a library or code of its own: users, groups and
   permissions, the admin, forms, messages, translation, system checks, `django.tasks`.
-- **Hooks, not choices.** What a project may want its own way is a hook the integrator can replace entirely,
-  such as the `People` class, with a default that is safe and needs no code for the common case. The
-  integrator programs as well as we do, so we fill in nothing for them. Assume nothing about the project
-  beyond Django itself (its user model, login, backends, middleware), so the apps fit into whatever setup is
-  already there.
+- **A good default, and room to integrate fully.** Whatever a project may already have its own way (its
+  people and their accounts, sign-in, permissions, languages, timezones, its agents' ways in, how people
+  hear about things, its layout) works well out of the box, with no code, and is a hook the integrator can
+  replace entirely, such as the `People` class. The default may be as complete as we like; what matters is
+  that a project can always make the apps part of itself, never a second account, a second sign-in, or a
+  page in another language than the rest. A choice from a menu of ours is not a hook. Assume nothing
+  about the project beyond Django itself (its user model, login, backends, middleware), so the apps fit
+  into whatever setup is already there.
 - **Opinionated, not configurable.** Each thing works one way, the right one, for everyone. Settings exist
   only to fit an app into its project (who the people are, its own ways in, where notifications go), never
   to have a feature another way.
