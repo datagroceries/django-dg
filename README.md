@@ -128,6 +128,11 @@ wishes in [GitHub issues](https://github.com/datagroceries/django-dg/issues). A 
 through GitHub, as [SECURITY.md](SECURITY.md) says. To work on DataGroceries itself, start with
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Thanks to Eddy Grid
+
+The board started as Eddy Board, the ticket tracker [Eddy Grid](https://eddygrid.com) built for its own team.
+Eddy Grid kindly agreed to its release as open source, so it can be yours too.
+
 ## Licence
 
 MIT, see [LICENSE](LICENSE).

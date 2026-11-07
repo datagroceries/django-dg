@@ -1,8 +1,9 @@
 # django-dg-board
 
 A kanban ticket tracker for a Django project, that people and AI agents work on together. Part of
-[DataGroceries](https://github.com/datagroceries/django-dg). It started as Eddy Board, Eddy Grid's own tracker, and
-keeps its design.
+[DataGroceries](https://github.com/datagroceries/django-dg). It started as Eddy Board, the tracker
+[Eddy Grid](https://eddygrid.com) built for its own team, which kindly agreed to its release, and keeps its
+design.
 
 ## What it does
 
