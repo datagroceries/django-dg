@@ -648,6 +648,7 @@ def ticket_detail(request, key):
             'feed': build_feed(ticket, request.user),
             'watchers': [watcher.user for watcher in ticket.watchers.select_related('user')],
             'mention_handle': people.handle(request.user),
+            'text_context': {'visible_to': access.visible_to(group)},
             # The groups it may move to, and who may be assigned: those who may read its group.
             'groups': access.groups(request.user, WRITE),
             'users': access.readers(group, people.members(SCOPE)),
@@ -684,6 +685,7 @@ def ticket_peek(request, key):
             'open_blockers': access.mark_hidden(request.user, list(ticket.open_blockers().select_related('column'))),
             'comments': ticket.comments.select_related('author').order_by('-created_at', '-pk')[:PEEK_COMMENTS],
             'comment_count': ticket.comments.count(),
+            'text_context': {'visible_to': access.visible_to(ticket.column.group)},
         },
     )
 

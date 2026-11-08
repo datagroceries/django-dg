@@ -47,7 +47,7 @@
           <i class="bi bi-slash-circle-fill"></i>
           <div class="tk-small">
             <strong>{% translate "Blocked" %}</strong>{% if block_reason %} {% blocktranslate with person=block_reason.author|person %}by {{ person }}{% endblocktranslate %}, <span title="{{ block_reason.created_at|date:'Y-m-d H:i' }}">{{ block_reason.created_at|naturaltime }}</span>{% endif %}
-            {% if block_reason.body %}<div class="tk-prose mt-1">{{ block_reason.body|render_markdown }}</div>{% endif %}
+            {% if block_reason.body %}<div class="tk-prose mt-1">{{ block_reason.body|render_markdown:text_context }}</div>{% endif %}
           </div>
         </div>
       {% endif %}
@@ -61,7 +61,7 @@
       <div class="tk-editable" id="tk-description" data-tk-editable{% if description_form.errors %} data-editing{% endif %}>
         <div class="tk-editable-view">
           <div class="tk-prose flex-grow-1 min-w-0">
-            {% if ticket.description %}{{ ticket.description|render_markdown }}{% else %}<p class="tk-muted fst-italic mb-0">{% translate "No description yet." %}</p>{% endif %}
+            {% if ticket.description %}{{ ticket.description|render_markdown:text_context }}{% else %}<p class="tk-muted fst-italic mb-0">{% translate "No description yet." %}</p>{% endif %}
           </div>
           {% if can.write %}<button type="button" class="tk-edit-button" data-tk-edit title="{% translate 'Edit the description' %}"><i class="bi bi-pencil"></i></button>{% endif %}
         </div>
@@ -207,7 +207,7 @@
                     <a href="#comment-{{ comment.pk }}" class="tk-muted text-decoration-none ms-auto" title="{{ comment.created_at|date:'Y-m-d H:i' }}">{{ comment.created_at|naturaltime }}</a>{% if comment.edited %}<span class="tk-muted">· {% translate "edited" %}</span>{% endif %}
                     <button type="button" class="tk-comment-copy" data-tk-copy-link="#comment-{{ comment.pk }}" title="{% translate 'Copy a link to this comment' %}"><i class="bi bi-link-45deg"></i></button>
                   </div>
-                  {% if comment.body %}<div class="tk-comment-body tk-prose">{{ comment.body|render_markdown }}</div>{% endif %}
+                  {% if comment.body %}<div class="tk-comment-body tk-prose">{{ comment.body|render_markdown:text_context }}</div>{% endif %}
                   {% if can.comment %}
                   <div class="tk-comment-actions">
                     <details class="tk-reply-form">
@@ -230,7 +230,7 @@
                         <div class="tk-small"><strong>{{ reply.author|person }}</strong>{% if reply.via %} <span class="tk-muted">{{ reply.via }}</span>{% endif %}
                           <a href="#comment-{{ reply.pk }}" class="tk-muted text-decoration-none" title="{{ reply.created_at|date:'Y-m-d H:i' }}">{{ reply.created_at|naturaltime }}</a>{% if reply.edited %} <span class="tk-muted">· {% translate "edited" %}</span>{% endif %}
                           <button type="button" class="tk-comment-copy" data-tk-copy-link="#comment-{{ reply.pk }}" title="{% translate 'Copy a link to this reply' %}"><i class="bi bi-link-45deg"></i></button></div>
-                        <div class="tk-prose">{{ reply.body|render_markdown }}</div>
+                        <div class="tk-prose">{{ reply.body|render_markdown:text_context }}</div>
                         {% if can.comment and reply.author == request.user %}{% include 'dg_board/_comment_edit.html' with comment=reply %}{% endif %}
                       </div>
                     </div>

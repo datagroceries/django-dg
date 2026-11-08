@@ -6,6 +6,9 @@
   (`read`, `comment`, `write`, `manage`) and `includes`. By default everyone who may use an app may do
   everything; a project that wants less overrides it. The board asks it.
 - `history.current_request()`: the request a DataGroceries view or API call is serving.
+- **A mention of someone who cannot see the text's subject is muted**, in the text and while it is
+  written, when the app says who can (`visible_to`, in `render`'s context and `people_json`).
+  `render_markdown` takes that context as its argument.
 
 ## 1.1.0 (2026-11-07)
 

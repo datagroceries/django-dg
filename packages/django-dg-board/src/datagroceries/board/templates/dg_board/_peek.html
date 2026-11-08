@@ -30,7 +30,7 @@
 </div>
 
 <div class="tk-prose">
-  {% if ticket.description %}{{ ticket.description|render_markdown }}{% else %}<p class="tk-muted fst-italic">{% translate "No description yet." %}</p>{% endif %}
+  {% if ticket.description %}{{ ticket.description|render_markdown:text_context }}{% else %}<p class="tk-muted fst-italic">{% translate "No description yet." %}</p>{% endif %}
 </div>
 
 {% if relations %}
@@ -59,7 +59,7 @@
       {% if comment.sets_blocked is True %}<span class="tk-chip tk-chip-blocked"><i class="bi bi-slash-circle"></i> {% translate "blocked the ticket" %}</span>{% elif comment.sets_blocked is False %}<span class="tk-chip"><i class="bi bi-check-circle tk-cat-done"></i> {% translate "unblocked the ticket" %}</span>{% endif %}
       <a href="{{ ticket.get_absolute_url }}#comment-{{ comment.pk }}" class="tk-muted text-decoration-none" title="{{ comment.created_at|date:'Y-m-d H:i' }}">{{ comment.created_at|naturaltime }}</a>
     </div>
-    {% if comment.body %}<div class="tk-prose">{{ comment.body|render_markdown }}</div>{% endif %}
+    {% if comment.body %}<div class="tk-prose">{{ comment.body|render_markdown:text_context }}</div>{% endif %}
   </div>
 {% empty %}
   <p class="tk-small tk-muted">{% translate "No comments yet." %}</p>

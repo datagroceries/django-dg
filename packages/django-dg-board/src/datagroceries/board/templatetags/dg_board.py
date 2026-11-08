@@ -6,6 +6,7 @@ from django.forms.formsets import BaseFormSet
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+from datagroceries.board import access
 from datagroceries.board.conf import SCOPE
 from datagroceries.core import mentions, people
 
@@ -24,10 +25,10 @@ def tracker_name() -> str:
 
 
 @register.simple_tag
-def mention_people():
+def mention_people(ticket=None):
     """The colleagues an @-mention reaches, as JSON for the editor's autocomplete: each with the handle that
-    reaches them, as notifications.mentioned_users reads it."""
-    return mentions.people_json(SCOPE)
+    reaches them, as notifications.mentioned_users reads it, and on a ticket whether they can see it."""
+    return mentions.people_json(SCOPE, access.visible_to(ticket.column.group) if ticket else None)
 
 
 @register.filter

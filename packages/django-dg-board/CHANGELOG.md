@@ -9,6 +9,7 @@ Needs the next django-dg-core, for `People.may`.
   does not see its tickets anywhere, a relation to one shows as a ticket they cannot see, and they
   neither hear about it nor can be assigned it. Controls show only to whoever may use them. By default
   nothing changes: whoever may use the board may do everything.
+- An @-mention on a ticket of someone who may not read it is muted, in the text and in the editor.
 
 ## 1.1.0 (2026-11-07)
 

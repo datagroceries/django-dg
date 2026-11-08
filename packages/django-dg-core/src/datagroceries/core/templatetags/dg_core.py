@@ -20,9 +20,10 @@ def person_name(user) -> str:
 
 
 @register.filter
-def render_markdown(text: str) -> str:
-    """Markdown as every DataGroceries app shows it (datagroceries.core.markdown)."""
-    return markdown.render(text)
+def render_markdown(text: str, context: dict | None = None) -> str:
+    """Markdown as every DataGroceries app shows it (datagroceries.core.markdown), with what the text
+    belongs to as `context` (Reference.context), such as {'visible_to': ...} for its mentions."""
+    return markdown.render(text, context=context or None)
 
 
 @register.simple_tag

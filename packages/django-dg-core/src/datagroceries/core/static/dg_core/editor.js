@@ -6,12 +6,14 @@
 
 // @-mentions, when the page lists the people they may reach as JSON in #dg-mention-people: "@" and the
 // start of a handle, first or last name lists the colleagues it may mean; ↑/↓ choose, Enter or Tab fill in
-// the handle that reaches them, Esc closes. Not in code.
+// the handle that reaches them, Esc closes. Not in code. Those marked unseen cannot see what is written on,
+// and are muted, in the list and in the text.
 const mentionList = document.getElementById('dg-mention-people');
 const mentionPeople = mentionList ? JSON.parse(mentionList.textContent) : [];
 // "@" and what follows it up to the cursor, where a mention can start: not inside a word or an email address.
 const MENTION_BEFORE_CURSOR = /(?:^|[^\w@.])@([\w.-]*)$/;
 const mentionHandles = new Set(mentionPeople.map((person) => person.handle));
+const unseenHandles = new Set(mentionPeople.filter((person) => person.unseen).map((person) => person.handle));
 
 // Marks each @handle that reaches a colleague while it is written, read as notifications.MENTION_RE reads
 // it: in any case, not after a letter, "@" or ".", and without a sentence's closing full stop.
@@ -23,7 +25,7 @@ const mentionOverlay = {
       const handle = found[1].replace(/\.+$/, '');
       if (mentionHandles.has(handle.toLowerCase())) {
         stream.backUp(found[1].length - handle.length);
-        return 'dg-mention';
+        return unseenHandles.has(handle.toLowerCase()) ? 'dg-mention dg-mention-unseen' : 'dg-mention';
       }
       return null;
     }
@@ -58,6 +60,7 @@ function attachMentions(cm) {
     menu.replaceChildren(...matches.map((person, index) => {
       const item = document.createElement('li');
       item.classList.toggle('active', index === active);
+      item.classList.toggle('dg-unseen', Boolean(person.unseen));
       const name = document.createElement('span');
       name.textContent = person.name;
       const handle = document.createElement('span');

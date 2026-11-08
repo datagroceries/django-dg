@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 21:51+0100\n"
+"POT-Creation-Date: 2026-11-08 09:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -17,11 +17,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: mentions.py:56
+#: mentions.py:67
 msgid "Type the start of a name to mention a colleague, who hears about it."
 msgstr ""
 "Typ het begin van een naam om een collega te noemen; die krijgt er bericht "
 "van."
+
+#: mentions.py:79
+#, python-format
+msgid "%(person)s cannot see this"
+msgstr "%(person)s kan dit niet zien"
 
 #: templates/dg_core/_markdown_help.html:7
 #: templates/dg_core/_markdown_help.html:8

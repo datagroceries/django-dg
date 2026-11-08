@@ -22,6 +22,12 @@ def may(user, right: str, group: Group | None) -> bool:
     return user is not None and people.may_use(user, SCOPE) and people.may(user, right, group)
 
 
+def visible_to(group: Group):
+    """Whether a person may read `group`'s tickets, as a function of them: for a ticket's text to mute the
+    @-mentions of people who cannot see it (datagroceries.core.mentions)."""
+    return lambda user: may(user, READ, group)
+
+
 def groups(user, right: str = READ) -> list[Group]:
     """The groups in which `user` has `right`, in the board's order; none for no user, as outside a request."""
     if user is None or not people.may_use(user, SCOPE):

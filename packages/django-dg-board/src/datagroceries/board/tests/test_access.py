@@ -225,6 +225,26 @@ class PeopleTests(AccessTestCase):
         self.assertEqual(anna.patch(f'{API}{self.sales.key}/', {'assignee': 'bob'}, format='json').status_code, 200)
 
 
+class MentionTests(AccessTestCase):
+    def test_a_mention_of_someone_who_cannot_see_the_ticket_is_muted(self):
+        self.client.force_login(self.anna)
+        Comment.objects.create(ticket=self.secret, author=self.anna, body='@bob and @anna, have a look')
+
+        page = self.client.get(self.secret.get_absolute_url())
+
+        self.assertContains(page, '<span class="dg-mention dg-mention-unseen" title="Bob cannot see this">@bob</span>')
+        self.assertContains(page, '<span class="dg-mention" title="Anna">@anna</span>')
+        self.assertContains(page, '{"handle": "bob", "name": "Bob", "unseen": true}')
+        self.assertContains(page, '{"handle": "anna", "name": "Anna"}')
+
+    def test_a_mention_of_someone_who_can_see_it_is_not(self):
+        Comment.objects.create(ticket=self.sales, author=self.anna, body='@bob, have a look')
+
+        page = self.client.get(reverse('dg_board:ticket_peek', args=[self.sales.key]))
+
+        self.assertContains(page, '<span class="dg-mention" title="Bob">@bob</span>')
+
+
 class RightsTests(TestCase):
     def test_each_right_includes_the_ones_before_it(self):
         self.assertTrue(people.includes('write', 'comment'))
