@@ -1,6 +1,6 @@
 # Changelog of django-dg-core
 
-## Unreleased
+## 1.2.0 (2026-11-08)
 
 - **What someone may do per group** is a method of `People`, `may(user, right, group)`, with `RIGHTS`
   (`read`, `comment`, `write`, `manage`) and `includes`. By default everyone who may use an app may do

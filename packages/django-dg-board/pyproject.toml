@@ -1,6 +1,6 @@
 [project]
 name = "django-dg-board"
-version = "1.1.0"
+version = "1.2.0"
 description = "A kanban ticket tracker for Django that people and AI agents work on together."
 readme = "README.md"
 license = "MIT"
@@ -9,7 +9,7 @@ requires-python = ">=3.11"
 authors = [{ name = "Jasper Cramwinckel" }]
 keywords = ["django", "kanban", "ticket tracker", "issue tracker", "mcp", "ai agents"]
 dependencies = [
-    "django-dg-core>=1.1",
+    "django-dg-core>=1.2",
     "Django>=5.2",
     "django-simple-history",
     "markdown",

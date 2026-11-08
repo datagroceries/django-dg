@@ -1,8 +1,8 @@
 # Changelog of django-dg-board
 
-## Unreleased
+## 1.2.0 (2026-11-08)
 
-Needs the next django-dg-core, for `People.may`.
+Needs django-dg-core 1.2.0, for `People.may`.
 
 - **Access per group**, as the project decides in `People.may`: who may read, comment, write or manage
   each group, on the pages and in the API and MCP tools alike (`access.py`). Who may not read a group
