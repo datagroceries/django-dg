@@ -12,18 +12,16 @@
 {% elif not_folder %}
 <p class="wk-muted">{% blocktranslate with url=not_folder.get_absolute_url title=not_folder.title %}No page has the address <code>{{ path }}</code>. It would go in <a href="{{ url }}">{{ title }}</a>, which is a page, not a folder: make it a folder first.{% endblocktranslate %}</p>
 {% elif form %}
-<p class="wk-muted">{% blocktranslate %}No page has the address <code>{{ path }}</code>. Start it?{% endblocktranslate %}
+<p>{% blocktranslate with title=form.title.value %}Start the page <strong>{{ title }}</strong>, at <code>{{ path }}</code>, where the link leads?{% endblocktranslate %}
   {% if parent %}{% blocktranslate with url=parent.get_absolute_url title=parent.title %}It goes under <a href="{{ url }}">{{ title }}</a>.{% endblocktranslate %}{% else %}{% translate "It goes at the top." %}{% endif %}
   {% if folder %}{% translate "It starts as a folder, for pages to go in." %}{% endif %}</p>
 <form method="post" class="wk-narrow">
   {% csrf_token %}
   {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
-  <div class="mb-3">
-    <label class="form-label" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
-    {{ form.title }}
-    {% for error in form.title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-  </div>
+  {% for error in form.title.errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+  {{ form.title }}
   <button type="submit" class="btn btn-primary">{% translate "Create and write" %}</button>
+  <p class="form-text">{% translate "Its title and place are what the link says. Rename or move it once it is there: links to it follow." %}</p>
 </form>
 {% elif possible %}
 <p class="wk-muted">{% blocktranslate %}No page has the address <code>{{ path }}</code>, and you may not start one there.{% endblocktranslate %}</p>

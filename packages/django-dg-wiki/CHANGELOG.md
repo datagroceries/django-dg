@@ -14,9 +14,9 @@ Needs django-dg-core 1.3.0.
 - A link may end in a `/`, which changes nothing: `[[Sales/]]` is `[[Sales]]`, and a link to no page so
   written shows its name instead of nothing. A link to no page with no name to show, as `[[..]]` with no
   page above, stays text as written.
-- Following a link to a page that is not there yet starts it where the link says, no longer under a page
-  of your choice: its title may change only as far as the address stays the same, so the link finds it,
-  and a page above it that is not there either is offered to be started first.
+- Following a link to a page that is not there yet starts it where the link says, with the title it gives,
+  no longer under a page or by a title of your choice, so the link finds it; a page above it that is not
+  there either is offered to be started first.
 - **Pages and folders.** A page is a page of its own or a folder, whose text is the index of the pages in
   it; only a folder has pages in it. A folder's address ends in `/`, a page's does not. "Make it a folder"
   and "Make it a page" (and `folder` in the API and MCP tools) change it, keeping its address and

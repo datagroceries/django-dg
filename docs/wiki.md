@@ -78,9 +78,9 @@ name the same addresses, in one version that says so.
   means one address only, and a page made elsewhere never changes where it goes.
 - A `/` at the end changes nothing: `[[Sales/]]` is `[[Sales]]`. A former address finds its page.
 - A link to a page not there yet shows dashed and red, and leads to where the page can be started, with
-  the title from the link: at the address the link names, so only a title with the same slug will do, and
-  only once the folders above it are there (`StartPageForm`, `views._missing`); at a folder's address, as
-  a folder. A link with no name to show, as `[[..]]` at the top, stays text.
+  the title from the link and at the address it names, neither of them to be chosen there, so the link
+  then finds it; only once the folders above it are there (`StartPageForm`, `views._missing`); at a
+  folder's address, as a folder. It is renamed or moved once it is there, and the links follow. A link with no name to show, as `[[..]]` at the top, stays text.
 
 This rule was the last of three (G-61, G-62): every page a folder made a link to a page beside it
 `[[../Platform]]`; every page a file beside a folder of its name made a link to a page in it repeat the

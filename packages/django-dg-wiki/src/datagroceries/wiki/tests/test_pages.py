@@ -182,7 +182,9 @@ class PageTests(WikiTestCase):
         response = self.client.get('/dg/wiki/engineering/release-notes')
 
         self.assertContains(response, 'No such page yet', status_code=404)
-        self.assertContains(response, 'value="Release notes"', status_code=404)
+        self.assertContains(response, 'type="hidden" name="title" value="Release notes"', status_code=404)
+        self.assertContains(response, 'Start the page <strong>Release notes</strong>', status_code=404)
+        self.assertNotContains(response, 'type="text"', status_code=404)
         self.assertContains(response, f'goes under <a href="{top.get_absolute_url()}">Engineering</a>', status_code=404)
         self.assertNotContains(response, 'name="parent"', status_code=404)
 

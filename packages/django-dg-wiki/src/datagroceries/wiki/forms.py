@@ -63,12 +63,11 @@ class NewPageForm(forms.Form):
 
 
 class StartPageForm(forms.Form):
-    """The page at `path`, an address a link named, under `parent`, the page above it: its place is the
-    address, so only a title that gives the same address will do, or the link would still lead nowhere."""
+    """The page at `path`, an address a link named, under `parent`, the page above it, with the title the
+    link gave it: neither is the starter's to choose, or the link would still lead nowhere. A title that
+    gives another address is refused all the same; a page is renamed once it is there, and links follow."""
 
-    title = forms.CharField(
-        label=_('Title'), max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': True})
-    )
+    title = forms.CharField(max_length=255, widget=forms.HiddenInput)
 
     def __init__(self, *args, path: str, parent: Page | None, **kwargs):
         super().__init__(*args, **kwargs)

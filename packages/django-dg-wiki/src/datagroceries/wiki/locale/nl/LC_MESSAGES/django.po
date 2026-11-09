@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 19:39+0100\n"
+"POT-Creation-Date: 2026-11-09 19:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -33,11 +33,11 @@ msgstr "Bovenaan"
 msgid "Under"
 msgstr "Onder"
 
-#: forms.py:51 forms.py:70 forms.py:193 templates/dg_wiki/page_edit.html:16
+#: forms.py:51 forms.py:192 templates/dg_wiki/page_edit.html:16
 msgid "Title"
 msgstr "Titel"
 
-#: forms.py:83
+#: forms.py:82
 msgid ""
 "That title gives the page another address, so the link would still lead "
 "nowhere. To start a page by another name, use “New page”."
@@ -45,23 +45,23 @@ msgstr ""
 "Die titel geeft de pagina een ander adres, dus dan leidt de link nog steeds "
 "nergens heen. Begin een pagina met een andere naam met “Nieuwe pagina”."
 
-#: forms.py:98
+#: forms.py:97
 msgid "No language said"
 msgstr "Geen taal opgegeven"
 
-#: forms.py:121 forms.py:189
+#: forms.py:120 forms.py:188
 msgid "Language"
 msgstr "Taal"
 
-#: forms.py:155
+#: forms.py:154
 msgid "That place is not in the tree."
 msgstr "Die plek staat niet in de boom."
 
-#: forms.py:170
+#: forms.py:169
 msgid "Leave a comment."
 msgstr "Schrijf een reactie."
 
-#: forms.py:196
+#: forms.py:195
 msgid "The title in that language."
 msgstr "De titel in die taal."
 
@@ -265,7 +265,7 @@ msgstr "Antwoorden"
 msgid "Comment"
 msgstr "Reageren"
 
-#: templates/dg_wiki/_new_page_form.html:14 templates/dg_wiki/missing.html:26
+#: templates/dg_wiki/_new_page_form.html:14 templates/dg_wiki/missing.html:23
 msgid "Create and write"
 msgstr "Maken en schrijven"
 
@@ -360,8 +360,12 @@ msgstr ""
 
 #: templates/dg_wiki/missing.html:15
 #, python-format
-msgid "No page has the address <code>%(path)s</code>. Start it?"
-msgstr "Geen pagina heeft het adres <code>%(path)s</code>. Beginnen?"
+msgid ""
+"Start the page <strong>%(title)s</strong>, at <code>%(path)s</code>, where "
+"the link leads?"
+msgstr ""
+"De pagina <strong>%(title)s</strong> beginnen, op <code>%(path)s</code>, "
+"waar de link heen gaat?"
 
 #: templates/dg_wiki/missing.html:16
 #, python-format
@@ -376,7 +380,15 @@ msgstr "De pagina komt bovenaan."
 msgid "It starts as a folder, for pages to go in."
 msgstr "De pagina begint als map, voor pagina's erin."
 
-#: templates/dg_wiki/missing.html:29
+#: templates/dg_wiki/missing.html:24
+msgid ""
+"Its title and place are what the link says. Rename or move it once it is "
+"there: links to it follow."
+msgstr ""
+"De titel en de plek komen uit de link. Hernoem of verplaats de pagina als ze "
+"er is: links ernaartoe gaan mee."
+
+#: templates/dg_wiki/missing.html:27
 #, python-format
 msgid ""
 "No page has the address <code>%(path)s</code>, and you may not start one "
@@ -385,7 +397,7 @@ msgstr ""
 "Geen pagina heeft het adres <code>%(path)s</code>, en je mag er geen "
 "beginnen."
 
-#: templates/dg_wiki/missing.html:31
+#: templates/dg_wiki/missing.html:29
 #, python-format
 msgid ""
 "No page has the address <code>%(path)s</code>, and none can: no title gives "
