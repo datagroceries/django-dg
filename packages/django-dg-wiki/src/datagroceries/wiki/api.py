@@ -215,7 +215,7 @@ class PageDetailView(WikiApiView):
                         'Read it again, put the two together, and send the change with the new version.'
                     )
                 if texts['title'] != page.title:
-                    renamed = Page(pk=page.pk, title=texts['title'], parent=page.parent, slug=page.slug, path=page.path)
+                    renamed = Page(pk=page.pk, title=texts['title'], parent=page.parent, path=page.path)
                     renamed.folder = page.folder
                     try:
                         renamed.clean()

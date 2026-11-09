@@ -82,7 +82,7 @@ class LinkTests(WikiTestCase):
         self.assertEqual(onboarding.body, '[[/Engineering/Shipping]], [[/engineering/shipping]], [[Sales/]]')
 
     def test_a_link_to_no_page_with_no_name_to_show_stays_as_written(self):
-        draft = Page(title='Draft', slug='draft', path='drafts/draft')
+        draft = Page(title='Draft', path='drafts/draft')
 
         html = self.on(draft, '[[..]], [[./]] and [[../New]]')
 

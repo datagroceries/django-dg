@@ -95,10 +95,10 @@ class Page(models.Model):
 
     Its address is its `path`, the slugs of its ancestors and its own: "engineering/deploying". On the site a
     folder's ends in "/" and a page's does not, so a relative link lands in a browser where it does in the
-    wiki: in the folder it is written in (`folder_path`, datagroceries.wiki.links). Saving
-    keeps the slug after the title and the paths of the page and everything under it up to date; the
-    addresses they had before keep leading to them (FormerPath), and links to them in other pages follow
-    (datagroceries.wiki.links).
+    wiki: in the folder it is written in (`folder_path`, datagroceries.wiki.links). The end of its address,
+    its `slug`, is its title as a slug, kept only in the address. Saving keeps it after the title, and the
+    paths of the page and everything under it up to date; the addresses they had before keep leading to them
+    (FormerPath), and links to them in other pages follow (datagroceries.wiki.links).
     """
 
     parent = models.ForeignKey(
@@ -111,11 +111,6 @@ class Page(models.Model):
     )
     position = models.PositiveIntegerField(default=0, help_text='Its place among the pages beside it, lowest first.')
     title = models.CharField(_('title'), max_length=255)
-    slug = models.SlugField(
-        max_length=SLUG_LENGTH,
-        editable=False,
-        help_text='The title as the end of the address, unique among the pages beside it.',
-    )
     path = models.CharField(max_length=PATH_LENGTH, unique=True, editable=False)
     folder = models.BooleanField(_('folder'), default=False, help_text='A folder of pages, its text their index.')
     body = models.TextField(_('text'), blank=True, default='', help_text=_('Markdown. [[Page title]] links to a page.'))
@@ -152,8 +147,7 @@ class Page(models.Model):
         self.__dict__.pop('known_ancestors', None)
         with transaction.atomic():
             before = Page.objects.filter(pk=self.pk).values_list('path', flat=True).first() if self.pk else None
-            self.slug = self._free_slug()
-            self.path = self._new_path(self.slug)
+            self.path = self._new_path(self._free_slug())
             # A page now at an address another one had takes it over.
             FormerPath.objects.filter(path=self.path).delete()
             super().save(*args, **kwargs)
@@ -204,7 +198,7 @@ class Page(models.Model):
         if not self.folder and self.pk and self.children.exists():
             raise ValidationError(_('Only a folder has pages in it: move or delete them first.'))
         # One name per folder, as in a file system: a link names one page only.
-        siblings = Page.objects.filter(parent=self.parent_id, slug=slug_of(self.title) or 'page').exclude(pk=self.pk)
+        siblings = Page.objects.filter(path=self._new_path(slug_of(self.title) or 'page')).exclude(pk=self.pk)
         if siblings.exists():
             raise ValidationError(_('There is already a page called “%(title)s” here.') % {'title': siblings.first()})
         deepest = max([len(path) for path in self.descendants().values_list('path', flat=True)] or [0])
@@ -212,14 +206,21 @@ class Page(models.Model):
         if len(self._new_path(self._free_slug())) + below > PATH_LENGTH:
             raise ValidationError(_('This page would be too deep in the tree, or its title too long, for an address.'))
 
+    @property
+    def slug(self) -> str:
+        """The end of its address: its title as a slug, kept nowhere else."""
+        return self.path.rpartition('/')[2]
+
     def _new_path(self, slug: str) -> str:
         return f'{self.parent.path}/{slug}' if self.parent else slug
 
     def _free_slug(self) -> str:
-        """The title as a slug, with -2, -3 and so on when a page beside this one has it already. A page
+        """The title as a slug; with -2, -3 and so on when a page beside this one has it already, which only
+        a page made without its form can come to, as the forms refuse a name that is taken (`clean`). A page
         keeps its slug while its title gives the same one."""
         base = slug_of(self.title) or 'page'
-        taken = set(Page.objects.filter(parent=self.parent_id).exclude(pk=self.pk).values_list('slug', flat=True))
+        beside = Page.objects.filter(parent=self.parent_id).exclude(pk=self.pk).values_list('path', flat=True)
+        taken = {path.rpartition('/')[2] for path in beside}
         if self.slug and re.fullmatch(rf'{re.escape(base)}(-\d+)?', self.slug) and self.slug not in taken:
             return self.slug
         slug, number = base, 1

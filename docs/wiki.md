@@ -46,8 +46,10 @@ part of a page one job, sparing with features. On top of those:
 
 ## How it works
 
-**Models.** `Page` has a `parent`, a `position` among the pages beside it, a `slug` from its title,
-unique among them, and a `path`, the slugs of its ancestors and its own, unique in the wiki. `Page.save`
+**Models.** `Page` has a `parent`, a `position` among the pages beside it, a `title`, and a `path`, the
+slugs of its ancestors and its own, unique in the wiki. A page's slug, its title as a slug, is kept only as
+the end of its `path`: the title is the one source, the path a copy kept for finding a page by its address
+in one look-up. `Page.save`
 keeps them right: a new title or parent gives a new path to the page and everything under it, and each
 old path becomes a `FormerPath`, which leads to the page until a page takes that address. The wiki's own
 pages are under `-/` (`dg/wiki/-/search/`, `.../deploying/-/edit/`), which no page's address can be, as

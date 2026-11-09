@@ -80,7 +80,7 @@ def resolve(references: set[str]) -> dict[str, Page]:
     are left out."""
     references = {reference for reference in references if reference}
     paths = {reference.removeprefix('/') for reference in references}
-    fields = ('id', 'parent_id', 'title', 'slug', 'path', 'folder')
+    fields = ('id', 'parent_id', 'title', 'path', 'folder')
     at = {page.path: page for page in Page.objects.filter(path__in=paths).only(*fields)}
     if rest := paths - at.keys():
         formers = FormerPath.objects.filter(path__in=rest).select_related('page')

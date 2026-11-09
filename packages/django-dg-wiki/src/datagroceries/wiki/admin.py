@@ -8,7 +8,7 @@ from datagroceries.wiki.models import Attachment, FormerPath, Page
 class PageAdmin(SimpleHistoryAdmin):
     list_display = ('title', 'path', 'updated_at')
     search_fields = ('title', 'path')
-    readonly_fields = ('slug', 'path')
+    readonly_fields = ('path',)
     raw_id_fields = ('parent', 'creator')
 
 
