@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 from datagroceries.wiki import access, links, notifications
 from datagroceries.wiki.access import COMMENT, WRITE
-from datagroceries.wiki.models import TOP, Attachment, Comment, Page, TopText
+from datagroceries.wiki.models import TOP, Attachment, Comment, Page
 
 
 def _last_position(parent: Page | None) -> int:
@@ -32,15 +32,6 @@ def create(request, title: str, parent: Page | None = None, body: str = '', fold
         notifications.written(request, page, '')
     access.forget()
     return page
-
-
-def write_top(request, body: str) -> TopText:
-    """The wiki's own text, its start page."""
-    access.require(request.user, WRITE, TOP)
-    text = TopText.current()
-    text.body = body
-    text.save()
-    return text
 
 
 def write(request, page: Page, title: str, body: str, language: str | None = None):

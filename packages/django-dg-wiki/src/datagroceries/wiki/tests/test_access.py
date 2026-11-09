@@ -217,11 +217,6 @@ class WriteTests(AccessTestCase):
         self.assertEqual(missing.status_code, 404)
         self.assertNotContains(missing, 'Acquisitions', status_code=404)
 
-    def test_the_start_page_is_changed_only_by_who_may_write_at_the_top(self):
-        self.assertNotContains(self.client.get(reverse('dg_wiki:home')), 'Write a welcome')
-        self.assertEqual(self.client.get(reverse('dg_wiki:home_edit')).status_code, 403)
-        self.assertEqual(self.api.patch(f'{API.removesuffix("pages/")}start/', {'body': 'Mine'}).status_code, 403)
-
     def test_a_translation_goes_only_where_one_may_write(self):
         Page.objects.filter(pk__in=[self.legal.pk, self.infra.pk]).update(language='en')
         refused = self.api.post(f'{API}legal/-/translations/', {'language': 'nl', 'title': 'Juridisch'})

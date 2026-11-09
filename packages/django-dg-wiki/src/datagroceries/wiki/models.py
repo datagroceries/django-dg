@@ -16,6 +16,9 @@ from datagroceries.core import attachments
 from datagroceries.wiki import conf  # noqa: F401 - the wiki's settings, with their defaults
 
 SLUG_LENGTH = 100
+# The name of a folder's own text, and of the page at the top the wiki starts with: as a site's index.html,
+# by a name everyone reads.
+HOME = 'home'
 PATH_LENGTH = 500
 
 
@@ -68,27 +71,17 @@ class Version(models.Model):
 
 
 class Top:
-    """The wiki's top, the folder above every page: whoever may write here may make a page at the top, and
-    change its text (TopText), the wiki's start page (datagroceries.wiki.access). There is one, `TOP`."""
+    """The wiki's top, above every page: whoever may write here may make a page at the top
+    (datagroceries.wiki.access). There is one, `TOP`."""
 
     pk = None
     path = ''
-    folder_path = ''
-    folder = True
 
     def __str__(self):
         return str(settings.DG_WIKI_NAME)
 
     def __repr__(self):
         return '<the top of the wiki>'
-
-    @property
-    def title(self) -> str:
-        return str(self)
-
-    @property
-    def body(self) -> str:
-        return TopText.current().body
 
     def ancestors(self) -> list:
         return []
@@ -285,23 +278,6 @@ class Attachment(attachments.Attachment):
 
     def get_absolute_url(self):
         return reverse('dg_wiki:attachment', args=[self.pk, self.url_name])
-
-
-class TopText(models.Model):
-    """The text of the wiki's top, as a folder's text is the index of what is in it: the wiki's start page.
-    One at most; none while nobody wrote it."""
-
-    body = models.TextField(_('text'), blank=True, default='', help_text=_('Markdown. [[Page title]] links to a page.'))
-    updated_at = models.DateTimeField(auto_now=True)
-    history = HistoricalRecords()
-
-    def __str__(self):
-        return str(settings.DG_WIKI_NAME)
-
-    @classmethod
-    def current(cls) -> 'TopText':
-        """The text, or an empty one not saved yet."""
-        return cls.objects.first() or cls()
 
 
 class Comment(models.Model):

@@ -130,17 +130,6 @@ class WikiToolTests(TestCase):
         dutch.refresh_from_db()
         self.assertIsNone(dutch.original)
 
-    def test_the_start_page_is_read_and_changed_from_the_version_it_started_from(self):
-        start, error = tool(self.client, 'get_wiki_start')
-        self.assertFalse(error)
-        self.assertEqual((start['body'], start['version']), ('', None))
-
-        changed, error = tool(self.client, 'update_wiki_start', body='Welcome.')
-        self.assertFalse(error)
-        _refused, error = tool(self.client, 'update_wiki_start', body='Again.', version=changed['version'] - 1)
-        self.assertTrue(error)
-        self.assertEqual(tool(self.client, 'get_wiki_start')[0]['body'], 'Welcome.')
-
     def test_search_and_the_tree(self):
         found, _error = tool(self.client, 'search_pages', q='restart')
         self.assertEqual([hit['path'] for hit in found['results']], ['engineering/deploying'])

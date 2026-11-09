@@ -14,7 +14,6 @@ from datagroceries.wiki.api import (
     PageTranslationsView,
     PageVersionView,
     PageWatchView,
-    TopTextView,
 )
 from datagroceries.wiki.conf import SCOPE
 
@@ -56,31 +55,6 @@ PAGE_FIELDS = {
     },
 }
 TOOLS = (
-    Tool(
-        'get_wiki_start',
-        'Read the start page of the wiki',
-        "The wiki's own text, as the top folder's: what everyone sees first, above the pages at the top. Its "
-        'version, for update_wiki_start.',
-        TopTextView,
-        'GET',
-        {},
-    ),
-    Tool(
-        'update_wiki_start',
-        'Change the start page of the wiki',
-        "Replace the wiki's own text. Send the version get_wiki_start gave: it is refused when someone changed "
-        "the text since, so nobody's work is lost.",
-        TopTextView,
-        'PATCH',
-        {
-            'body': {
-                'type': 'string',
-                'description': f'Markdown; replaces the whole text. Links start at the top. {LINKS}',
-            },
-            'version': {'type': 'integer', 'description': 'The version the change starts from, from get_wiki_start.'},
-        },
-        required=('body',),
-    ),
     Tool(
         'search_pages',
         'Search the wiki',

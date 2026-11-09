@@ -11,7 +11,6 @@ started from, and is refused when the page changed since, as on the pages.
 from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
-from django.urls import reverse
 from django.utils.html import strip_tags
 from rest_framework import serializers, status
 from rest_framework.exceptions import APIException, NotFound, PermissionDenied, ValidationError
@@ -21,10 +20,10 @@ from rest_framework.views import APIView
 from datagroceries.core.api import form_errors, person, validated
 from datagroceries.core.authentication import DataGroceriesAuthentication, HasTokenScope
 from datagroceries.wiki import access, links, notifications, operations, search, versions
-from datagroceries.wiki.access import READ, WRITE
+from datagroceries.wiki.access import WRITE
 from datagroceries.wiki.conf import SCOPE
 from datagroceries.wiki.forms import ArrangeForm, CommentForm, LinkForm, NewPageForm, TranslateForm
-from datagroceries.wiki.models import TOP, Page, TopText, flatten
+from datagroceries.wiki.models import TOP, Page, flatten
 
 LIST_LIMIT = 200
 MAX_LIST_LIMIT = 1000
@@ -340,40 +339,3 @@ class PageTranslationsView(WikiApiView):
         page = _find(request, path)
         operations.unlink(request, page)
         return Response(_detail(request, page))
-
-
-class TopTextSerializer(serializers.Serializer):
-    body = serializers.CharField(allow_blank=True, trim_whitespace=False)
-    version = serializers.IntegerField(required=False)
-
-
-def _top(request) -> dict:
-    text = TopText.current()
-    last = text.history.first() if text.pk else None
-    return {
-        'body': text.body,
-        'version': last.history_id if last else None,
-        'url': request.build_absolute_uri(reverse('dg_wiki:home')),
-    }
-
-
-class TopTextView(WikiApiView):
-    def get(self, request):
-        """The wiki's own text, its start page."""
-        if not access.may(request.user, READ, TOP):
-            raise NotFound('No wiki to read.')
-        return Response(_top(request))
-
-    def patch(self, request):
-        """Replace the wiki's own text; refused when it changed since the version this started from."""
-        data = validated(TopTextSerializer, request)
-        with transaction.atomic():
-            text = TopText.current()
-            latest = text.history.first().history_id if text.pk else None
-            if 'version' in data and data['version'] != latest:
-                raise Conflict(
-                    f'The text changed since version {data["version"]}; it is at version {latest} now. Read it '
-                    'again, put the two together, and send the change with the new version.'
-                )
-            operations.write_top(request, data['body'])
-        return Response(_top(request))

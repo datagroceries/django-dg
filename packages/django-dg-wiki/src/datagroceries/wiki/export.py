@@ -15,7 +15,7 @@ import zipfile
 from django.urls import reverse
 
 from datagroceries.wiki import access, links
-from datagroceries.wiki.models import TOP, Attachment, Page
+from datagroceries.wiki.models import HOME, Attachment, Page
 
 
 def _file_re():
@@ -68,17 +68,13 @@ def tree_zip(request, top: Page | None) -> bytes:
     pages = [top, *access.pages(request.user, top.descendants())] if top else list(access.pages(request.user))
     # Under the zip's root, from `top`'s own address on: "deploying.md", "deploying/rollback.md".
     start = top.path.rfind('/') + 1 if top else 0
-    # A folder is its index, as on a site: "engineering/index.md" beside "engineering/deploying.md".
-    inside = {page.pk: f'{page.path[start:]}/index.md' if page.folder else f'{page.path[start:]}.md' for page in pages}
+    # A folder's text is its home, as a site's index.html: "engineering/home.md" beside "engineering/deploying.md".
+    inside = {page.pk: f'{page.path[start:]}/{HOME}.md' if page.folder else f'{page.path[start:]}.md' for page in pages}
     attachments = list(Attachment.objects.filter(page__in=pages))
     files = {}
     for attachment in attachments:
         folder = inside[attachment.page_id].removesuffix('.md') + '.files'
         files[attachment.pk] = f'{folder}/{attachment.pk}-{attachment.url_name}'
-    # The whole wiki's own text is its index, at the top of the zip, as a folder's is in its folder.
-    if top is None and TOP.body:
-        pages.append(TOP)
-        inside[TOP.pk] = 'index.md'
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as archive:
         for page in pages:

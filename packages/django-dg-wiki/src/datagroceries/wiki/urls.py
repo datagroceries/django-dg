@@ -8,7 +8,6 @@ app_name = 'dg_wiki'
 # a dash. A page's address is its path in the tree, so it comes last.
 urlpatterns = [
     path('', views.home, name='home'),
-    path('-/edit/', views.home_edit, name='home_edit'),
     path('-/new/', views.page_create, name='page_create'),
     path('-/search/', views.page_search, name='search'),
     path('-/export/', views.wiki_export, name='wiki_export'),
@@ -16,7 +15,6 @@ urlpatterns = [
     path('-/files/<int:pk>/<str:name>', views.attachment, name='attachment'),
     # The REST API (api.py). A page's own parts come after "-/", as on the pages, so no page's address
     # can be taken for one; the page itself comes last.
-    path('-/api/start/', api.TopTextView.as_view(), name='api_start'),
     path('-/api/pages/', api.PageListCreateView.as_view(), name='api_pages'),
     path('-/api/pages/<path:path>/-/history/', api.PageHistoryView.as_view(), name='api_page_history'),
     path('-/api/pages/<path:path>/-/history/<int:version>/', api.PageVersionView.as_view(), name='api_page_version'),

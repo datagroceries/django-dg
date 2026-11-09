@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from datagroceries.wiki import search
 from datagroceries.wiki.forms import fingerprint
-from datagroceries.wiki.models import Page, TopText
+from datagroceries.wiki.models import Page
 from datagroceries.wiki.tests.test_pages import WikiTestCase
 
 
@@ -75,29 +75,23 @@ class ExportTests(WikiTestCase):
         attachment = self.deploying.attachments.get()
         file_name = f'engineering/deploying.files/{attachment.pk}-shot.png'
         self.assertEqual(
-            sorted(archive.namelist()), sorted(['engineering/index.md', 'engineering/deploying.md', file_name])
+            sorted(archive.namelist()), sorted(['engineering/home.md', 'engineering/deploying.md', file_name])
         )
         self.assertEqual(
-            archive.read('engineering/index.md').decode(),
+            archive.read('engineering/home.md').decode(),
             '# Engineering\n\nSee [Deploying](deploying.md), '
             '[Onboarding](http://testserver/dg/wiki/onboarding) and Nowhere.\n',
         )
         deploying = archive.read('engineering/deploying.md').decode()
-        self.assertIn('Back to [the folder](index.md).', deploying)
+        self.assertIn('Back to [the folder](home.md).', deploying)
         self.assertIn(f'![shot](deploying.files/{attachment.pk}-shot.png)', deploying)
         self.assertEqual(archive.read(file_name), b'\x89PNG')
 
     def test_the_whole_wiki(self):
-        TopText.objects.create(body='Start at [[Onboarding]].')
-
         response = self.client.get(reverse('dg_wiki:wiki_export'))
 
-        archive = zipfile.ZipFile(io.BytesIO(response.content))
-        self.assertEqual(
-            sorted(archive.namelist()),
-            ['engineering/deploying.md', 'engineering/index.md', 'index.md', 'onboarding.md'],
-        )
-        self.assertEqual(archive.read('index.md').decode(), '# Wiki\n\nStart at [Onboarding](onboarding.md).\n')
+        names = zipfile.ZipFile(io.BytesIO(response.content)).namelist()
+        self.assertEqual(sorted(names), ['engineering/deploying.md', 'engineering/home.md', 'onboarding.md'])
 
 
 @override_settings(LANGUAGES=[('en', 'English'), ('nl', 'Nederlands'), ('de', 'Deutsch')])

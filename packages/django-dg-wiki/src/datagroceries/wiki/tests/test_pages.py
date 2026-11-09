@@ -4,8 +4,8 @@ from django.urls import reverse
 
 from datagroceries.core import markdown
 from datagroceries.core.tests import person
-from datagroceries.wiki.forms import fingerprint, top_fingerprint
-from datagroceries.wiki.models import FormerPath, Page, TopText
+from datagroceries.wiki.forms import fingerprint
+from datagroceries.wiki.models import FormerPath, Page
 from datagroceries.wiki.tests import member, page, serving
 
 
@@ -416,33 +416,27 @@ class FolderTests(WikiTestCase):
         self.assertTrue(Page.objects.get(path='engineering').folder)
 
 
-class StartPageTests(WikiTestCase):
-    """The wiki's own text, as the top folder's: its start page."""
+class HomeTests(WikiTestCase):
+    """The wiki starts with its page `home` at the top, an ordinary page, as a site's "/" shows its index.html."""
 
-    def test_the_start_page_shows_the_wiki_s_text_with_links_from_the_top(self):
+    def test_the_wiki_starts_with_its_page_home(self):
+        self.make_page('Home', body='Welcome.')
+
+        self.assertRedirects(self.client.get(reverse('dg_wiki:home')), '/dg/wiki/home')
+
+    def test_until_there_is_one_it_shows_what_changed_and_says_so(self):
         self.make_page('Onboarding')
-        self.client.post(
-            reverse('dg_wiki:home_edit'), {'body': 'Welcome. Start at [[Onboarding]].', 'original': top_fingerprint('')}
-        )
 
         response = self.client.get(reverse('dg_wiki:home'))
 
-        self.assertContains(
-            response, 'Welcome. Start at <a href="/dg/wiki/onboarding" rel="noopener noreferrer">Onboarding</a>.'
-        )
-        self.assertContains(response, 'In the wiki')
-        self.assertEqual(TopText.objects.get().history.count(), 1)
+        self.assertContains(response, 'A page called <code>home</code> at the top of the wiki is shown here instead')
+        self.assertContains(response, 'href="/dg/wiki/home?title=Home"')
+        self.assertContains(response, 'Recently changed')
 
-    def test_with_no_text_yet_a_writer_is_asked_for_one(self):
-        self.assertContains(self.client.get(reverse('dg_wiki:home')), 'Write a welcome for the wiki')
+    def test_a_page_home_in_a_folder_is_no_start_page(self):
+        self.make_page('Home', self.make_page('Engineering', folder=True))
 
-    def test_a_save_on_top_of_someone_else_s_is_refused(self):
-        TopText.objects.create(body='Theirs.')
-
-        response = self.client.post(reverse('dg_wiki:home_edit'), {'body': 'Mine.', 'original': top_fingerprint('')})
-
-        self.assertContains(response, 'Someone saved the text while you were editing it.')
-        self.assertEqual(TopText.objects.get().body, 'Theirs.')
+        self.assertEqual(self.client.get(reverse('dg_wiki:home')).status_code, 200)
 
 
 class AccessTests(WikiTestCase):

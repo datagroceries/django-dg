@@ -122,9 +122,9 @@ page now has. The pages so rewritten are saved, each with a version of its own. 
   comment watch of themselves.
 - Search (`search.py`) is `icontains` on every word, so it runs on any database; pages with the words in
   their title come first. Its text around the first word leaves Markdown's marks out.
-- The wiki's start page is the wiki's own text (`TopText`, one at most), as the top folder's, as every
-  folder's text is the index of what is in it: no setting names a page for it. Its links start at the top,
-  `write` on `TOP` changes it, and a save on top of someone else's is refused, as a page's.
+- The wiki starts with its page `home` at the top (`views.home`), an ordinary page like every other, as a
+  site's `/` shows its `index.html`; no setting names it. Until there is one, the start shows what changed
+  lately and says so. A folder's own text is `home.md` in a download, beside the pages in it.
 - A page with a language can have versions in other languages ("In another language"; not "Translate",
   as the wiki writes no translation itself): a new page beside it, starting from its text to translate, or
   a page already there, in another language and linked to no others. A version can be unlinked again. A

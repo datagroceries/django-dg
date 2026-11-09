@@ -336,7 +336,7 @@ in, and not every page is a folder.*
 - **Inside, one kind of thing**: a page with a flag, `folder`, rather than files and folders of their own,
   or an "index" page per folder. The tree, rights per page (G-56), history and dragging stay as they were.
 - **A folder's address ends in "/"**, a page's does not, so that the browser agrees with the wiki on every
-  relative link, and a download is a real folder (`index.md`) that works on GitHub or MkDocs as it is.
+  relative link, and a download is a real folder, its text `home.md`.
 
 ## 2026-11-09: Versions in other languages; one name per folder (G-64)
 
@@ -350,11 +350,13 @@ in, and not every page is a folder.*
   called Platform confused, and with exact addresses `[[Platform]]` finds only one of two pages of a name;
   the second is refused rather than made `platform-2`.
 
-## 2026-11-09: The wiki's own text is its start page (G-65)
+## 2026-11-09: The wiki starts with its page "home" (G-65)
 
-- **No setting, no page pointed at.** A setting naming the start page would be a feature another way
-  (CONTRIBUTING: settings only fit an app into its project), and would stop counting when that page was
-  renamed. Every folder's text is the index of what is in it; the wiki is the top folder, so its text is
-  the start page, as a site's `/` shows the `index.html` of its top folder.
-- **Not a page in the tree**: a model of its own, `TopText`, so the tree, rights and addresses of pages
-  need no page without a place. Who may write at the top may change it.
+- **An ordinary page, not a text of its own.** The start page was first the wiki's own text, as the top
+  folder's (TopText), but it lacked what every page has, comments, a language, versions; Jasper wanted it
+  to be a page with exactly the same workings, or none. So the wiki starts with its page `home` at the top,
+  as a site's `/` shows its `index.html`; until there is one, with what changed lately, as before.
+- **"home", not "index"**: a name everyone reads in the tree, and the same for a folder's own text in a
+  download (`home.md`), though tools such as MkDocs look for `index.md`.
+- **No setting names it**: a setting would be a feature another way, and would stop counting when the page
+  was renamed.
