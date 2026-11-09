@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 19:48+0100\n"
+"POT-Creation-Date: 2026-11-09 19:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -272,6 +272,10 @@ msgstr "Maken en schrijven"
 #: templates/dg_wiki/_tree.html:1
 msgid "No pages yet."
 msgstr "Nog geen pagina's."
+
+#: templates/dg_wiki/_tree_nodes.html:8
+msgid "Nothing in it yet"
+msgstr "Nog leeg"
 
 #: templates/dg_wiki/_version_head.html:6
 #: templates/dg_wiki/page_history.html:15

@@ -266,9 +266,7 @@ class PageTests(WikiTestCase):
         response = self.client.get(below.get_absolute_url()).content.decode()
 
         self.assertEqual(response.count('<details open>'), 2)
-        self.assertIn(
-            'aria-current="page"><i class="bi bi-folder2 wk-folder" aria-hidden="true"></i>Deploying</a>', response
-        )
+        self.assertIn('aria-current="page">Deploying</a>', response)
 
 
 class FolderTests(WikiTestCase):
@@ -325,6 +323,13 @@ class FolderTests(WikiTestCase):
         engineering.refresh_from_db()
         self.assertTrue(engineering.folder)
         self.client.post(reverse('dg_wiki:page_folder', args=[engineering.path]), {'folder': 'yes'})
+
+    def test_an_empty_folder_opens_in_the_tree_and_says_so(self):
+        self.make_page('Engineering', folder=True)
+
+        response = self.client.get(reverse('dg_wiki:home'))
+
+        self.assertContains(response, '<li class="wk-tree-empty">Nothing in it yet</li>', html=True)
 
     def test_a_page_started_at_a_folder_s_address_is_a_folder(self):
         self.client.post('/dg/wiki/engineering/', {'title': 'Engineering'})
