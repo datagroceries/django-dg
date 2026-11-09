@@ -128,8 +128,9 @@ function attachMentions(cm) {
   });
 }
 
-// The writing help, from #dg-editor-help, opens under the editor. Left open, it opens by itself under
-// the next large editor too, for a page or a description, but not under a small one for a comment.
+// The writing help, from #dg-editor-help, opens at the end of the editor's form, under its buttons, so
+// they stay right under the text and the help goes when the form does; under the editor in no form. Left open, it opens by itself under the next
+// large editor too, for a page or a description, but not under a small one for a comment.
 const helpTemplate = document.getElementById('dg-editor-help');
 const HELP_KEY = 'dg-editor-help';
 
@@ -151,14 +152,19 @@ function helpWasOpen() {
 
 function toggleHelp(editor, open) {
   const container = editor.codemirror.getWrapperElement().closest('.EasyMDEContainer');
-  let help = container.nextElementSibling;
+  const form = container.closest('form');
+  let help = form ? form.querySelector(':scope > .dg-editor-help') : container.nextElementSibling;
   if (!help || !help.classList.contains('dg-editor-help')) {
     help = helpTemplate.content.firstElementChild.cloneNode(true);
     if (!editor.options.uploadImage) {
       help.querySelectorAll('[data-needs-upload]').forEach((row) => row.remove());
     }
     help.hidden = true;
-    container.after(help);
+    if (form) {
+      form.append(help);
+    } else {
+      container.after(help);
+    }
   }
   help.hidden = open === undefined ? !help.hidden : !open;
   container.querySelector('.editor-toolbar .help')?.classList.toggle('active', !help.hidden);
