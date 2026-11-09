@@ -43,12 +43,15 @@ class Reference(Treeprocessor):
     `name` and `priority` place it among Python-Markdown's tree processors; `classes` are the classes its
     elements may keep through sanitising, as {tag: {class, ...}}. `context` is what the caller of `render`
     said the text belongs to, such as {'wiki_page': page}, so a reference can be relative to it.
+    `help_heading`, if any, gives its rows in the writing help a part of their own under that heading;
+    without one they follow Markdown's.
     """
 
     name: str
     priority: int = 5
     pattern: re.Pattern
     classes: dict[str, set[str]] = {}  # noqa: RUF012 - read only
+    help_heading: str = ''
 
     @property
     def context(self) -> dict:

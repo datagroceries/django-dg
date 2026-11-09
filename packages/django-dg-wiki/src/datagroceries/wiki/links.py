@@ -26,6 +26,7 @@ from urllib.parse import urlencode
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from datagroceries.core import history, markdown
 from datagroceries.wiki import access
@@ -137,15 +138,22 @@ class PageLinks(markdown.Reference):
     priority = 6
     pattern = LINK_RE
     classes: typing.ClassVar = {'a': {'wk-missing'}, 'span': {'wk-hidden'}}
+    help_heading = gettext_lazy('Links to wiki pages')
 
     @classmethod
     def help(cls):
+        # The page names in an example and in what it says are translated alike.
         return [
-            (_('[[Deploying]]'), _('A link to the wiki page whose address ends so, the highest in the tree.')),
-            (_('[[Engineering/Deploying|how we ship]]'), _('The same, with words of your own.')),
-            (_('[[/Engineering/Deploying]]'), _('The wiki page at exactly that address, from the top.')),
-            (_('[[./Rollback]] [[../Onboarding]]'), _('In a wiki page: the page under it, and the page beside it.')),
-            (_('[[New page]]'), _('A link to a page that is not there yet shows red; following it starts the page.')),
+            (
+                _('[[Deploying]]'),
+                _('The page called Deploying, wherever it is. If several are called so, the one highest in the tree.'),
+            ),
+            (_('[[Engineering/Deploying]]'), _('The page Deploying under Engineering, to say which one.')),
+            (_('[[Deploying|how we ship]]'), _('A link to Deploying, with words of your own.')),
+            (_('[[/Engineering/Deploying]]'), _('The whole address, from the top of the wiki: that page only.')),
+            (_('[[./Rollback]]'), _('Only in a wiki page: the page Rollback under this one.')),
+            (_('[[../Onboarding]]'), _('Only in a wiki page: the page Onboarding beside this one.')),
+            (_('[[New page]]'), _('A page that is not there yet shows red. Following the link starts it.')),
         ]
 
     def resolve(self, matches):

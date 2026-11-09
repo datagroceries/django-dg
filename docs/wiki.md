@@ -56,15 +56,25 @@ the page that is. `Comment`, `Watcher` and `Attachment` (on core's `attachments.
 wiki's own, as the board has its own. `Page.language` and `Page.original` make translations: every
 translation names the same original.
 
-**Links** (`links.py`). `[[Engineering/Deploying]]` names a page by its address, written in titles or
-slugs; the end of an address will do, and the page highest in the tree wins when several end so.
-`[[/...]]` is a whole address only. In a page, `.` is the page and `..` the page above it, as with
-folders: `[[./Rollback]]` is under it, `[[../Onboarding]]` beside it; outside a page, as in a ticket,
-those stay text, as nothing gives them a place to start from. A `/` at the end changes nothing. A
-former address finds its page. A link to no page shows dashed and red, and leads to where the page can be
-started, with the title from the link: at the address the link names, so only a title with the same slug
-will do, and only once the pages above it are there (`StartPageForm`, `views._missing`). A link with no
-name to show, as `[[..]]` with no page above, stays text.
+**Links** (`links.py`). A link names a page by its address, written in titles or slugs:
+`[[Engineering/Deploying]]` and `[[engineering/deploying]]` are the same.
+
+- `[[Deploying]]`: the page called Deploying, wherever it is. The end of an address will do; when several
+  pages end so, the one highest in the tree wins. `[[Engineering/Deploying]]` says which.
+- `[[Deploying|how we ship]]`: the same page, with words of your own; without them a link shows the
+  page's title.
+- `[[/Engineering/Deploying]]`: a whole address, from the top: that page only, or no page.
+- `[[./Rollback]]`, `[[../Onboarding]]`: from the page the link is in, as with folders: `.` is that page
+  and `..` the page above it, so `./Rollback` is a page under it and `../Onboarding` one beside it.
+  Outside a page, as in a ticket, these stay text, as nothing gives them a place to start from.
+- A `/` at the end changes nothing: `[[Sales/]]` is `[[Sales]]`. A former address finds its page.
+- A link to a page not there yet shows dashed and red, and leads to where the page can be started, with
+  the title from the link: at the address the link names, so only a title with the same slug will do, and
+  only once the pages above it are there (`StartPageForm`, `views._missing`). A link with no name to show,
+  as `[[..]]` with no page above, stays text.
+
+The editor's writing help (the "?") explains these in a part of its own, wherever the wiki is installed,
+so in a ticket's editor too: `PageLinks.help_heading` and `PageLinks.help`.
 
 `PageLinks` is a reference in core's Markdown registry, so every app renders the links while the wiki is
 installed. The page it renders in comes in the render's `context` (`{'wiki_page': page, 'scope':

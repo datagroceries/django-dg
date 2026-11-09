@@ -6,6 +6,8 @@
   group; its third argument is called `where` now.
 - `people.restricts()`: whether the project's `People` overrides `may`, so an app can skip working out
   who may see what when nothing is restricted.
+- A reference may give its rows in the editor's writing help a part of their own, under its
+  `help_heading`; the rows without one follow Markdown's, as before.
 
 ## 1.2.0 (2026-11-08)
 

@@ -1,5 +1,6 @@
 {% load i18n %}{% comment %}
-The writing help the editor's "?" opens under it (editor.js): Markdown, then what the installed apps recognise.
+The writing help the editor's "?" opens under it (editor.js): Markdown, then what the installed apps recognise,
+each app's own part under its heading.
 {% endcomment %}<template id="dg-editor-help">
   <div class="dg-editor-help">
     <table>
@@ -27,5 +28,15 @@ The writing help the editor's "?" opens under it (editor.js): Markdown, then wha
         {% endfor %}
       </tbody>
     </table>
+    {% for heading, rows in parts %}
+      <h3>{{ heading }}</h3>
+      <table>
+        <tbody>
+          {% for example, explanation in rows %}
+            <tr><td><code>{{ example }}</code></td><td>{{ explanation }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endfor %}
   </div>
 </template>

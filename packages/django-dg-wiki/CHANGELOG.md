@@ -17,6 +17,9 @@ Needs django-dg-core 1.3.0.
 - Following a link to a page that is not there yet starts it where the link says, no longer under a page
   of your choice: its title may change only as far as the address stays the same, so the link finds it,
   and a page above it that is not there either is offered to be started first.
+- The editor's writing help explains links to wiki pages in a part of their own, with plainer examples
+  of each way to write one: by name, with words of your own, by the whole address, and from the page the
+  link is in. The MCP tools and docs/wiki.md say the same.
 
 ## 1.1.0 (2026-11-07)
 

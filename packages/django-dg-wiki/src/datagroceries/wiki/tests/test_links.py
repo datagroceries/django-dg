@@ -1,4 +1,6 @@
+from django.template import Context, Template
 from django.urls import reverse
+from django.utils import translation
 
 from datagroceries.wiki.models import Link, Page
 from datagroceries.wiki.tests.test_pages import WikiTestCase
@@ -69,6 +71,20 @@ class LinkTests(WikiTestCase):
         html = self.render('[[..]], [[./]] and [[../New]]', context={'wiki_page': draft})
 
         self.assertIn('[[..]], [[./]] and <a class="wk-missing" href="/dg/wiki/drafts/new/?title=New"', html)
+
+    def test_the_writing_help_explains_links_in_a_part_of_their_own(self):
+        response = self.client.get(reverse('dg_wiki:page_edit', args=[self.deploying.path]))
+
+        self.assertContains(response, '<h3>Links to wiki pages</h3>', html=True)
+        self.assertContains(
+            response,
+            '<tr><td><code>[[./Rollback]]</code></td>'
+            '<td>Only in a wiki page: the page Rollback under this one.</td></tr>',
+            html=True,
+        )
+        with translation.override('nl'):
+            dutch = Template('{% load dg_core %}{% markdown_help %}').render(Context())
+        self.assertInHTML("<h3>Links naar wikipagina's</h3>", dutch)
 
     def test_links_in_code_and_tickets_keys_inside_a_link_are_left_alone(self):
         html = self.render('`[[Deploying]]` and [[Deploying|before T-1]]')

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 17:41+0100\n"
+"POT-Creation-Date: 2026-11-09 17:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: apps.py:8 conf.py:10 mcp.py:204
+#: apps.py:8 conf.py:10 mcp.py:207
 msgid "Wiki"
 msgstr "Wiki"
 
@@ -65,57 +65,76 @@ msgstr "Schrijf een reactie."
 msgid "The title in that language."
 msgstr "De titel in die taal."
 
-#: links.py:144
+#: links.py:141
+msgid "Links to wiki pages"
+msgstr "Links naar wikipagina's"
+
+#: links.py:148
 msgid "[[Deploying]]"
 msgstr "[[Uitrollen]]"
 
-#: links.py:144
-msgid "A link to the wiki page whose address ends so, the highest in the tree."
+#: links.py:149
+msgid ""
+"The page called Deploying, wherever it is. If several are called so, the one "
+"highest in the tree."
 msgstr ""
-"Een link naar de wikipagina waarvan het adres zo eindigt, de hoogste in de "
-"boom."
+"De pagina die Uitrollen heet, waar die ook staat. Heten er meer zo, dan de "
+"hoogste in de boom."
 
-#: links.py:145
-msgid "[[Engineering/Deploying|how we ship]]"
-msgstr "[[Techniek/Uitrollen|hoe we uitrollen]]"
+#: links.py:151
+msgid "[[Engineering/Deploying]]"
+msgstr "[[Techniek/Uitrollen]]"
 
-#: links.py:145
-msgid "The same, with words of your own."
-msgstr "Hetzelfde, met eigen woorden."
+#: links.py:151
+msgid "The page Deploying under Engineering, to say which one."
+msgstr "De pagina Uitrollen onder Techniek, om te zeggen welke."
 
-#: links.py:146
+#: links.py:152
+msgid "[[Deploying|how we ship]]"
+msgstr "[[Uitrollen|hoe we uitrollen]]"
+
+#: links.py:152
+msgid "A link to Deploying, with words of your own."
+msgstr "Een link naar Uitrollen, met eigen woorden."
+
+#: links.py:153
 msgid "[[/Engineering/Deploying]]"
 msgstr "[[/Techniek/Uitrollen]]"
 
-#: links.py:146
-msgid "The wiki page at exactly that address, from the top."
-msgstr "De wikipagina op precies dat adres, vanaf de top."
+#: links.py:153
+msgid "The whole address, from the top of the wiki: that page only."
+msgstr "Het hele adres, vanaf de top van de wiki: alleen die pagina."
 
-#: links.py:147
-msgid "[[./Rollback]] [[../Onboarding]]"
-msgstr "[[./Terugdraaien]] [[../Inwerken]]"
+#: links.py:154
+msgid "[[./Rollback]]"
+msgstr "[[./Terugdraaien]]"
 
-#: links.py:147
-msgid "In a wiki page: the page under it, and the page beside it."
-msgstr "In een wikipagina: de pagina eronder, en de pagina ernaast."
+#: links.py:154
+msgid "Only in a wiki page: the page Rollback under this one."
+msgstr "Alleen in een wikipagina: de pagina Terugdraaien onder deze."
 
-#: links.py:148
+#: links.py:155
+msgid "[[../Onboarding]]"
+msgstr "[[../Inwerken]]"
+
+#: links.py:155
+msgid "Only in a wiki page: the page Onboarding beside this one."
+msgstr "Alleen in een wikipagina: de pagina Inwerken naast deze."
+
+#: links.py:156
 msgid "[[New page]]"
 msgstr "[[Nieuwe pagina]]"
 
-#: links.py:148
-msgid ""
-"A link to a page that is not there yet shows red; following it starts the "
-"page."
+#: links.py:156
+msgid "A page that is not there yet shows red. Following the link starts it."
 msgstr ""
-"Een link naar een pagina die er nog niet is, is rood; wie hem volgt, begint "
-"die pagina."
+"Een pagina die er nog niet is, is rood. Wie de link volgt, begint die pagina."
 
-#: links.py:174 templates/dg_wiki/missing.html:8
+#: links.py:182 templates/dg_wiki/missing.html:8
 msgid "No such page yet"
 msgstr "Deze pagina bestaat nog niet"
 
-#: links.py:178
+#: links.py:186
 msgid "A page you cannot see"
 msgstr "Een pagina die je niet kunt zien"
 
@@ -624,6 +643,3 @@ msgstr "Een reactie heeft tekst nodig."
 #: views.py:347
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."
-
-#~ msgid "Markdown."
-#~ msgstr "Markdown."

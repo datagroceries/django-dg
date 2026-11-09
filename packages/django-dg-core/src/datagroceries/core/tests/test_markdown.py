@@ -101,6 +101,23 @@ class ReferenceTests(SimpleTestCase):
         self.assertIn('**bold**', help_html)
         self.assertInHTML('<tr><td><code>!NAME!</code></td><td>Shouts the name.</td></tr>', help_html)
 
+    def test_a_reference_with_a_heading_has_a_part_of_its_own_in_the_writing_help(self):
+        class Shouting(Shout):
+            help_heading = 'Shouting'
+
+        self.addCleanup(markdown.REFERENCES.remove, Shouting)
+        markdown.register(Shouting)
+
+        help_html = Template('{% load dg_core %}{% markdown_help %}').render(Context())
+
+        self.assertInHTML(
+            '<h3>Shouting</h3><table><tbody><tr><td><code>!NAME!</code></td><td>Shouts the name.</td></tr>'
+            '</tbody></table>',
+            help_html,
+        )
+        # After Markdown's rows, not among them.
+        self.assertLess(help_html.index('Enter'), help_html.index('<h3>Shouting</h3>'))
+
     def test_registering_twice_counts_once(self):
         markdown.register(Shout)
 

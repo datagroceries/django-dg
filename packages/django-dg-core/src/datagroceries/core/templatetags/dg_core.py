@@ -52,8 +52,12 @@ def dg_apps(context) -> list[dict]:
 
 @register.inclusion_tag('dg_core/_markdown_help.html')
 def markdown_help() -> dict:
-    """How to write Markdown, and what the installed apps recognise in it, for beside the editor."""
-    return {'references': [pair for reference in markdown.REFERENCES for pair in reference.help()]}
+    """How to write Markdown, and what the installed apps recognise in it, for beside the editor: the rows
+    of references without a heading after Markdown's, then a part per heading."""
+    parts = {}
+    for reference in markdown.REFERENCES:
+        parts.setdefault(str(reference.help_heading), []).extend(reference.help())
+    return {'references': parts.pop('', []), 'parts': [part for part in parts.items() if part[1]]}
 
 
 @functools.cache

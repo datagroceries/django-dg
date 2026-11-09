@@ -30,6 +30,7 @@
 .dg-editor-help { margin-top: .5rem; padding: .5rem .75rem; border: 1px solid var(--bs-border-color); border-radius: .5rem;
                      background: var(--bs-tertiary-bg); font-size: .8125rem; max-height: 22rem; overflow: auto; }
 .dg-editor-help table { width: 100%; border-collapse: collapse; }
+.dg-editor-help h3 { font-size: inherit; font-weight: 600; margin: .75rem 0 .25rem; }
 .dg-editor-help td { padding: .2rem .5rem .2rem 0; vertical-align: top; }
 .dg-editor-help td:first-child { width: 40%; white-space: nowrap; }
 .dg-editor-help tr + tr td { border-top: 1px solid var(--bs-border-color-translucent); }

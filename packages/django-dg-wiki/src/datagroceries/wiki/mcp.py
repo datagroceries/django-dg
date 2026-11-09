@@ -24,8 +24,11 @@ PAGE = {
 }
 MENTION = '@-mentioning someone by their handle (@ann) tells them about it.'
 LINKS = (
-    '[[Engineering/Deploying]] links to a page, [[Deploying|words]] with words of its own, [[/Engineering]] by its '
-    'whole address, and [[./Rollback]] or [[../Onboarding]] from the page the link is in.'
+    '[[Deploying]] links to the page called Deploying wherever it is, the one highest in the tree if several are; '
+    '[[Engineering/Deploying]] says which. [[Deploying|how we ship]] links with words of its own. '
+    '[[/Engineering/Deploying]] is a whole address, from the top: that page only. From the page the link is in, '
+    '[[./Rollback]] is a page under it and [[../Onboarding]] one beside it. A link to a page not there yet shows '
+    'red, and following it starts that page.'
 )
 PAGE_FIELDS = {
     'title': {
