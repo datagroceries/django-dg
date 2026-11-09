@@ -4,15 +4,31 @@
 {% block page_title %}{% translate "Start" %}{% endblock %}
 
 {% block main %}
-<h1 class="h3 mb-3">{% wiki_name %}</h1>
+<div class="wk-heading">
+  <h1 class="h3">{% wiki_name %}</h1>
+  {% if can_write and html %}<a class="btn btn-sm btn-primary" href="{% url 'dg_wiki:home_edit' %}"><i class="bi bi-pencil"></i> {% translate "Edit" %}</a>{% endif %}
+</div>
+{% if html %}
+  <article class="wk-prose mb-4">{{ html }}</article>
+{% elif can_write %}
+  <p class="wk-muted"><a href="{% url 'dg_wiki:home_edit' %}"><i class="bi bi-pencil"></i> {% translate "Write a welcome for the wiki" %}</a>: {% translate "what everyone sees first, here." %}</p>
+{% endif %}
 {% if recent %}
-  <div class="wk-panel-title">{% translate "Recently changed" %}</div>
-  <ul class="wk-recent">
-    {% for page in recent %}
-      <li><a href="{{ page.get_absolute_url }}">{{ page.title }}</a> <span class="wk-muted small" title="{{ page.updated_at|date:'Y-m-d H:i' }}">{{ page.updated_at|naturaltime }}</span></li>
-    {% endfor %}
-  </ul>
-  <p class="small"><a class="link-secondary" href="{% url 'dg_wiki:wiki_export' %}"><i class="bi bi-download"></i> {% translate "Download the whole wiki as Markdown" %}</a></p>
+  <div class="wk-related mt-2">
+    <section>
+      <div class="wk-panel-title">{% translate "In the wiki" %}</div>
+      <ul>{% for page in top_pages %}<li><a href="{{ page.get_absolute_url }}">{{ page.title }}</a></li>{% endfor %}</ul>
+    </section>
+    <section>
+      <div class="wk-panel-title">{% translate "Recently changed" %}</div>
+      <ul class="wk-recent">
+        {% for page in recent %}
+          <li><a href="{{ page.get_absolute_url }}">{{ page.title }}</a> <span class="wk-muted small" title="{{ page.updated_at|date:'Y-m-d H:i' }}">{{ page.updated_at|naturaltime }}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+  <p class="small mt-3"><a class="link-secondary" href="{% url 'dg_wiki:wiki_export' %}"><i class="bi bi-download"></i> {% translate "Download the whole wiki as Markdown" %}</a></p>
 {% else %}
   <p class="wk-muted">{% translate "The wiki is empty. Start with a page about what the team knows and others should too." %}</p>
   {% may_start_page as can_start %}

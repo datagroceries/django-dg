@@ -349,3 +349,12 @@ in, and not every page is a folder.*
 - **One name per folder, everywhere**, as in a file system. Two versions of a page beside each other both
   called Platform confused, and with exact addresses `[[Platform]]` finds only one of two pages of a name;
   the second is refused rather than made `platform-2`.
+
+## 2026-11-09: The wiki's own text is its start page (G-65)
+
+- **No setting, no page pointed at.** A setting naming the start page would be a feature another way
+  (CONTRIBUTING: settings only fit an app into its project), and would stop counting when that page was
+  renamed. Every folder's text is the index of what is in it; the wiki is the top folder, so its text is
+  the start page, as a site's `/` shows the `index.html` of its top folder.
+- **Not a page in the tree**: a model of its own, `TopText`, so the tree, rights and addresses of pages
+  need no page without a place. Who may write at the top may change it.

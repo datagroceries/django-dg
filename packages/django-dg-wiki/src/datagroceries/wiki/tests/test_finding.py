@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from datagroceries.wiki import search
 from datagroceries.wiki.forms import fingerprint
-from datagroceries.wiki.models import Page
+from datagroceries.wiki.models import Page, TopText
 from datagroceries.wiki.tests.test_pages import WikiTestCase
 
 
@@ -88,10 +88,16 @@ class ExportTests(WikiTestCase):
         self.assertEqual(archive.read(file_name), b'\x89PNG')
 
     def test_the_whole_wiki(self):
+        TopText.objects.create(body='Start at [[Onboarding]].')
+
         response = self.client.get(reverse('dg_wiki:wiki_export'))
 
-        names = zipfile.ZipFile(io.BytesIO(response.content)).namelist()
-        self.assertEqual(sorted(names), ['engineering/deploying.md', 'engineering/index.md', 'onboarding.md'])
+        archive = zipfile.ZipFile(io.BytesIO(response.content))
+        self.assertEqual(
+            sorted(archive.namelist()),
+            ['engineering/deploying.md', 'engineering/index.md', 'index.md', 'onboarding.md'],
+        )
+        self.assertEqual(archive.read('index.md').decode(), '# Wiki\n\nStart at [Onboarding](onboarding.md).\n')
 
 
 @override_settings(LANGUAGES=[('en', 'English'), ('nl', 'Nederlands'), ('de', 'Deutsch')])

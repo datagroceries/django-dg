@@ -22,11 +22,13 @@ from datagroceries.wiki.forms import (
     NewPageForm,
     PageForm,
     StartPageForm,
+    TopTextForm,
     TranslateForm,
     fingerprint,
+    top_fingerprint,
     why_no_versions,
 )
-from datagroceries.wiki.models import TOP, Attachment, Comment, Page, slug_of
+from datagroceries.wiki.models import TOP, Attachment, Comment, Page, TopText, slug_of
 from datagroceries.wiki.templatetags.dg_wiki import render_context, tree_context
 
 wiki_required = people.may_use_required(SCOPE)
@@ -43,8 +45,38 @@ def _last_change(page: Page):
 
 @wiki_required
 def home(request):
-    recent = access.pages(request.user).order_by('-updated_at')[:RECENT_PAGES]
-    return render(request, 'dg_wiki/home.html', {'recent': recent})
+    """The wiki's start page: its own text, as the top folder's, and what is at the top of it."""
+    readable = access.pages(request.user)
+    text = TopText.current()
+    context = {
+        'html': markdown.render_document(text.body, context=render_context(TOP))[0] if text.body else '',
+        'can_write': access.may(request.user, WRITE, TOP),
+        'top_pages': readable.filter(parent=None),
+        'recent': readable.order_by('-updated_at')[:RECENT_PAGES],
+    }
+    return render(request, 'dg_wiki/home.html', context)
+
+
+@wiki_required
+def home_edit(request):
+    """The wiki's own text, written as a page's is; a save on top of someone else's is refused."""
+    access.require(request.user, WRITE, TOP)
+    text = TopText.current()
+    form = TopTextForm(request.POST or None, initial={'body': text.body, 'original': top_fingerprint(text.body)})
+    if request.method == 'POST' and form.is_valid():
+        if form.cleaned_data['original'] == top_fingerprint(TopText.current().body):
+            operations.write_top(request, form.cleaned_data['body'])
+            return redirect('dg_wiki:home')
+        form.add_error(
+            None,
+            _(
+                'Someone saved the text while you were editing it. Your text is still here: open the start page '
+                'in another tab to see theirs, put the two together, and save again to replace theirs.'
+            ),
+        )
+        form.data = form.data.copy()
+        form.data['original'] = top_fingerprint(TopText.current().body)
+    return render(request, 'dg_wiki/home_edit.html', {'form': form, 'top': TOP})
 
 
 @wiki_required

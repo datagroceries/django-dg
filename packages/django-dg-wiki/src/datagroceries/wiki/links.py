@@ -33,7 +33,7 @@ from django.utils.translation import gettext_lazy
 
 from datagroceries.core import history, markdown
 from datagroceries.wiki import access
-from datagroceries.wiki.models import PATH_LENGTH, FormerPath, Link, Page, slug_of
+from datagroceries.wiki.models import PATH_LENGTH, FormerPath, Link, Page, Top, slug_of
 
 LINK_RE = re.compile(r'\[\[([^\[\]|\n]+)(?:\|([^\[\]\n]+))?\]\]')
 # Fenced and inline code, where "[[...]]" is text as written, as Markdown shows it.
@@ -155,7 +155,7 @@ class PageLinks(markdown.Reference):
 
     def resolve(self, matches):
         page = self.context.get('wiki_page')
-        base = page.folder_path if isinstance(page, Page) else None
+        base = page.folder_path if isinstance(page, Page | Top) else None
         names = {match: reference(LINK_RE.fullmatch(match)[1], base) for match in matches}
         found = resolve(set(names.values()))
         # Who reads it: the person the page being served is for; nobody outside a request.

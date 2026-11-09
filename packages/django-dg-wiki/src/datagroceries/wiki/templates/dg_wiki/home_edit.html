@@ -1,0 +1,22 @@
+{% extends 'dg_wiki/_wiki.html' %}
+{% load i18n dg_core dg_wiki %}
+
+{% block page_title %}{% translate "Editing the start page" %}{% endblock %}
+
+{% block wiki_head %}{% wiki_mention_people %}{% include 'dg_core/_editor_assets.html' %}{% endblock %}
+
+{% block main %}
+<h1 class="h3 mb-2">{% blocktranslate with name=top %}The start page of {{ name }}{% endblocktranslate %}</h1>
+<p class="wk-muted small">{% translate "The wiki's own text, as the top folder's: what everyone sees first, above the pages at the top." %}</p>
+<form method="post">
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}<div class="alert alert-warning">{{ error }}</div>{% endfor %}
+  {{ form.original }}
+  {% link_start top %}
+  <div class="dg-editor">{{ form.body }}</div>
+  <div class="d-flex gap-2 mt-3">
+    <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
+    <a class="btn btn-outline-secondary" href="{% url 'dg_wiki:home' %}">{% translate "Cancel" %}</a>
+  </div>
+</form>
+{% endblock %}

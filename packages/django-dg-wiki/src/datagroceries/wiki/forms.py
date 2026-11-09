@@ -123,6 +123,20 @@ class PageForm(forms.ModelForm):
         self.initial.setdefault('original', fingerprint(self.instance))
 
 
+class TopTextForm(forms.Form):
+    """The wiki's own text, its start page. `original` is a fingerprint of what the editor started from, as
+    on a page's form."""
+
+    body = forms.CharField(
+        label='', required=False, strip=False, widget=forms.Textarea(attrs={'data-markdown-editor': '', 'rows': 18})
+    )
+    original = forms.CharField(widget=forms.HiddenInput, required=False)
+
+
+def top_fingerprint(body: str) -> str:
+    return hashlib.sha256(body.encode()).hexdigest()
+
+
 class MoveForm(forms.Form):
     def __init__(self, *args, page: Page, user=None, **kwargs):
         super().__init__(*args, **kwargs)

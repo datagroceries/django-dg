@@ -6,7 +6,7 @@ from django.contrib.auth.models import Permission
 from django.core.management.base import BaseCommand
 
 from datagroceries.board.models import Column, Group, Relation, Ticket
-from datagroceries.wiki.models import Page
+from datagroceries.wiki.models import Page, TopText
 
 DEMO_USER = 'demo'
 DEMO_PASSWORD = 'demo'
@@ -68,6 +68,7 @@ class Command(BaseCommand):
         )
         Page.objects.create(title='Deploying', parent=engineering, creator=author, position=1, body=DEPLOYING)
         Page.objects.create(title='Onboarding', creator=author, position=2, body=ONBOARDING)
+        TopText.objects.create(body=WELCOME)
 
 
 ENGINEERING = """How we build the product, and the pages about each part of it.
@@ -86,6 +87,9 @@ DEPLOYING = """## Before
 ## After
 
 Check the site, and the errors of the last ten minutes.
+"""
+WELCOME = """The team's own knowledge. New here? Start at [[Onboarding]]; how we build and ship is in
+[[Engineering]].
 """
 ONBOARDING = """Welcome to the team. This page lists what to do in your first week.
 

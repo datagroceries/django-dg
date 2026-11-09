@@ -59,8 +59,8 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
 ## What an agent does
 
 An agent connected to the endpoint gets the tools of every app installed: 12 for the board (search, read,
-create and update tickets, comment, relate, block, watch) and 14 for the wiki (search, read, write, move
-and delete pages, their versions, comments, translations, watching). It works as the person who connected
+create and update tickets, comment, relate, block, watch) and 16 for the wiki (search, read, write, move
+and delete pages, their versions, comments, translations, watching, and the start page). It works as the person who connected
 it, so it is asked what you would ask a colleague:
 
 - *"What is assigned to me, and what is blocked?"*

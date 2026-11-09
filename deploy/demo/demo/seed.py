@@ -12,7 +12,7 @@ from django.db import transaction
 from datagroceries.board.models import Column, Comment, Group, Label, Relation, Ticket, Watcher
 from datagroceries.core import history
 from datagroceries.wiki.models import Comment as PageComment
-from datagroceries.wiki.models import Page
+from datagroceries.wiki.models import Page, TopText
 from datagroceries.wiki.models import Watcher as PageWatcher
 
 # The user group whose members may use the board and the wiki: the team and every visitor.
@@ -183,6 +183,7 @@ def seed_wiki(ann, bob, chloe, move):
         page('Rollback', bob, ROLLBACK, parent=engineering, position=2)
     with acting_as(ann):
         page('Onboarding', ann, ONBOARDING, position=2)
+        TopText.objects.create(body=WELCOME)
     # A second version, so the page's history has two to compare.
     with acting_as(chloe):
         deploying.body = DEPLOYING.format(check=CHECK, move=move.key)
@@ -219,6 +220,9 @@ CHECK = ' Open the pricing page and sign up once, as a customer would.'
 ROLLBACK = """1. Check out the release before on the server.
 2. Install its requirements. Migrations stay: a release never removes a column the one before it needs.
 3. Restart the service, and say so on the ticket of the release.
+"""
+WELCOME = """The team's own knowledge, written by people and agents together. New here? Start at
+[[Onboarding]]; how we build and ship is in [[Engineering]].
 """
 ONBOARDING = """Welcome to the team. This page lists what to do in your first week.
 

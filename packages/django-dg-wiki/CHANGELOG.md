@@ -31,6 +31,10 @@ Needs django-dg-core 1.3.0.
   ticket, only links from the top are links. The API and MCP tools name a page by its whole address only.
   Not backwards compatible: a link written as the end of an address now names a page in the folder it is
   written in.
+- **The wiki's own text is its start page**, as the top folder's: `/dg/wiki/` shows it above the pages at
+  the top and what changed lately, with links starting at the top. Who may write at the top may change it;
+  every version is kept. MCP tools `get_wiki_start` and `update_wiki_start`; in a download of the whole
+  wiki it is `index.md`. Needs the migration `0004_top_text`.
 - **Versions in other languages.** "Translate" is "In another language" now, and offers a new page beside
   the page, with its text to translate, or links a page that is already there, in another language; a
   version can be unlinked. Only a page with a language has them, and a folder none. The tree shows a

@@ -15,7 +15,7 @@ import zipfile
 from django.urls import reverse
 
 from datagroceries.wiki import access, links
-from datagroceries.wiki.models import Attachment, Page
+from datagroceries.wiki.models import TOP, Attachment, Page
 
 
 def _file_re():
@@ -75,6 +75,10 @@ def tree_zip(request, top: Page | None) -> bytes:
     for attachment in attachments:
         folder = inside[attachment.page_id].removesuffix('.md') + '.files'
         files[attachment.pk] = f'{folder}/{attachment.pk}-{attachment.url_name}'
+    # The whole wiki's own text is its index, at the top of the zip, as a folder's is in its folder.
+    if top is None and TOP.body:
+        pages.append(TOP)
+        inside[TOP.pk] = 'index.md'
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as archive:
         for page in pages:
