@@ -1,8 +1,9 @@
 # Changelog of django-dg-wiki
 
-## Unreleased
+## 1.2.0 (2026-11-09)
 
-Needs django-dg-core 1.3.0.
+Needs django-dg-core 1.3.0, and the migration `0002_pages_and_folders`, which makes the pages with
+pages under them folders and drops the slug column.
 
 - **Access per page.** What someone may do on a page, read, comment or write, is the project's
   `People.may(user, right, page)`, asked about any page however deep, and about `TOP` for the top. By
@@ -23,7 +24,7 @@ Needs django-dg-core 1.3.0.
   rewriting the relative links in its text. A download is as a real folder: `engineering/home.md` beside
   `engineering/platform.md`. A folder says so beside its title and lists what is in it; the editor says
   where the links written in a page start, with the addresses two of them would name. Needs the
-  migration `0002_page_or_folder`, which makes the pages with pages under them folders.
+  migration `0002_pages_and_folders`.
 - **A link starts in the folder it is written in, as a relative address does in a browser**:
   `[[Platform]]` is the page in a folder, or beside a page, `[[../Sales]]` one folder up, and
   `[[/Engineering/Deploying]]` is from the top. Nothing is looked for elsewhere in the tree any more:
@@ -40,7 +41,7 @@ Needs django-dg-core 1.3.0.
   is new.
 - **One name per folder**: a second page of the same name in a folder is refused, on creating, renaming,
   moving and dragging, and by `Page.save` too, rather than made `platform-2`. A page keeps no slug of its
-  own any more: it is its title made an address (migration `0003_path_holds_the_slug` drops the column). A
+  own any more: it is its title made an address (the migration drops the column). A
   page made `-2` before keeps its address, but must take a title that gives it before it can be saved.
 - The editor's writing help explains links to wiki pages in a part of their own, with plainer examples
   of each way to write one: by name, with words of your own, by the whole address, and from the page the

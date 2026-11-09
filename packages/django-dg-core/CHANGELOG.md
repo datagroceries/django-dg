@@ -1,6 +1,8 @@
 # Changelog of django-dg-core
 
-## Unreleased
+## 1.3.0 (2026-11-09)
+
+Wiki 1.2.0 needs it.
 
 - `People.may(user, right, where)` is asked about a wiki page, or the wiki's top, as well as a board
   group; its third argument is called `where` now.
