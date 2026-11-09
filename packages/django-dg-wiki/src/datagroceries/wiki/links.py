@@ -247,20 +247,14 @@ def _rewrite(text: str, targets: dict[str, Page], before: str, now: str) -> str:
 def spelling(page: Page, written: str = '', base: str | None = None) -> str:
     """How a link names `page`, the way `written`, a link to it, was written: from the top ("/..."), or from
     `base`, the address of the page it is in ("Rollback", "./Rollback", "../Onboarding"); in titles or, if
-    `written` was in slugs, slugs. A title that gives another slug than its page's, or holds what a link
-    cannot, is written as its slug."""
+    `written` was in slugs, slugs. A title that holds what a link cannot, as "CI/CD", is written as its slug."""
     # A "/" at the end, or one too many between, is no part.
     parts = [part.strip() for part in written.strip().removeprefix('/').split('/') if part.strip()]
     slugs = bool(parts) and all(part in RELATIVE or part == slug_of(part) for part in parts)
     chain = [*page.ancestors(), page]
 
     def spelled(pages: list[Page]) -> list[str]:
-        return [
-            each.slug
-            if slugs or UNSAFE_RE.search(each.title) or slug_of(each.title) != each.slug
-            else each.title.strip()
-            for each in pages
-        ]
+        return [each.slug if slugs or UNSAFE_RE.search(each.title) else each.title.strip() for each in pages]
 
     if written.strip().startswith('/') or base is None:
         return '/' + '/'.join(spelled(chain))

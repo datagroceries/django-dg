@@ -35,25 +35,25 @@ class TreeTests(WikiTestCase):
         self.assertEqual(deploying.get_absolute_url(), '/dg/wiki/engineering/deploying-to-production')
         self.assertEqual(deploying.ancestors(), [engineering])
 
-    def test_pages_beside_each_other_with_the_same_title_get_their_own_address(self):
+    def test_two_pages_of_a_name_cannot_be_beside_each_other_but_one_can_be_under_the_other(self):
         first = self.make_page('Notes')
-        second = self.make_page('Notes')
+
+        with self.assertRaises(ValidationError):
+            self.make_page('notes!')
         under = self.make_page('Notes', first)
 
-        self.assertEqual([first.path, second.path, under.path], ['notes', 'notes-2', 'notes/notes'])
+        self.assertEqual([first.path, under.path], ['notes', 'notes/notes'])
 
     def test_a_title_without_letters_still_gets_an_address(self):
         self.assertEqual(self.make_page('???').path, 'page')
 
     def test_a_page_keeps_its_address_while_its_title_gives_the_same_one(self):
-        self.make_page('Notes')
-        second = self.make_page('Notes')
-        Page.objects.get(path='notes').delete()
+        notes = self.make_page('Notes')
 
-        second.title = 'Notes!'
-        second.save()
+        notes.title = 'Notes!'
+        notes.save()
 
-        self.assertEqual(second.path, 'notes-2')
+        self.assertEqual(notes.path, 'notes')
 
     def test_renaming_moves_the_pages_under_it_and_keeps_the_old_addresses(self):
         engineering = self.make_page('Engineering')

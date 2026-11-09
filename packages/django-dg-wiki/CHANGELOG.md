@@ -37,8 +37,9 @@ Needs django-dg-core 1.3.0.
   page's language. The MCP tool `translate_page` takes `page` to link one, and `unlink_page_translation`
   is new.
 - **One name per folder**: a second page of the same name in a folder is refused, on creating, renaming,
-  moving and dragging, rather than made `platform-2`. A page keeps no slug of its own any more: it is the
-  end of its address (migration `0003_path_holds_the_slug`).
+  moving and dragging, and by `Page.save` too, rather than made `platform-2`. A page keeps no slug of its
+  own any more: it is its title made an address (migration `0003_path_holds_the_slug` drops the column). A
+  page made `-2` before keeps its address, but must take a title that gives it before it can be saved.
 - The editor's writing help explains links to wiki pages in a part of their own, with plainer examples
   of each way to write one: by name, with words of your own, by the whole address, and from the page the
   link is in. The MCP tools and docs/wiki.md say the same.

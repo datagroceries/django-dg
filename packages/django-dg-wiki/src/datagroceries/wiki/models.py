@@ -1,7 +1,6 @@
 """The wiki: pages in Markdown, in one tree, each at an address that follows the tree."""
 
 import dataclasses
-import re
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -147,7 +146,9 @@ class Page(models.Model):
         self.__dict__.pop('known_ancestors', None)
         with transaction.atomic():
             before = Page.objects.filter(pk=self.pk).values_list('path', flat=True).first() if self.pk else None
-            self.path = self._new_path(self._free_slug())
+            if taken := self._name_taken():
+                raise ValidationError(_('There is already a page called “%(title)s” here.') % {'title': taken})
+            self.path = self._new_path(self.slug)
             # A page now at an address another one had takes it over.
             FormerPath.objects.filter(path=self.path).delete()
             super().save(*args, **kwargs)
@@ -197,38 +198,25 @@ class Page(models.Model):
             )
         if not self.folder and self.pk and self.children.exists():
             raise ValidationError(_('Only a folder has pages in it: move or delete them first.'))
-        # One name per folder, as in a file system: a link names one page only.
-        siblings = Page.objects.filter(path=self._new_path(slug_of(self.title) or 'page')).exclude(pk=self.pk)
-        if siblings.exists():
-            raise ValidationError(_('There is already a page called “%(title)s” here.') % {'title': siblings.first()})
+        if taken := self._name_taken():
+            raise ValidationError(_('There is already a page called “%(title)s” here.') % {'title': taken})
         deepest = max([len(path) for path in self.descendants().values_list('path', flat=True)] or [0])
         below = deepest - len(self.path) if self.pk and deepest else 0
-        if len(self._new_path(self._free_slug())) + below > PATH_LENGTH:
+        if len(self._new_path(self.slug)) + below > PATH_LENGTH:
             raise ValidationError(_('This page would be too deep in the tree, or its title too long, for an address.'))
 
     @property
     def slug(self) -> str:
         """The end of its address: its title as a slug, kept nowhere else."""
-        return self.path.rpartition('/')[2]
+        return slug_of(self.title) or 'page'
+
+    def _name_taken(self):
+        """The page beside this one with its name, if any: one name per folder, as in a file system, so a
+        link names one page only."""
+        return Page.objects.filter(path=self._new_path(self.slug)).exclude(pk=self.pk).first()
 
     def _new_path(self, slug: str) -> str:
         return f'{self.parent.path}/{slug}' if self.parent else slug
-
-    def _free_slug(self) -> str:
-        """The title as a slug; with -2, -3 and so on when a page beside this one has it already, which only
-        a page made without its form can come to, as the forms refuse a name that is taken (`clean`). A page
-        keeps its slug while its title gives the same one."""
-        base = slug_of(self.title) or 'page'
-        beside = Page.objects.filter(parent=self.parent_id).exclude(pk=self.pk).values_list('path', flat=True)
-        taken = {path.rpartition('/')[2] for path in beside}
-        if self.slug and re.fullmatch(rf'{re.escape(base)}(-\d+)?', self.slug) and self.slug not in taken:
-            return self.slug
-        slug, number = base, 1
-        while slug in taken:
-            number += 1
-            suffix = f'-{number}'
-            slug = f'{base[: SLUG_LENGTH - len(suffix)]}{suffix}'
-        return slug
 
     def _move_descendants(self, before: str) -> dict[int, str]:
         """After the page's address changed from `before`: the same for the pages under it, and every
