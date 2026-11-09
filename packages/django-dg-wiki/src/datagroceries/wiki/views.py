@@ -99,10 +99,10 @@ def _title(slug: str) -> str:
 
 
 def _missing(request, path):
-    """The address of no page: an offer to start it there, under the pages above it, with the title a
-    link to it gave, or else one from the address, to whoever may write there; as a folder at a folder's
-    address, ending in "/". A page above it that is not there either is to be started first, the highest
-    first, and one that is a page made a folder; an address that is not all slugs no title gives. Under a
+    """The address of no page: an offer to start it there, with the title a link to it gave, or else one
+    from the address, to whoever may write there; as a folder at a folder's address, ending in "/". The
+    folders above it that are not there yet are made with it, titled from their address. A page above it
+    that is not a folder is to be made one first; an address that is not all slugs no title gives. Under a
     page the person may not see, the address is not found."""
     parts = path.split('/')
     above = ['/'.join(parts[:end]) for end in range(1, len(parts))]
@@ -110,17 +110,20 @@ def _missing(request, path):
     if any(page.pk in access.hidden(request.user) for page in found.values()):
         raise Http404(f'No page {path}.')
     ancestors = [found[each] for each in above if each in found]
-    absent = next((each for each in above if each not in found), None)
+    absent = [each for each in above if each not in found]
     parent = ancestors[-1] if ancestors else None
     not_folder = parent if parent and not parent.folder else None
     folder = request.resolver_match.url_name == 'folder'
-    possible = absent is None and not not_folder and all(part and slug_of(part) == part for part in parts)
+    possible = not not_folder and all(part and slug_of(part) == part for part in parts)
     allowed = access.may(request.user, WRITE, parent or TOP)
     title = request.GET.get('title') or _title(parts[-1])
     data = request.POST if request.method == 'POST' else None
     form = StartPageForm(data, initial={'title': title}, path=path, parent=parent)
     if possible and allowed and form.is_valid():
-        created = operations.create(request, form.cleaned_data['title'], parent, folder=folder)
+        with transaction.atomic():
+            for each in absent:
+                parent = operations.create(request, _title(each.rpartition('/')[2]), parent, folder=True)
+            created = operations.create(request, form.cleaned_data['title'], parent, folder=folder)
         return redirect('dg_wiki:page_edit', created.path)
     context = {
         'folder': folder,
@@ -130,7 +133,7 @@ def _missing(request, path):
         'path': path,
         'ancestors': ancestors,
         'parent': parent,
-        'absent': absent and {'path': absent, 'title': _title(absent.rpartition('/')[2])},
+        'new_folders': [_title(each.rpartition('/')[2]) for each in absent],
     }
     return render(request, 'dg_wiki/missing.html', context, status=404)
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 19:51+0100\n"
+"POT-Creation-Date: 2026-11-09 19:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -265,7 +265,7 @@ msgstr "Antwoorden"
 msgid "Comment"
 msgstr "Reageren"
 
-#: templates/dg_wiki/_new_page_form.html:14 templates/dg_wiki/missing.html:23
+#: templates/dg_wiki/_new_page_form.html:14 templates/dg_wiki/missing.html:21
 msgid "Create and write"
 msgstr "Maken en schrijven"
 
@@ -340,18 +340,7 @@ msgstr ""
 msgid "No such page"
 msgstr "Pagina bestaat niet"
 
-#: templates/dg_wiki/missing.html:11
-#, python-format
-msgid ""
-"No page has the address <code>%(path)s</code>, and a page above it, <a "
-"class=\"wk-missing\" href=\"%(absent_url)s\">%(title)s</a>, is not there "
-"either. Start that one first."
-msgstr ""
-"Geen pagina heeft het adres <code>%(path)s</code>, en een pagina erboven, <a "
-"class=\"wk-missing\" href=\"%(absent_url)s\">%(title)s</a>, bestaat ook nog "
-"niet. Begin eerst die."
-
-#: templates/dg_wiki/missing.html:13
+#: templates/dg_wiki/missing.html:10
 #, python-format
 msgid ""
 "No page has the address <code>%(path)s</code>. It would go in <a "
@@ -362,7 +351,7 @@ msgstr ""
 "href=\"%(url)s\">%(title)s</a>, en dat is een pagina, geen map: maak er "
 "eerst een map van."
 
-#: templates/dg_wiki/missing.html:15
+#: templates/dg_wiki/missing.html:12
 #, python-format
 msgid ""
 "Start the page <strong>%(title)s</strong>, at <code>%(path)s</code>, where "
@@ -371,20 +360,25 @@ msgstr ""
 "De pagina <strong>%(title)s</strong> beginnen, op <code>%(path)s</code>, "
 "waar de link heen gaat?"
 
-#: templates/dg_wiki/missing.html:16
+#: templates/dg_wiki/missing.html:13
+#, python-format
+msgid "The folders it goes in are made too: %(folders)s."
+msgstr "De mappen waar de pagina in komt, worden ook gemaakt: %(folders)s."
+
+#: templates/dg_wiki/missing.html:14
 #, python-format
 msgid "It goes under <a href=\"%(url)s\">%(title)s</a>."
 msgstr "De pagina komt onder <a href=\"%(url)s\">%(title)s</a>."
 
-#: templates/dg_wiki/missing.html:16
+#: templates/dg_wiki/missing.html:14
 msgid "It goes at the top."
 msgstr "De pagina komt bovenaan."
 
-#: templates/dg_wiki/missing.html:17
+#: templates/dg_wiki/missing.html:15
 msgid "It starts as a folder, for pages to go in."
 msgstr "De pagina begint als map, voor pagina's erin."
 
-#: templates/dg_wiki/missing.html:24
+#: templates/dg_wiki/missing.html:22
 msgid ""
 "Its title and place are what the link says. Rename or move it once it is "
 "there: links to it follow."
@@ -392,7 +386,7 @@ msgstr ""
 "De titel en de plek komen uit de link. Hernoem of verplaats de pagina als ze "
 "er is: links ernaartoe gaan mee."
 
-#: templates/dg_wiki/missing.html:27
+#: templates/dg_wiki/missing.html:25
 #, python-format
 msgid ""
 "No page has the address <code>%(path)s</code>, and you may not start one "
@@ -401,7 +395,7 @@ msgstr ""
 "Geen pagina heeft het adres <code>%(path)s</code>, en je mag er geen "
 "beginnen."
 
-#: templates/dg_wiki/missing.html:29
+#: templates/dg_wiki/missing.html:27
 #, python-format
 msgid ""
 "No page has the address <code>%(path)s</code>, and none can: no title gives "
@@ -680,7 +674,7 @@ msgstr "Verplaatst naar onder “%(title)s”"
 msgid "Moved to the top"
 msgstr "Naar boven verplaatst"
 
-#: views.py:172
+#: views.py:175
 #, python-format
 msgid ""
 "%(who)s saved this page while you were editing it. Your text is still here: "
@@ -691,25 +685,25 @@ msgstr ""
 "nog: open de pagina in een ander tabblad om die van hen te zien, voeg de "
 "twee samen en sla opnieuw op om die van hen te vervangen."
 
-#: views.py:203
+#: views.py:206
 #, python-format
 msgid "“%(title)s” is deleted."
 msgstr "“%(title)s” is verwijderd."
 
-#: views.py:296
+#: views.py:299
 #, python-format
 msgid "The version of %(when)s is back."
 msgstr "De versie van %(when)s is teruggezet."
 
-#: views.py:317
+#: views.py:320
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
 
-#: views.py:350
+#: views.py:353
 msgid "A comment needs text."
 msgstr "Een reactie heeft tekst nodig."
 
-#: views.py:366
+#: views.py:369
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."

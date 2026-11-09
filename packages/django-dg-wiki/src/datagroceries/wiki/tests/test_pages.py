@@ -205,15 +205,32 @@ class PageTests(WikiTestCase):
         self.assertContains(response, 'the link would still lead nowhere', status_code=404)
         self.assertFalse(Page.objects.filter(title='What changed').exists())
 
-    def test_a_page_above_that_is_not_there_either_is_started_first(self):
-        response = self.client.get('/dg/wiki/engineering/deploying/rollback?title=Rollback')
+    def test_the_folders_a_page_goes_in_are_made_with_it(self):
+        response = self.client.get('/dg/wiki/engineering/international/belgium/voorbereiding?title=Voorbereiding')
 
         self.assertContains(
-            response, '<a class="wk-missing" href="/dg/wiki/engineering/">Engineering</a>', html=True, status_code=404
+            response, 'The folders it goes in are made too: Engineering, International, Belgium.', status_code=404
         )
+        self.client.post('/dg/wiki/engineering/international/belgium/voorbereiding', {'title': 'Voorbereiding'})
+        self.assertEqual(
+            list(Page.objects.order_by('path').values_list('path', 'title', 'folder')),
+            [
+                ('engineering', 'Engineering', True),
+                ('engineering/international', 'International', True),
+                ('engineering/international/belgium', 'Belgium', True),
+                ('engineering/international/belgium/voorbereiding', 'Voorbereiding', False),
+            ],
+        )
+
+    def test_a_page_above_that_is_a_page_is_to_be_made_a_folder_first(self):
+        self.make_page('Engineering')
+
+        response = self.client.get('/dg/wiki/engineering/international/belgium')
+
+        self.assertContains(response, 'which is a page, not a folder: make it a folder first', status_code=404)
         self.assertNotContains(response, 'name="title"', status_code=404)
-        self.client.post('/dg/wiki/engineering/deploying/rollback', {'title': 'Rollback'})
-        self.assertFalse(Page.objects.exists())
+        self.client.post('/dg/wiki/engineering/international/belgium', {'title': 'Belgium'})
+        self.assertEqual(Page.objects.count(), 1)
 
     def test_an_address_no_title_gives_offers_no_page(self):
         response = self.client.get('/dg/wiki/Release notes/')
