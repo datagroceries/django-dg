@@ -62,8 +62,8 @@
 .wk-prose h4 { font-size: 1rem; }
 .wk-prose > :first-child { margin-top: 0; }
 
-/* A link to a page that is not there yet. */
-.wk-prose a.wk-missing { color: var(--bs-danger-text-emphasis); text-decoration-style: dashed; }
+/* A link to a page that is not there yet, and to one the reader may not see. */
+a.wk-missing { color: var(--bs-danger-text-emphasis); text-decoration-style: dashed; }
 .wk-prose .wk-hidden { color: var(--bs-secondary-color); border-bottom: 1px dotted var(--bs-secondary-color); cursor: help; }
 
 /* Below the page: the pages under it, and the pages that link to it. */

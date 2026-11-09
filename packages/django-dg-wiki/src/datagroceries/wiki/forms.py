@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from datagroceries.wiki import access
-from datagroceries.wiki.models import TOP, Comment, Page, flatten
+from datagroceries.wiki.models import TOP, Comment, Page, flatten, slug_of
 
 
 def fingerprint(page: Page) -> str:
@@ -58,6 +58,37 @@ class NewPageForm(forms.Form):
         data = super().clean()
         if 'title' in data:
             Page(title=data['title'], parent=data.get('parent')).clean()
+        return data
+
+
+class StartPageForm(forms.Form):
+    """The page at `path`, an address a link named, under `parent`, the page above it: its place is the
+    address, so only a title that gives the same address will do, or the link would still lead nowhere."""
+
+    title = forms.CharField(
+        label=_('Title'), max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': True})
+    )
+
+    def __init__(self, *args, path: str, parent: Page | None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.slug = path.rpartition('/')[2]
+        self.parent = parent
+
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if slug_of(title) != self.slug:
+            raise forms.ValidationError(
+                _(
+                    'That title gives the page another address, so the link would still lead nowhere. '
+                    'To start a page by another name, use “New page”.'
+                )
+            )
+        return title
+
+    def clean(self):
+        data = super().clean()
+        if 'title' in data:
+            Page(title=data['title'], parent=self.parent).clean()
         return data
 
 

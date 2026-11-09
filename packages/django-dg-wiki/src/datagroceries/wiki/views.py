@@ -20,10 +20,11 @@ from datagroceries.wiki.forms import (
     MoveForm,
     NewPageForm,
     PageForm,
+    StartPageForm,
     TranslateForm,
     fingerprint,
 )
-from datagroceries.wiki.models import TOP, Attachment, Comment, Page
+from datagroceries.wiki.models import TOP, Attachment, Comment, Page, slug_of
 from datagroceries.wiki.templatetags.dg_wiki import render_context, tree_context
 
 wiki_required = people.may_use_required(SCOPE)
@@ -90,14 +91,41 @@ def page(request, path):
     return render(request, 'dg_wiki/page.html', context)
 
 
+def _title(slug: str) -> str:
+    """A title for the page at an address that has none yet, from the end of the address."""
+    return slug.replace('-', ' ').strip().capitalize()
+
+
 def _missing(request, path):
-    """The address of no page: an offer to start it, under the page the address goes through, if any,
-    with the title a link to it gave, or else one from the address."""
-    parent_path, _slash, slug = path.rpartition('/')
-    parent = access.pages(request.user).filter(path=parent_path).first() if parent_path else None
-    title = request.GET.get('title') or slug.replace('-', ' ').strip().capitalize()
-    form = NewPageForm(initial={'title': title, 'parent': parent.pk if parent else None}, user=request.user)
-    return render(request, 'dg_wiki/missing.html', {'form': form, 'path': path}, status=404)
+    """The address of no page: an offer to start it there, under the pages above it, with the title a
+    link to it gave, or else one from the address, to whoever may write there. A page above it that is not
+    there either is to be started first, the highest first; an address that is not all slugs no title
+    gives. Under a page the person may not see, the address is not found."""
+    parts = path.split('/')
+    above = ['/'.join(parts[:end]) for end in range(1, len(parts))]
+    found = {page.path: page for page in Page.objects.filter(path__in=above)}
+    if any(page.pk in access.hidden(request.user) for page in found.values()):
+        raise Http404(f'No page {path}.')
+    ancestors = [found[each] for each in above if each in found]
+    absent = next((each for each in above if each not in found), None)
+    parent = ancestors[-1] if ancestors else None
+    possible = absent is None and all(part and slug_of(part) == part for part in parts)
+    allowed = access.may(request.user, WRITE, parent or TOP)
+    title = request.GET.get('title') or _title(parts[-1])
+    data = request.POST if request.method == 'POST' else None
+    form = StartPageForm(data, initial={'title': title}, path=path, parent=parent)
+    if possible and allowed and form.is_valid():
+        created = operations.create(request, form.cleaned_data['title'], parent)
+        return redirect('dg_wiki:page_edit', created.path)
+    context = {
+        'form': form if possible and allowed else None,
+        'possible': possible,
+        'path': path,
+        'ancestors': ancestors,
+        'parent': parent,
+        'absent': absent and {'path': absent, 'title': _title(absent.rpartition('/')[2])},
+    }
+    return render(request, 'dg_wiki/missing.html', context, status=404)
 
 
 @wiki_required

@@ -200,6 +200,21 @@ class WriteTests(AccessTestCase):
         self.assertContains(page, f'data-page="{self.legal.pk}" draggable="false"')
         self.assertContains(page, f'data-page="{self.infra.pk}">')
 
+    def test_a_page_a_link_names_is_started_only_where_one_may_write(self):
+        refused = self.client.post('/dg/wiki/legal/contracts/', {'title': 'Contracts'})
+
+        self.assertContains(refused, 'you may not start one there', status_code=404)
+        self.assertNotContains(refused, 'name="title"', status_code=404)
+        self.assertFalse(Page.objects.filter(title='Contracts').exists())
+        self.client.post('/dg/wiki/engineering/infra/runbook/', {'title': 'Runbook'})
+        self.assertTrue(Page.objects.filter(path='engineering/infra/runbook').exists())
+
+    def test_under_a_page_one_may_not_read_an_address_is_not_found(self):
+        missing = self.client.get('/dg/wiki/engineering/acquisitions/plan/budget/')
+
+        self.assertEqual(missing.status_code, 404)
+        self.assertNotContains(missing, 'Acquisitions', status_code=404)
+
     def test_a_translation_goes_only_where_one_may_write(self):
         refused = self.api.post(f'{API}legal/-/translations/', {'language': 'nl', 'title': 'Juridisch'})
 

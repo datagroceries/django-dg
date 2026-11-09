@@ -183,9 +183,41 @@ class PageTests(WikiTestCase):
 
         self.assertContains(response, 'No such page yet', status_code=404)
         self.assertContains(response, 'value="Release notes"', status_code=404)
+        self.assertContains(response, f'goes under <a href="{top.get_absolute_url()}">Engineering</a>', status_code=404)
+        self.assertNotContains(response, 'name="parent"', status_code=404)
+
+    def test_a_page_started_at_an_address_goes_there_in_a_title_that_gives_it(self):
+        top = self.make_page('Engineering')
+
+        response = self.client.post('/dg/wiki/engineering/release-notes/', {'title': 'Release Notés'})
+
+        self.assertRedirects(response, reverse('dg_wiki:page_edit', args=['engineering/release-notes']))
+        started = Page.objects.get(path='engineering/release-notes')
+        self.assertEqual((started.title, started.parent), ('Release Notés', top))
+
+    def test_a_title_that_gives_another_address_is_refused(self):
+        self.make_page('Engineering')
+
+        response = self.client.post('/dg/wiki/engineering/release-notes/', {'title': 'What changed'})
+
+        self.assertContains(response, 'the link would still lead nowhere', status_code=404)
+        self.assertFalse(Page.objects.filter(title='What changed').exists())
+
+    def test_a_page_above_that_is_not_there_either_is_started_first(self):
+        response = self.client.get('/dg/wiki/engineering/deploying/rollback/?title=Rollback')
+
         self.assertContains(
-            response, f'<option value="{top.pk}" selected>Engineering</option>', html=True, status_code=404
+            response, '<a class="wk-missing" href="/dg/wiki/engineering/">Engineering</a>', html=True, status_code=404
         )
+        self.assertNotContains(response, 'name="title"', status_code=404)
+        self.client.post('/dg/wiki/engineering/deploying/rollback/', {'title': 'Rollback'})
+        self.assertFalse(Page.objects.exists())
+
+    def test_an_address_no_title_gives_offers_no_page(self):
+        response = self.client.get('/dg/wiki/Release notes/')
+
+        self.assertContains(response, 'no title gives that address', status_code=404)
+        self.assertNotContains(response, 'name="title"', status_code=404)
 
     def test_moving_a_page_takes_the_pages_under_it(self):
         engineering = self.make_page('Engineering')

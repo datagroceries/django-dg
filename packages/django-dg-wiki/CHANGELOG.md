@@ -14,6 +14,9 @@ Needs django-dg-core 1.3.0.
 - A link may end in a `/`, which changes nothing: `[[Sales/]]` is `[[Sales]]`, and a link to no page so
   written shows its name instead of nothing. A link to no page with no name to show, as `[[..]]` with no
   page above, stays text as written.
+- Following a link to a page that is not there yet starts it where the link says, no longer under a page
+  of your choice: its title may change only as far as the address stays the same, so the link finds it,
+  and a page above it that is not there either is offered to be started first.
 
 ## 1.1.0 (2026-11-07)
 

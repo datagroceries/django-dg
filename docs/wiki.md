@@ -62,7 +62,9 @@ slugs; the end of an address will do, and the page highest in the tree wins when
 folders: `[[./Rollback]]` is under it, `[[../Onboarding]]` beside it; outside a page, as in a ticket,
 those stay text, as nothing gives them a place to start from. A `/` at the end changes nothing. A
 former address finds its page. A link to no page shows dashed and red, and leads to where the page can be
-started, with the title from the link; one with no name to show, as `[[..]]` with no page above, stays text.
+started, with the title from the link: at the address the link names, so only a title with the same slug
+will do, and only once the pages above it are there (`StartPageForm`, `views._missing`). A link with no
+name to show, as `[[..]]` with no page above, stays text.
 
 `PageLinks` is a reference in core's Markdown registry, so every app renders the links while the wiki is
 installed. The page it renders in comes in the render's `context` (`{'wiki_page': page, 'scope':
