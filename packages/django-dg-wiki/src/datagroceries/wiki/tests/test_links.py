@@ -36,6 +36,41 @@ class LinkTests(WikiTestCase):
         response = self.client.get('/dg/wiki/engineering/release-notes/?title=Release+notes')
         self.assertContains(response, 'value="Release notes"', status_code=404)
 
+    def test_a_slash_at_the_end_changes_nothing(self):
+        html = markdown.render('[[Engineering/]], [[sales/]] and [[/Operations/]]')
+
+        self.assertInHTML('<a href="/dg/wiki/engineering/" rel="noopener noreferrer">Engineering</a>', html)
+        self.assertInHTML(
+            '<a class="wk-missing" href="/dg/wiki/sales/?title=sales" '
+            'title="No such page yet" rel="noopener noreferrer">sales</a>',
+            html,
+        )
+        self.assertInHTML(
+            '<a class="wk-missing" href="/dg/wiki/operations/?title=Operations" '
+            'title="No such page yet" rel="noopener noreferrer">Operations</a>',
+            html,
+        )
+
+    def test_a_link_with_a_slash_at_the_end_follows_its_page_and_downloads_as_its_name(self):
+        onboarding = self.make_page('Onboarding', body='[[Deploying/]], [[engineering/deploying/]], [[Sales/]]')
+
+        response = self.client.get(reverse('dg_wiki:page_export', args=[onboarding.path]))
+        self.assertIn('[Deploying](http://testserver/dg/wiki/engineering/deploying/), ', response.content.decode())
+        self.assertIn('/deploying/), Sales\n', response.content.decode())
+
+        self.deploying.title = 'Shipping'
+        self.deploying.save()
+
+        onboarding.refresh_from_db()
+        self.assertEqual(onboarding.body, '[[Shipping]], [[engineering/shipping]], [[Sales/]]')
+
+    def test_a_link_to_no_page_with_no_name_to_show_stays_as_written(self):
+        draft = Page(title='Draft', slug='draft', path='drafts/draft')
+
+        html = markdown.render('[[..]], [[./]] and [[../New]]', context={'wiki_page': draft})
+
+        self.assertIn('[[..]], [[./]] and <a class="wk-missing" href="/dg/wiki/drafts/new/?title=New"', html)
+
     def test_links_in_code_and_tickets_keys_inside_a_link_are_left_alone(self):
         html = markdown.render('`[[Deploying]]` and [[Deploying|before T-1]]')
 

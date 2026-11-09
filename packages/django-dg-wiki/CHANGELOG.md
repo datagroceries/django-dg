@@ -1,5 +1,11 @@
 # Changelog of django-dg-wiki
 
+## Unreleased
+
+- A link may end in a `/`, which changes nothing: `[[Sales/]]` is `[[Sales]]`, and a link to no page so
+  written shows its name instead of nothing. A link to no page with no name to show, as `[[..]]` with no
+  page above, stays text as written.
+
 ## 1.1.0 (2026-11-07)
 
 Needs django-dg-core 1.1.0.

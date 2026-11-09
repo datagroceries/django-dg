@@ -8,8 +8,9 @@ A link names a page by its address, written in titles or in slugs: "Engineering/
 starts with "/" is the whole address, from the top: "[[/Deploying]]" finds only the page "deploying". In
 a wiki page, "." is that page and ".." the page above it: "[[./Rollback]]" is the page "Rollback" under
 it, "[[../Onboarding]]" the page "Onboarding" beside it. Elsewhere, as in a ticket, such a link stays
-text. An address a page had before a rename or a move still finds it. A link to no page shows as one,
-and leads to where that page can be started.
+text. A "/" at the end changes nothing: "[[Sales/]]" is "[[Sales]]". An address a page had before a
+rename or a move still finds it. A link to no page shows as one, and leads to where that page can be
+started.
 
 The wiki keeps the links in its own pages (Link): to list what links to a page, and to rewrite them when
 a page they name, or the page they are in, gets another address, so they keep saying where the page is.
@@ -58,6 +59,13 @@ def reference(written: str, base: str | None = None) -> str:
         return f'/{"/".join(slugs)}' if slugs else ''
     path = '/'.join(slug for slug in (slug_of(part) for part in parts) if slug)
     return f'/{path}' if path and written.strip().startswith('/') else path
+
+
+def name(written: str) -> str:
+    """The name a link shows for a page that is not there yet: the last part of what was written,
+    "Sales" for "Sales/" too. Empty when it has none, as "..", which names a page by where it is only."""
+    parts = (part.strip() for part in reversed(written.split('/')))
+    return next((part for part in parts if part and part not in RELATIVE), '')
 
 
 def resolve(references: set[str]) -> dict[str, Page]:
@@ -137,10 +145,12 @@ class PageLinks(markdown.Reference):
         names = {match: reference(LINK_RE.fullmatch(match)[1], base) for match in matches}
         found = resolve(set(names.values()))
         result = {}
-        for match, name in names.items():
-            if name:
-                title = LINK_RE.fullmatch(match)[1].split('/')[-1].strip()
-                result[match] = found.get(name) or Missing(name.removeprefix('/'), title)
+        for match, path in names.items():
+            if path in found:
+                result[match] = found[path]
+            # A link to no page with no name to show stays text, as written, rather than show as nothing.
+            elif path and (title := name(LINK_RE.fullmatch(match)[1])):
+                result[match] = Missing(path.removeprefix('/'), title)
         return result
 
     def element(self, match, found):
@@ -218,8 +228,9 @@ def spelling(page: Page, written: str = '', base: str | None = None) -> str:
     from `base`, the address of the page it is in ("./...", "../..."), or by as few parts at the end of
     its address as it had and still find it; in titles or, if `written` was in slugs, slugs. A title that
     gives another slug than its page's, or holds what a link cannot, is written as its slug."""
-    parts = [part.strip() for part in written.strip().removeprefix('/').split('/')]
-    slugs = bool(written) and all(part in RELATIVE or part == slug_of(part) for part in parts)
+    # A "/" at the end, or one too many between, is no part.
+    parts = [part.strip() for part in written.strip().removeprefix('/').split('/') if part.strip()]
+    slugs = bool(parts) and all(part in RELATIVE or part == slug_of(part) for part in parts)
     chain = [*page.ancestors(), page]
 
     def spelled(pages: list[Page]) -> list[str]:
@@ -232,14 +243,14 @@ def spelling(page: Page, written: str = '', base: str | None = None) -> str:
 
     if written.strip().startswith('/'):
         return '/' + '/'.join(spelled(chain))
-    if parts[0] in RELATIVE and base is not None:
+    if parts[:1] and parts[0] in RELATIVE and base is not None:
         here, there = base.split('/'), page.path.split('/')
         shared = 0
         while shared < min(len(here), len(there)) and here[shared] == there[shared]:
             shared += 1
         up = len(here) - shared
         return '/'.join(['..'] * up or ['.']) + ''.join(f'/{part}' for part in spelled(chain[shared:]))
-    least = len([part for part in parts if part])
+    least = len(parts)
     for count in range(min(max(least, 1), len(chain)), len(chain) + 1):
         candidate = '/'.join(spelled(chain[-count:]))
         if resolve({reference(candidate)}).get(reference(candidate)) == page:

@@ -60,8 +60,9 @@ translation names the same original.
 slugs; the end of an address will do, and the page highest in the tree wins when several end so.
 `[[/...]]` is a whole address only. In a page, `.` is the page and `..` the page above it, as with
 folders: `[[./Rollback]]` is under it, `[[../Onboarding]]` beside it; outside a page, as in a ticket,
-those stay text, as nothing gives them a place to start from. A former address finds its page. A link to
-no page shows dashed and red, and leads to where the page can be started, with the title from the link.
+those stay text, as nothing gives them a place to start from. A `/` at the end changes nothing. A
+former address finds its page. A link to no page shows dashed and red, and leads to where the page can be
+started, with the title from the link; one with no name to show, as `[[..]]` with no page above, stays text.
 
 `PageLinks` is a reference in core's Markdown registry, so every app renders the links while the wiki is
 installed. The page it renders in comes in the render's `context` (`{'wiki_page': page, 'scope':

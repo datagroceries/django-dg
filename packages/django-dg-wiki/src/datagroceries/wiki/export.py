@@ -41,9 +41,10 @@ def page_markdown(request, page: Page, *, files: dict | None = None, inside: dic
     def link(match):
         written, label = match.groups()
         target = found.get(links.reference(written, page.path))
-        text = (label or '').strip() or (target.title if target else written.split('/')[-1].strip())
+        text = (label or '').strip() or (target.title if target else links.name(written))
         if target is None:
-            return text
+            # With no name to show, the link as it was written.
+            return text or match[0]
         url = relative(inside[target.pk]) if target.pk in inside else address(target.get_absolute_url())
         return f'[{text}]({url})'
 
