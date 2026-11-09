@@ -94,7 +94,7 @@ class StartPageForm(forms.Form):
 
 def _languages(blank: bool = True, leave_out=()) -> list:
     choices = [(code, name) for code, name in settings.LANGUAGES if code not in leave_out]
-    return [('', _('No language said')), *choices] if blank else choices
+    return [('', _('No language set')), *choices] if blank else choices
 
 
 class PageForm(forms.ModelForm):
