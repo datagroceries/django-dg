@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 19:56+0100\n"
+"POT-Creation-Date: 2026-11-09 20:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -128,7 +128,7 @@ msgid "A page that is not there yet shows red. Following the link starts it."
 msgstr ""
 "Een pagina die er nog niet is, is rood. Wie de link volgt, begint die pagina."
 
-#: links.py:178 templates/dg_wiki/missing.html:8
+#: links.py:178
 msgid "No such page yet"
 msgstr "Deze pagina bestaat nog niet"
 
@@ -265,7 +265,7 @@ msgstr "Antwoorden"
 msgid "Comment"
 msgstr "Reageren"
 
-#: templates/dg_wiki/_new_page_form.html:14 templates/dg_wiki/missing.html:21
+#: templates/dg_wiki/_new_page_form.html:14 templates/dg_wiki/missing.html:23
 msgid "Create and write"
 msgstr "Maken en schrijven"
 
@@ -340,45 +340,43 @@ msgstr ""
 msgid "No such page"
 msgstr "Pagina bestaat niet"
 
+#: templates/dg_wiki/missing.html:8
+#, python-format
+msgid "No page at <code>/%(path)s</code> yet"
+msgstr "Nog geen pagina op <code>/%(path)s</code>"
+
 #: templates/dg_wiki/missing.html:10
 #, python-format
 msgid ""
-"No page has the address <code>%(path)s</code>. It would go in <a "
-"href=\"%(url)s\">%(title)s</a>, which is a page, not a folder: make it a "
-"folder first."
-msgstr ""
-"Geen pagina heeft het adres <code>%(path)s</code>. Die zou komen in <a "
-"href=\"%(url)s\">%(title)s</a>, en dat is een pagina, geen map: maak er "
-"eerst een map van."
-
-#: templates/dg_wiki/missing.html:12
-#, python-format
-msgid ""
-"Start the page <strong>%(title)s</strong>, at <code>%(path)s</code>, where "
-"the link leads?"
-msgstr ""
-"De pagina <strong>%(title)s</strong> beginnen, op <code>%(path)s</code>, "
-"waar de link heen gaat?"
+"It would go in <a href=\"%(url)s\">%(title)s</a>, which is a page, not a "
+"folder: make it a folder first."
+msgstr "Die zou komen in <a href=\"%(url)s\">%(title)s</a>, en dat is een pagina, geen map: maak er eerst een map van."
 
 #: templates/dg_wiki/missing.html:13
 #, python-format
-msgid "The folders it goes in are made too: %(folders)s."
-msgstr "De mappen waar de pagina in komt, worden ook gemaakt: %(folders)s."
+msgid ""
+"The link leads here. Start the page <strong>%(title)s</strong>, in %(place)s."
+msgstr "De link leidt hierheen. Maak de pagina <strong>%(title)s</strong> aan, in %(place)s."
 
 #: templates/dg_wiki/missing.html:14
 #, python-format
-msgid "It goes under <a href=\"%(url)s\">%(title)s</a>."
-msgstr "De pagina komt onder <a href=\"%(url)s\">%(title)s</a>."
-
-#: templates/dg_wiki/missing.html:14
-msgid "It goes at the top."
-msgstr "De pagina komt bovenaan."
+msgid ""
+"The link leads here. Start the page <strong>%(title)s</strong>, at the top "
+"of the wiki."
+msgstr "De link leidt hierheen. Maak de pagina <strong>%(title)s</strong> aan, bovenaan in de wiki."
 
 #: templates/dg_wiki/missing.html:15
-msgid "It starts as a folder, for pages to go in."
+#, python-format
+msgid "%(folders)s is not there yet, and is made as a folder too."
+msgid_plural "%(folders)s are not there yet, and are made as folders too."
+msgstr[0] "%(folders)s bestaat nog niet en wordt ook als map gemaakt."
+msgstr[1] "%(folders)s bestaan nog niet en worden ook als map gemaakt."
+
+#: templates/dg_wiki/missing.html:16
+msgid "The page starts as a folder, for pages to go in."
 msgstr "De pagina begint als map, voor pagina's erin."
 
-#: templates/dg_wiki/missing.html:22
+#: templates/dg_wiki/missing.html:24
 msgid ""
 "Its title and place are what the link says. Rename or move it once it is "
 "there: links to it follow."
@@ -386,23 +384,13 @@ msgstr ""
 "De titel en de plek komen uit de link. Hernoem of verplaats de pagina als ze "
 "er is: links ernaartoe gaan mee."
 
-#: templates/dg_wiki/missing.html:25
-#, python-format
-msgid ""
-"No page has the address <code>%(path)s</code>, and you may not start one "
-"there."
-msgstr ""
-"Geen pagina heeft het adres <code>%(path)s</code>, en je mag er geen "
-"beginnen."
-
 #: templates/dg_wiki/missing.html:27
-#, python-format
-msgid ""
-"No page has the address <code>%(path)s</code>, and none can: no title gives "
-"that address."
-msgstr ""
-"Geen pagina heeft het adres <code>%(path)s</code>, en geen pagina kan het "
-"krijgen: geen titel geeft dat adres."
+msgid "You may not start a page here."
+msgstr "Je mag hier geen pagina beginnen."
+
+#: templates/dg_wiki/missing.html:29
+msgid "No title gives this address, so no page can be here."
+msgstr "Geen titel geeft dit adres, dus hier kan geen pagina staan."
 
 #: templates/dg_wiki/page.html:15
 msgid "More"
@@ -674,7 +662,7 @@ msgstr "Verplaatst naar onder “%(title)s”"
 msgid "Moved to the top"
 msgstr "Naar boven verplaatst"
 
-#: views.py:175
+#: views.py:183
 #, python-format
 msgid ""
 "%(who)s saved this page while you were editing it. Your text is still here: "
@@ -685,25 +673,25 @@ msgstr ""
 "nog: open de pagina in een ander tabblad om die van hen te zien, voeg de "
 "twee samen en sla opnieuw op om die van hen te vervangen."
 
-#: views.py:206
+#: views.py:214
 #, python-format
 msgid "“%(title)s” is deleted."
 msgstr "“%(title)s” is verwijderd."
 
-#: views.py:299
+#: views.py:307
 #, python-format
 msgid "The version of %(when)s is back."
 msgstr "De versie van %(when)s is teruggezet."
 
-#: views.py:320
+#: views.py:328
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
 
-#: views.py:353
+#: views.py:361
 msgid "A comment needs text."
 msgstr "Een reactie heeft tekst nodig."
 
-#: views.py:369
+#: views.py:377
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."

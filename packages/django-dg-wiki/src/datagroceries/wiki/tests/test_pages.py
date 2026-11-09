@@ -181,11 +181,14 @@ class PageTests(WikiTestCase):
 
         response = self.client.get('/dg/wiki/engineering/release-notes')
 
-        self.assertContains(response, 'No such page yet', status_code=404)
+        self.assertContains(response, 'No page at <code>/engineering/release-notes</code> yet', status_code=404)
         self.assertContains(response, 'type="hidden" name="title" value="Release notes"', status_code=404)
-        self.assertContains(response, 'Start the page <strong>Release notes</strong>', status_code=404)
+        self.assertContains(
+            response,
+            f'Start the page <strong>Release notes</strong>, in <a href="{top.get_absolute_url()}">Engineering</a>.',
+            status_code=404,
+        )
         self.assertNotContains(response, 'type="text"', status_code=404)
-        self.assertContains(response, f'goes under <a href="{top.get_absolute_url()}">Engineering</a>', status_code=404)
         self.assertNotContains(response, 'name="parent"', status_code=404)
 
     def test_a_page_started_at_an_address_goes_there_in_a_title_that_gives_it(self):
@@ -209,7 +212,9 @@ class PageTests(WikiTestCase):
         response = self.client.get('/dg/wiki/engineering/international/belgium/voorbereiding?title=Voorbereiding')
 
         self.assertContains(
-            response, 'The folders it goes in are made too: Engineering, International, Belgium.', status_code=404
+            response,
+            'Engineering, International, Belgium are not there yet, and are made as folders too.',
+            status_code=404,
         )
         self.client.post('/dg/wiki/engineering/international/belgium/voorbereiding', {'title': 'Voorbereiding'})
         self.assertEqual(
@@ -221,6 +226,11 @@ class PageTests(WikiTestCase):
                 ('engineering/international/belgium/voorbereiding', 'Voorbereiding', False),
             ],
         )
+
+    def test_a_page_at_the_top_says_so(self):
+        response = self.client.get('/dg/wiki/also')
+
+        self.assertContains(response, 'Start the page <strong>Also</strong>, at the top of the wiki.', status_code=404)
 
     def test_a_page_above_that_is_a_page_is_to_be_made_a_folder_first(self):
         self.make_page('Engineering')
@@ -235,7 +245,7 @@ class PageTests(WikiTestCase):
     def test_an_address_no_title_gives_offers_no_page(self):
         response = self.client.get('/dg/wiki/Release notes/')
 
-        self.assertContains(response, 'no title gives that address', status_code=404)
+        self.assertContains(response, 'No title gives this address', status_code=404)
         self.assertNotContains(response, 'name="title"', status_code=404)
 
     def test_moving_a_page_takes_the_pages_under_it(self):

@@ -205,7 +205,7 @@ class WriteTests(AccessTestCase):
     def test_a_page_a_link_names_is_started_only_where_one_may_write(self):
         refused = self.client.post('/dg/wiki/sales/contracts', {'title': 'Contracts'})
 
-        self.assertContains(refused, 'you may not start one there', status_code=404)
+        self.assertContains(refused, 'You may not start a page here.', status_code=404)
         self.assertNotContains(refused, 'name="title"', status_code=404)
         self.assertFalse(Page.objects.filter(title='Contracts').exists())
         self.client.post('/dg/wiki/engineering/runbook', {'title': 'Runbook'})

@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
@@ -134,6 +135,13 @@ def _missing(request, path):
         'ancestors': ancestors,
         'parent': parent,
         'new_folders': [_title(each.rpartition('/')[2]) for each in absent],
+        # Where it goes, as crumbs: the folders there, and the ones made with it.
+        'place': format_html_join(
+            ' \N{SINGLE RIGHT-POINTING ANGLE QUOTATION MARK} ',
+            '{}',
+            [(format_html('<a href="{}">{}</a>', each.get_absolute_url(), each.title),) for each in ancestors]
+            + [(_title(each.rpartition('/')[2]),) for each in absent],
+        ),
     }
     return render(request, 'dg_wiki/missing.html', context, status=404)
 

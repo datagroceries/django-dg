@@ -5,14 +5,16 @@
 
 {% block main %}
 {% include 'dg_wiki/_crumbs.html' %}
-<h1 class="h3">{% translate "No such page yet" %}</h1>
+<h1 class="h3">{% blocktranslate %}No page at <code>/{{ path }}</code> yet{% endblocktranslate %}</h1>
 {% if not_folder %}
-<p class="wk-muted">{% blocktranslate with url=not_folder.get_absolute_url title=not_folder.title %}No page has the address <code>{{ path }}</code>. It would go in <a href="{{ url }}">{{ title }}</a>, which is a page, not a folder: make it a folder first.{% endblocktranslate %}</p>
+<p class="wk-muted">{% blocktranslate with url=not_folder.get_absolute_url title=not_folder.title %}It would go in <a href="{{ url }}">{{ title }}</a>, which is a page, not a folder: make it a folder first.{% endblocktranslate %}</p>
 {% elif form %}
-<p>{% blocktranslate with title=form.title.value %}Start the page <strong>{{ title }}</strong>, at <code>{{ path }}</code>, where the link leads?{% endblocktranslate %}
-  {% if new_folders %}{% blocktranslate with folders=new_folders|join:", " %}The folders it goes in are made too: {{ folders }}.{% endblocktranslate %}
-  {% elif parent %}{% blocktranslate with url=parent.get_absolute_url title=parent.title %}It goes under <a href="{{ url }}">{{ title }}</a>.{% endblocktranslate %}{% else %}{% translate "It goes at the top." %}{% endif %}
-  {% if folder %}{% translate "It starts as a folder, for pages to go in." %}{% endif %}</p>
+<p>
+  {% if place %}{% blocktranslate with title=form.title.value %}The link leads here. Start the page <strong>{{ title }}</strong>, in {{ place }}.{% endblocktranslate %}
+  {% else %}{% blocktranslate with title=form.title.value %}The link leads here. Start the page <strong>{{ title }}</strong>, at the top of the wiki.{% endblocktranslate %}{% endif %}
+  {% if new_folders %}{% blocktranslate count counter=new_folders|length with folders=new_folders|join:", " %}{{ folders }} is not there yet, and is made as a folder too.{% plural %}{{ folders }} are not there yet, and are made as folders too.{% endblocktranslate %}{% endif %}
+  {% if folder %}{% translate "The page starts as a folder, for pages to go in." %}{% endif %}
+</p>
 <form method="post" class="wk-narrow">
   {% csrf_token %}
   {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
@@ -22,8 +24,8 @@
   <p class="form-text">{% translate "Its title and place are what the link says. Rename or move it once it is there: links to it follow." %}</p>
 </form>
 {% elif possible %}
-<p class="wk-muted">{% blocktranslate %}No page has the address <code>{{ path }}</code>, and you may not start one there.{% endblocktranslate %}</p>
+<p class="wk-muted">{% translate "You may not start a page here." %}</p>
 {% else %}
-<p class="wk-muted">{% blocktranslate %}No page has the address <code>{{ path }}</code>, and none can: no title gives that address.{% endblocktranslate %}</p>
+<p class="wk-muted">{% translate "No title gives this address, so no page can be here." %}</p>
 {% endif %}
 {% endblock %}
