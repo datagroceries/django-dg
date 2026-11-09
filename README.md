@@ -43,8 +43,9 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
 
 - **Pages in one tree**: a page with pages under it is what elsewhere is a space or a folder. Addresses
   follow the tree, and a page renamed or moved keeps its old address leading to it.
-- **Links between pages**, `[[Engineering/Deploying]]`, also from a ticket's text, that follow a page when
-  it moves. A page lists the pages that link to it, and a ticket the pages that name it.
+- **Links between pages**, relative as in a browser (`[[Rollback]]` under a page, `[[../Onboarding]]`
+  beside it) or from the top (`[[/Engineering/Deploying]]`, also in a ticket), that follow a page when it
+  moves. A page lists the pages that link to it, and a ticket the pages that name it.
 - **History**: every version kept, with who made it and through which agent; two versions side by side,
   and an old one brought back.
 - **Comments, @-mentions and watchers**, images and files, search, translations, and pages downloaded as

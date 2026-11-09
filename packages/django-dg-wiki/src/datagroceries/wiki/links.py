@@ -1,20 +1,22 @@
-"""Links to wiki pages: "[[Engineering/Deploying]]" links to that page, and "[[Deploying|how we ship]]" does with words
-of its own, in every DataGroceries app's Markdown while the wiki is installed (datagroceries.core.markdown), so a
-ticket can link to a page too.
+"""Links to wiki pages: "[[Rollback]]" links to the page Rollback under the page it is in, and "[[Rollback|how we go
+back]]" does with words of its own, in every DataGroceries app's Markdown while the wiki is installed
+(datagroceries.core.markdown), so a ticket can link to a page too.
 
-A link names a page by its address, written in titles or in slugs: "Engineering/Deploying" and
-"engineering/deploying" are the same. The end of an address will do: "[[Deploying]]" finds
-"engineering/deploying", the page highest in the tree if several addresses end so. An address that
-starts with "/" is the whole address, from the top: "[[/Deploying]]" finds only the page "deploying". In
-a wiki page, "." is that page and ".." the page above it: "[[./Rollback]]" is the page "Rollback" under
-it, "[[../Onboarding]]" the page "Onboarding" beside it. Elsewhere, as in a ticket, such a link stays
-text. A "/" at the end changes nothing: "[[Sales/]]" is "[[Sales]]". An address a page had before a
-rename or a move still finds it. A link to no page shows as one, and leads to where that page can be
-started. A link to a page the reader may not see (datagroceries.wiki.access) shows as one, by the name
-written, not its title, and leads nowhere.
+A link names a page by its address, written in titles or in slugs: "Deploying/Rollback" and "deploying/rollback"
+are the same. It is found as a browser finds a relative address on a page whose address ends in "/", which a
+wiki page's does: every page is also a folder of the pages under it. On the page "engineering",
+"[[International]]" and "[[./International]]" are "engineering/international", "[[International/Belgium]]" is
+"engineering/international/belgium", and "[[../Sales]]" is "sales", beside it: each ".." goes one level up. A
+link that starts with "/" is from the top of the wiki: "[[/Sales/Q4]]". Nothing else is looked for: a link
+names one address, never a page somewhere else in the tree. Outside a wiki page, as in a ticket, only a link
+from the top is one; any other stays text. A "/" at the end changes nothing: "[[Sales/]]" is "[[Sales]]". An
+address a page had before a rename or a move still finds it. A link to no page shows as one, and leads to
+where that page can be started. A link to a page the reader may not see (datagroceries.wiki.access) shows
+as one, by the name written, not its title, and leads nowhere.
 
 The wiki keeps the links in its own pages (Link): to list what links to a page, and to rewrite them when
-a page they name, or the page they are in, gets another address, so they keep saying where the page is.
+a page they name, or the page they are in, gets another address, so they keep saying where the page is, in
+the way they were written.
 """
 
 import dataclasses
@@ -43,25 +45,26 @@ RELATIVE = ('.', '..')
 
 
 def reference(written: str, base: str | None = None) -> str:
-    """The address a link names, each part as a slug: "Engineering/Deploying" names the page whose
-    address is or ends in "engineering/deploying". A whole address is written with "/" before it:
-    "/Engineering/Deploying" names "/engineering/deploying", and so does "./Deploying" in the page at
-    `base`, "engineering". Empty when it names none, as a relative link without a page to start from."""
-    parts = written.strip().split('/')
-    if parts[0].strip() in RELATIVE:
-        if base is None:
-            return ''
+    """The address a link names, from the top, each part as a slug: "/engineering/deploying". From the top
+    when it starts with "/"; else from `base`, the address of the page it is in: "Rollback" and
+    "./Rollback" in the page "engineering/deploying" name "/engineering/deploying/rollback", and
+    "../Onboarding" names "/engineering/onboarding". Empty when it names none: a relative link without a
+    page to start from, as in a ticket, or one that goes above the top."""
+    written = written.strip()
+    if written.startswith('/'):
+        slugs = []
+    elif base is None:
+        return ''
+    else:
         slugs = base.split('/')
-        for part in parts:
-            if part.strip() == '..':
-                if not slugs:
-                    return ''
-                slugs.pop()
-            elif slug := slug_of(part):
-                slugs.append(slug)
-        return f'/{"/".join(slugs)}' if slugs else ''
-    path = '/'.join(slug for slug in (slug_of(part) for part in parts) if slug)
-    return f'/{path}' if path and written.strip().startswith('/') else path
+    for part in written.split('/'):
+        if part.strip() == '..':
+            if not slugs:
+                return ''
+            slugs.pop()
+        elif part.strip() != '.' and (slug := slug_of(part)):
+            slugs.append(slug)
+    return f'/{"/".join(slugs)}' if slugs else ''
 
 
 def name(written: str) -> str:
@@ -72,7 +75,8 @@ def name(written: str) -> str:
 
 
 def resolve(references: set[str]) -> dict[str, Page]:
-    """The pages these addresses name, by address; addresses that name no page are left out."""
+    """The pages these addresses, as `reference` gives them, name, by address; addresses that name no page
+    are left out."""
     references = {reference for reference in references if reference}
     paths = {reference.removeprefix('/') for reference in references}
     fields = ('id', 'parent_id', 'title', 'slug', 'path')
@@ -80,24 +84,7 @@ def resolve(references: set[str]) -> dict[str, Page]:
     if rest := paths - at.keys():
         formers = FormerPath.objects.filter(path__in=rest).select_related('page')
         at |= {former.path: former.page for former in formers.only('path', *(f'page__{f}' for f in fields))}
-    found = {
-        reference: at[reference.removeprefix('/')] for reference in references if reference.removeprefix('/') in at
-    }
-    # What is left are ends of addresses; a whole address that names no page names none.
-    ends = {reference for reference in references - found.keys() if not reference.startswith('/')}
-    if ends:
-        query = Q()
-        for end in ends:
-            query |= Q(path__endswith=f'/{end}')
-        # The highest in the tree first.
-        candidates = sorted(
-            Page.objects.filter(query).only(*fields), key=lambda page: (page.path.count('/'), page.path)
-        )
-        for end in ends:
-            page = next((page for page in candidates if page.path.endswith(f'/{end}')), None)
-            if page is not None:
-                found[end] = page
-    return found
+    return {reference: at[reference.removeprefix('/')] for reference in references if reference.removeprefix('/') in at}
 
 
 def matches(text: str):
@@ -145,14 +132,22 @@ class PageLinks(markdown.Reference):
         # The page names in an example and in what it says are translated alike.
         return [
             (
-                _('[[Deploying]]'),
-                _('The page called Deploying, wherever it is. If several are called so, the one highest in the tree.'),
+                _('[[Rollback]]'),
+                _(
+                    'A link starts from the page it is in, as an address does in a browser: this is the page '
+                    'Rollback under it.'
+                ),
             ),
-            (_('[[Engineering/Deploying]]'), _('The page Deploying under Engineering, to say which one.')),
-            (_('[[Deploying|how we ship]]'), _('A link to Deploying, with words of your own.')),
-            (_('[[/Engineering/Deploying]]'), _('The whole address, from the top of the wiki: that page only.')),
-            (_('[[./Rollback]]'), _('Only in a wiki page: the page Rollback under this one.')),
-            (_('[[../Onboarding]]'), _('Only in a wiki page: the page Onboarding beside this one.')),
+            (_('[[Rollback/Testing]]'), _('Further down: the page Testing, under Rollback, under this page.')),
+            (_('[[../Onboarding]]'), _('The page Onboarding beside this one. Each ../ goes one level up.')),
+            (
+                _('[[/Engineering/Deploying]]'),
+                _(
+                    'From the top of the wiki: Deploying, under Engineering. Outside the wiki, as in a ticket, '
+                    'only these work.'
+                ),
+            ),
+            (_('[[Rollback|how we go back]]'), _('A link with words of your own.')),
             (_('[[New page]]'), _('A page that is not there yet shows red. Following the link starts it.')),
         ]
 
@@ -200,13 +195,10 @@ def record(page: Page):
     Link.objects.bulk_create(Link(source=page, reference=path, target=found.get(path)) for path in references)
 
 
-def refresh(slugs: set[str]):
-    """After pages got these slugs at a new address: the links that may name another page now, or one at
-    last, are looked up again."""
-    names = Q(target=None)
-    for slug in slugs:
-        names |= Q(reference=slug) | Q(reference__endswith=f'/{slug}')
-    links = list(Link.objects.filter(names))
+def refresh(paths: set[str]):
+    """After pages got these addresses: the links that name them, which may have named another page or
+    none, are looked up again."""
+    links = list(Link.objects.filter(reference__in=[f'/{path}' for path in paths]))
     found = resolve({link.reference for link in links})
     for link in links:
         link.target = found.get(link.reference)
@@ -249,10 +241,10 @@ def _rewrite(text: str, targets: dict[str, Page], before: str, now: str) -> str:
 
 
 def spelling(page: Page, written: str = '', base: str | None = None) -> str:
-    """How a link names `page`, the way `written`, a link to it, was written: from the top ("/..."),
-    from `base`, the address of the page it is in ("./...", "../..."), or by as few parts at the end of
-    its address as it had and still find it; in titles or, if `written` was in slugs, slugs. A title that
-    gives another slug than its page's, or holds what a link cannot, is written as its slug."""
+    """How a link names `page`, the way `written`, a link to it, was written: from the top ("/..."), or from
+    `base`, the address of the page it is in ("Rollback", "./Rollback", "../Onboarding"); in titles or, if
+    `written` was in slugs, slugs. A title that gives another slug than its page's, or holds what a link
+    cannot, is written as its slug."""
     # A "/" at the end, or one too many between, is no part.
     parts = [part.strip() for part in written.strip().removeprefix('/').split('/') if part.strip()]
     slugs = bool(parts) and all(part in RELATIVE or part == slug_of(part) for part in parts)
@@ -266,18 +258,13 @@ def spelling(page: Page, written: str = '', base: str | None = None) -> str:
             for each in pages
         ]
 
-    if written.strip().startswith('/'):
+    if written.strip().startswith('/') or base is None:
         return '/' + '/'.join(spelled(chain))
-    if parts[:1] and parts[0] in RELATIVE and base is not None:
-        here, there = base.split('/'), page.path.split('/')
-        shared = 0
-        while shared < min(len(here), len(there)) and here[shared] == there[shared]:
-            shared += 1
-        up = len(here) - shared
-        return '/'.join(['..'] * up or ['.']) + ''.join(f'/{part}' for part in spelled(chain[shared:]))
-    least = len(parts)
-    for count in range(min(max(least, 1), len(chain)), len(chain) + 1):
-        candidate = '/'.join(spelled(chain[-count:]))
-        if resolve({reference(candidate)}).get(reference(candidate)) == page:
-            return candidate
-    return page.path
+    here, there = base.split('/'), page.path.split('/')
+    shared = 0
+    while shared < min(len(here), len(there)) and here[shared] == there[shared]:
+        shared += 1
+    up = ['..'] * (len(here) - shared)
+    if not up and parts[:1] == ['.']:
+        up = ['.']
+    return '/'.join(up + spelled(chain[shared:])) or '.'

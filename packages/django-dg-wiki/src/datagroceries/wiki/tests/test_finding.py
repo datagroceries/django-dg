@@ -50,7 +50,7 @@ class ExportTests(WikiTestCase):
         settings = override_settings(MEDIA_ROOT=media)
         settings.enable()
         self.addCleanup(settings.disable)
-        self.engineering = self.make_page('Engineering', body='See [[./Deploying]], [[Onboarding]] and [[Nowhere]].')
+        self.engineering = self.make_page('Engineering', body='See [[./Deploying]], [[../Onboarding]] and [[Nowhere]].')
         self.deploying = self.make_page('Deploying', self.engineering, body='Back to [[..|the top]]. `[[Code]]`')
         self.make_page('Onboarding')
 

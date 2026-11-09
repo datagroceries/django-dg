@@ -55,8 +55,8 @@ class WikiToolTests(TestCase):
             'get_page', {each['name'] for each in call(board_only, 'tools/list').json()['result']['tools']}
         )
 
-    def test_a_page_is_found_as_a_link_would_name_it(self):
-        page, error = tool(self.client, 'get_page', path='Deploying')
+    def test_a_page_is_found_by_its_whole_address_in_titles_or_slugs(self):
+        page, error = tool(self.client, 'get_page', path='Engineering/Deploying')
 
         self.assertFalse(error)
         self.assertEqual(
@@ -65,17 +65,22 @@ class WikiToolTests(TestCase):
         )
         self.assertEqual(page['last_changed']['by']['handle'], 'anna')
         self.assertEqual(tool(self.client, 'get_page', path='nowhere')[1], True)
+        self.assertEqual(tool(self.client, 'get_page', path='Deploying')[1], True)
 
     def test_a_change_from_an_old_version_is_refused_and_from_the_latest_goes_through(self):
         version = tool(self.client, 'get_page', path='engineering/deploying')[0]['version']
         Page.objects.get(pk=self.deploying.pk).save()  # someone else saves meanwhile
 
-        answer, error = tool(self.client, 'update_page', path='Deploying', body='Pull, migrate.', version=version)
+        answer, error = tool(
+            self.client, 'update_page', path='Engineering/Deploying', body='Pull, migrate.', version=version
+        )
         self.assertTrue(error)
         self.assertIn('changed since version', answer['detail'])
 
-        latest = tool(self.client, 'get_page', path='Deploying')[0]['version']
-        answer, error = tool(self.client, 'update_page', path='Deploying', body='Pull, migrate.', version=latest)
+        latest = tool(self.client, 'get_page', path='Engineering/Deploying')[0]['version']
+        answer, error = tool(
+            self.client, 'update_page', path='Engineering/Deploying', body='Pull, migrate.', version=latest
+        )
         self.assertFalse(error)
         self.assertEqual(answer['body'], 'Pull, migrate.')
         self.assertEqual(answer['last_changed']['via'], 'Claude')
@@ -85,15 +90,15 @@ class WikiToolTests(TestCase):
         self.assertFalse(error)
         self.assertEqual(page['path'], 'engineering/rollback')
 
-        page, _error = tool(self.client, 'update_page', path='Rollback', before='Deploying')
+        page, _error = tool(self.client, 'update_page', path='Engineering/Rollback', before='Engineering/Deploying')
         self.assertEqual(
             [child['title'] for child in tool(self.client, 'get_page', path='Engineering')[0]['children']],
             ['Rollback', 'Deploying'],
         )
 
-        page, _error = tool(self.client, 'update_page', path='Rollback', parent=None)
+        page, _error = tool(self.client, 'update_page', path='Engineering/Rollback', parent=None)
         self.assertEqual(page['path'], 'rollback')
-        answer, error = tool(self.client, 'update_page', path='Engineering', parent='Deploying')
+        answer, error = tool(self.client, 'update_page', path='Engineering', parent='Engineering/Deploying')
         self.assertTrue(error)
         self.assertIn('parent', answer)
 
@@ -109,29 +114,32 @@ class WikiToolTests(TestCase):
         )
 
     def test_history_a_version_and_bringing_it_back(self):
-        tool(self.client, 'update_page', path='Deploying', body='Wrong.')
-        history, _error = tool(self.client, 'get_page_history', path='Deploying')
+        tool(self.client, 'update_page', path='Engineering/Deploying', body='Wrong.')
+        history, _error = tool(self.client, 'get_page_history', path='Engineering/Deploying')
         first = history[-1]['version']
         self.assertEqual(
-            tool(self.client, 'get_page_version', path='Deploying', version=first)[0]['body'], 'Pull, then restart.'
+            tool(self.client, 'get_page_version', path='Engineering/Deploying', version=first)[0]['body'],
+            'Pull, then restart.',
         )
 
-        page, error = tool(self.client, 'restore_page_version', path='Deploying', version=first)
+        page, error = tool(self.client, 'restore_page_version', path='Engineering/Deploying', version=first)
 
         self.assertFalse(error)
         self.assertEqual(page['body'], 'Pull, then restart.')
 
     def test_comment_watch_translate_and_delete(self):
-        comment, error = tool(self.client, 'comment_on_page', path='Deploying', body='Looks right.')
+        comment, error = tool(self.client, 'comment_on_page', path='Engineering/Deploying', body='Looks right.')
         self.assertFalse(error)
         edited, _error = tool(
-            self.client, 'edit_page_comment', path='Deploying', comment_id=comment['id'], body='Right.'
+            self.client, 'edit_page_comment', path='Engineering/Deploying', comment_id=comment['id'], body='Right.'
         )
         self.assertEqual(edited['body'], 'Right.')
-        self.assertEqual(tool(self.client, 'unwatch_page', path='Deploying')[0]['watchers'], [])
+        self.assertEqual(tool(self.client, 'unwatch_page', path='Engineering/Deploying')[0]['watchers'], [])
 
         with override_settings(LANGUAGES=[('en', 'English'), ('nl', 'Nederlands')]):
-            dutch, error = tool(self.client, 'translate_page', path='Deploying', language='nl', title='Uitrollen')
+            dutch, error = tool(
+                self.client, 'translate_page', path='Engineering/Deploying', language='nl', title='Uitrollen'
+            )
         self.assertFalse(error)
         self.assertEqual(dutch['path'], 'engineering/uitrollen')
 

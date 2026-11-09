@@ -12,22 +12,36 @@ class LinkTests(WikiTestCase):
         self.engineering = self.make_page('Engineering')
         self.deploying = self.make_page('Deploying', self.engineering)
 
-    def test_a_link_names_a_page_by_its_address_in_titles_or_slugs(self):
-        html = self.render('[[Engineering/Deploying]] and [[engineering/deploying|how we ship]]')
+    def on(self, page, text):
+        """`text` as it shows in `page`."""
+        return self.render(text, context={'wiki_page': page})
+
+    def test_a_link_from_the_top_names_a_page_by_its_address_in_titles_or_slugs(self):
+        html = self.render('[[/Engineering/Deploying]] and [[/engineering/deploying|how we ship]]')
 
         link = '<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">{}</a>'
         self.assertInHTML(link.format('Deploying'), html)
         self.assertInHTML(link.format('how we ship'), html)
 
-    def test_the_end_of_an_address_will_do_and_the_highest_page_wins(self):
-        self.make_page('Deploying', self.make_page('Archive', self.make_page('Old')))
-
-        html = self.render('See [[Deploying]].')
+    def test_a_link_starts_from_the_page_it_is_in(self):
+        html = self.on(self.engineering, '[[Deploying]] and [[./Deploying|again]]')
 
         self.assertInHTML('<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">Deploying</a>', html)
+        self.assertInHTML('<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">again</a>', html)
+
+    def test_a_name_is_never_looked_for_elsewhere_in_the_tree(self):
+        sales = self.make_page('Sales')
+
+        html = self.on(sales, '[[Deploying]]')
+
+        self.assertInHTML(
+            '<a class="wk-missing" href="/dg/wiki/sales/deploying/?title=Deploying" '
+            'title="No such page yet" rel="noopener noreferrer">Deploying</a>',
+            html,
+        )
 
     def test_a_link_to_no_page_offers_to_start_it(self):
-        html = self.render('[[Engineering/Release notes]]')
+        html = self.render('[[/Engineering/Release notes]]')
 
         self.assertInHTML(
             '<a class="wk-missing" href="/dg/wiki/engineering/release-notes/?title=Release+notes" '
@@ -38,11 +52,11 @@ class LinkTests(WikiTestCase):
         self.assertContains(response, 'value="Release notes"', status_code=404)
 
     def test_a_slash_at_the_end_changes_nothing(self):
-        html = self.render('[[Engineering/]], [[sales/]] and [[/Operations/]]')
+        html = self.on(self.engineering, '[[Deploying/]], [[sales/]] and [[/Operations/]]')
 
-        self.assertInHTML('<a href="/dg/wiki/engineering/" rel="noopener noreferrer">Engineering</a>', html)
+        self.assertInHTML('<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">Deploying</a>', html)
         self.assertInHTML(
-            '<a class="wk-missing" href="/dg/wiki/sales/?title=sales" '
+            '<a class="wk-missing" href="/dg/wiki/engineering/sales/?title=sales" '
             'title="No such page yet" rel="noopener noreferrer">sales</a>',
             html,
         )
@@ -53,7 +67,9 @@ class LinkTests(WikiTestCase):
         )
 
     def test_a_link_with_a_slash_at_the_end_follows_its_page_and_downloads_as_its_name(self):
-        onboarding = self.make_page('Onboarding', body='[[Deploying/]], [[engineering/deploying/]], [[Sales/]]')
+        onboarding = self.make_page(
+            'Onboarding', body='[[/Engineering/Deploying/]], [[/engineering/deploying/]], [[Sales/]]'
+        )
 
         response = self.client.get(reverse('dg_wiki:page_export', args=[onboarding.path]))
         self.assertIn('[Deploying](http://testserver/dg/wiki/engineering/deploying/), ', response.content.decode())
@@ -63,12 +79,12 @@ class LinkTests(WikiTestCase):
         self.deploying.save()
 
         onboarding.refresh_from_db()
-        self.assertEqual(onboarding.body, '[[Shipping]], [[engineering/shipping]], [[Sales/]]')
+        self.assertEqual(onboarding.body, '[[/Engineering/Shipping]], [[/engineering/shipping]], [[Sales/]]')
 
     def test_a_link_to_no_page_with_no_name_to_show_stays_as_written(self):
         draft = Page(title='Draft', slug='draft', path='drafts/draft')
 
-        html = self.render('[[..]], [[./]] and [[../New]]', context={'wiki_page': draft})
+        html = self.on(draft, '[[..]], [[./]] and [[../New]]')
 
         self.assertIn('[[..]], [[./]] and <a class="wk-missing" href="/dg/wiki/drafts/new/?title=New"', html)
 
@@ -78,8 +94,8 @@ class LinkTests(WikiTestCase):
         self.assertContains(response, '<h3>Links to wiki pages</h3>', html=True)
         self.assertContains(
             response,
-            '<tr><td><code>[[./Rollback]]</code></td>'
-            '<td>Only in a wiki page: the page Rollback under this one.</td></tr>',
+            '<tr><td><code>[[../Onboarding]]</code></td>'
+            '<td>The page Onboarding beside this one. Each ../ goes one level up.</td></tr>',
             html=True,
         )
         with translation.override('nl'):
@@ -87,14 +103,14 @@ class LinkTests(WikiTestCase):
         self.assertInHTML("<h3>Links naar wikipagina's</h3>", dutch)
 
     def test_links_in_code_and_tickets_keys_inside_a_link_are_left_alone(self):
-        html = self.render('`[[Deploying]]` and [[Deploying|before T-1]]')
+        html = self.on(self.engineering, '`[[Deploying]]` and [[Deploying|before T-1]]')
 
         self.assertIn('<code>[[Deploying]]</code>', html)
         self.assertInHTML('<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">before T-1</a>', html)
 
     def test_a_page_lists_the_pages_that_link_to_it(self):
-        self.make_page('Onboarding', body='Read [[Deploying]] first.')
-        self.make_page('Code', body='`[[Deploying]]` is how a link is written.')
+        self.make_page('Onboarding', body='Read [[/Engineering/Deploying]] first.')
+        self.make_page('Code', body='`[[/Engineering/Deploying]]` is how a link is written.')
 
         response = self.client.get(self.deploying.get_absolute_url())
 
@@ -102,68 +118,81 @@ class LinkTests(WikiTestCase):
         self.assertContains(response, 'Pages that link here')
 
     def test_a_link_finds_its_page_once_the_page_is_made(self):
-        onboarding = self.make_page('Onboarding', body='[[Release notes]]')
-        self.assertIsNone(Link.objects.get(source=onboarding).target)
+        onboarding = self.make_page('Onboarding', body='[[Release notes]] and [[/Holidays]]')
+        self.assertEqual(set(Link.objects.filter(source=onboarding).values_list('target', flat=True)), {None})
 
-        notes = self.make_page('Release notes')
+        notes = self.make_page('Release notes', onboarding)
+        holidays = self.make_page('Holidays')
 
-        self.assertEqual(Link.objects.get(source=onboarding).target, notes)
+        targets = dict(Link.objects.filter(source=onboarding).values_list('reference', 'target'))
+        self.assertEqual(targets, {'/onboarding/release-notes': notes.pk, '/holidays': holidays.pk})
 
     def test_links_follow_a_renamed_page_in_the_way_they_were_written(self):
         onboarding = self.make_page(
             'Onboarding',
-            body='[[Deploying]], [[Engineering/Deploying|ship]], [[engineering/deploying]], `[[Deploying]]`',
+            body='[[/Engineering/Deploying]], [[/Engineering/Deploying|ship]], [[/engineering/deploying]], '
+            '`[[/Engineering/Deploying]]`',
         )
+        self.engineering.body = 'See [[Deploying]].'
+        self.engineering.save()
 
         self.deploying.title = 'Shipping'
         self.deploying.save()
 
         onboarding.refresh_from_db()
         self.assertEqual(
-            onboarding.body, '[[Shipping]], [[Engineering/Shipping|ship]], [[engineering/shipping]], `[[Deploying]]`'
+            onboarding.body,
+            '[[/Engineering/Shipping]], [[/Engineering/Shipping|ship]], [[/engineering/shipping]], '
+            '`[[/Engineering/Deploying]]`',
         )
         self.assertEqual(onboarding.history.count(), 2)
+        self.engineering.refresh_from_db()
+        self.assertEqual(self.engineering.body, 'See [[Shipping]].')
 
     def test_links_follow_the_pages_under_a_moved_page(self):
         rollback = self.make_page('Rollback', self.deploying)
         operations = self.make_page('Operations')
-        onboarding = self.make_page('Onboarding', body='[[Deploying/Rollback]] and [[Engineering/Deploying]]')
+        onboarding = self.make_page(
+            'Onboarding', body='[[/Engineering/Deploying/Rollback]] and [[/Engineering/Deploying]]'
+        )
 
         self.deploying.parent = operations
         self.deploying.save()
 
         onboarding.refresh_from_db()
-        self.assertEqual(onboarding.body, '[[Deploying/Rollback]] and [[Operations/Deploying]]')
-        self.assertEqual(Link.objects.get(source=onboarding, reference='deploying/rollback').target, rollback)
+        self.assertEqual(onboarding.body, '[[/Operations/Deploying/Rollback]] and [[/Operations/Deploying]]')
+        self.assertEqual(
+            Link.objects.get(source=onboarding, reference='/operations/deploying/rollback').target, rollback
+        )
 
-    def test_a_link_grows_longer_when_its_end_would_name_another_page(self):
-        self.make_page('Shipping')
-        onboarding = self.make_page('Onboarding', body='[[Deploying]]')
+    def test_a_link_from_a_page_to_one_that_moves_out_from_under_it_goes_up(self):
+        self.engineering.body = 'See [[Deploying]].'
+        self.engineering.save()
 
-        self.deploying.title = 'Shipping'
+        self.deploying.parent = None
         self.deploying.save()
 
-        onboarding.refresh_from_db()
-        self.assertEqual(onboarding.body, '[[Engineering/Shipping]]')
+        self.engineering.refresh_from_db()
+        self.assertEqual(self.engineering.body, 'See [[../Deploying]].')
 
     def test_a_link_in_a_page_to_itself_follows_it(self):
-        self.deploying.body = 'This is [[Engineering/Deploying]].'
+        self.deploying.body = 'This is [[/Engineering/Deploying]].'
         self.deploying.save()
 
         self.deploying.title = 'Shipping'
         self.deploying.save()
 
-        self.assertEqual(self.deploying.body, 'This is [[Engineering/Shipping]].')
+        self.assertEqual(self.deploying.body, 'This is [[/Engineering/Shipping]].')
         self.assertEqual(Page.objects.get(pk=self.deploying.pk).body, self.deploying.body)
 
     def test_a_title_a_link_cannot_hold_is_written_as_its_slug(self):
-        onboarding = self.make_page('Onboarding', body='[[Deploying]]')
+        onboarding = self.make_page('Onboarding', body='[[/Engineering/Deploying]]')
 
         self.deploying.title = 'CI/CD'
         self.deploying.save()
 
         onboarding.refresh_from_db()
-        self.assertEqual(onboarding.body, '[[cicd]]')
+        self.assertEqual(onboarding.body, '[[/Engineering/cicd]]')
 
 
 class ArrangeTests(WikiTestCase):
@@ -216,7 +245,7 @@ class ArrangeTests(WikiTestCase):
 
 
 class PlacedLinkTests(WikiTestCase):
-    """Links from the top ("/...") and from the page they are in ("./...", "../...")."""
+    """Links from the top ("/...") and from the page they are in ("Rollback", "./Rollback", "../...")."""
 
     def setUp(self):
         super().setUp()
@@ -234,7 +263,7 @@ class PlacedLinkTests(WikiTestCase):
         self.assertIn('class="wk-missing"', self.render('[[/Rollback]]'))
 
     def test_links_from_the_page_they_are_in(self):
-        self.deploying.body = '[[./Rollback]], [[..]], [[../../Deploying|the other]] and [[./Checks]]'
+        self.deploying.body = '[[Rollback]], [[..]], [[../../Deploying|the other]] and [[./Checks]]'
         self.deploying.save()
 
         html = self.html(self.deploying)
@@ -253,8 +282,8 @@ class PlacedLinkTests(WikiTestCase):
             },
         )
 
-    def test_outside_a_page_a_relative_link_stays_text(self):
-        self.assertEqual(self.render('[[./Rollback]]'), '<p>[[./Rollback]]</p>')
+    def test_outside_a_page_only_a_link_from_the_top_is_one(self):
+        self.assertEqual(self.render('[[./Rollback]] and [[Rollback]]'), '<p>[[./Rollback]] and [[Rollback]]</p>')
 
     def test_relative_links_stay_as_they_are_when_their_pages_move_together(self):
         self.deploying.body = 'See [[./Rollback]].'

@@ -19,16 +19,18 @@ from datagroceries.wiki.conf import SCOPE
 
 PAGE = {
     'type': 'string',
-    'description': 'The page, by its address ("engineering/deploying") or as a link to it would name it '
-    '("Engineering/Deploying", or the end of it, "Deploying").',
+    'description': 'The page, by its whole address, from the top, in slugs or titles ("engineering/deploying", '
+    '"Engineering/Deploying"); search_pages lists them.',
 }
 MENTION = '@-mentioning someone by their handle (@ann) tells them about it.'
 LINKS = (
-    '[[Deploying]] links to the page called Deploying wherever it is, the one highest in the tree if several are; '
-    '[[Engineering/Deploying]] says which. [[Deploying|how we ship]] links with words of its own. '
-    '[[/Engineering/Deploying]] is a whole address, from the top: that page only. From the page the link is in, '
-    '[[./Rollback]] is a page under it and [[../Onboarding]] one beside it. A link to a page not there yet shows '
-    'red, and following it starts that page.'
+    'A link to a wiki page starts from the page it is in, as a relative address does in a browser, every page '
+    'being a folder of the pages under it: in the page Engineering, [[Deploying]] is Engineering/Deploying, '
+    '[[Deploying/Rollback]] is further down, and [[../Sales]] is Sales, beside Engineering (each ../ goes one '
+    'level up). [[/Sales/Q4]] starts from the top of the wiki, and is the only kind that works outside the wiki, '
+    'as in a ticket. [[Deploying|how we ship]] links with words of its own. Nothing else is looked for: '
+    '[[Deploying]] never finds a page elsewhere in the tree. A link to a page not there yet shows red, and '
+    'following it starts that page.'
 )
 PAGE_FIELDS = {
     'title': {

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 17:43+0100\n"
+"POT-Creation-Date: 2026-11-09 19:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: apps.py:8 conf.py:10 mcp.py:207
+#: apps.py:8 conf.py:10 mcp.py:209
 msgid "Wiki"
 msgstr "Wiki"
 
@@ -65,76 +65,72 @@ msgstr "Schrijf een reactie."
 msgid "The title in that language."
 msgstr "De titel in die taal."
 
-#: links.py:141
+#: links.py:128
 msgid "Links to wiki pages"
 msgstr "Links naar wikipagina's"
 
-#: links.py:148
-msgid "[[Deploying]]"
-msgstr "[[Uitrollen]]"
+#: links.py:135
+msgid "[[Rollback]]"
+msgstr "[[Terugdraaien]]"
 
-#: links.py:149
+#: links.py:137
 msgid ""
-"The page called Deploying, wherever it is. If several are called so, the one "
-"highest in the tree."
+"A link starts from the page it is in, as an address does in a browser: this "
+"is the page Rollback under it."
 msgstr ""
-"De pagina die Uitrollen heet, waar die ook staat. Heten er meer zo, dan de "
-"hoogste in de boom."
+"Een link begint bij de pagina waar die in staat, zoals een adres in een "
+"browser: dit is de pagina Terugdraaien eronder."
 
-#: links.py:151
-msgid "[[Engineering/Deploying]]"
-msgstr "[[Techniek/Uitrollen]]"
+#: links.py:141
+msgid "[[Rollback/Testing]]"
+msgstr "[[Terugdraaien/Testen]]"
 
-#: links.py:151
-msgid "The page Deploying under Engineering, to say which one."
-msgstr "De pagina Uitrollen onder Techniek, om te zeggen welke."
+#: links.py:141
+msgid "Further down: the page Testing, under Rollback, under this page."
+msgstr "Dieper: de pagina Testen, onder Terugdraaien, onder deze pagina."
 
-#: links.py:152
-msgid "[[Deploying|how we ship]]"
-msgstr "[[Uitrollen|hoe we uitrollen]]"
-
-#: links.py:152
-msgid "A link to Deploying, with words of your own."
-msgstr "Een link naar Uitrollen, met eigen woorden."
-
-#: links.py:153
-msgid "[[/Engineering/Deploying]]"
-msgstr "[[/Techniek/Uitrollen]]"
-
-#: links.py:153
-msgid "The whole address, from the top of the wiki: that page only."
-msgstr "Het hele adres, vanaf de top van de wiki: alleen die pagina."
-
-#: links.py:154
-msgid "[[./Rollback]]"
-msgstr "[[./Terugdraaien]]"
-
-#: links.py:154
-msgid "Only in a wiki page: the page Rollback under this one."
-msgstr "Alleen in een wikipagina: de pagina Terugdraaien onder deze."
-
-#: links.py:155
+#: links.py:142
 msgid "[[../Onboarding]]"
 msgstr "[[../Inwerken]]"
 
-#: links.py:155
-msgid "Only in a wiki page: the page Onboarding beside this one."
-msgstr "Alleen in een wikipagina: de pagina Inwerken naast deze."
+#: links.py:142
+msgid "The page Onboarding beside this one. Each ../ goes one level up."
+msgstr "De pagina Inwerken naast deze. Elke ../ gaat een niveau omhoog."
 
-#: links.py:156
+#: links.py:144
+msgid "[[/Engineering/Deploying]]"
+msgstr "[[/Techniek/Uitrollen]]"
+
+#: links.py:146
+msgid ""
+"From the top of the wiki: Deploying, under Engineering. Outside the wiki, as "
+"in a ticket, only these work."
+msgstr ""
+"Vanaf de top van de wiki: Uitrollen, onder Techniek. Buiten de wiki, zoals "
+"in een ticket, werken alleen deze."
+
+#: links.py:150
+msgid "[[Rollback|how we go back]]"
+msgstr "[[Terugdraaien|hoe we teruggaan]]"
+
+#: links.py:150
+msgid "A link with words of your own."
+msgstr "Een link met eigen woorden."
+
+#: links.py:151
 msgid "[[New page]]"
 msgstr "[[Nieuwe pagina]]"
 
-#: links.py:156
+#: links.py:151
 msgid "A page that is not there yet shows red. Following the link starts it."
 msgstr ""
 "Een pagina die er nog niet is, is rood. Wie de link volgt, begint die pagina."
 
-#: links.py:182 templates/dg_wiki/missing.html:8
+#: links.py:177 templates/dg_wiki/missing.html:8
 msgid "No such page yet"
 msgstr "Deze pagina bestaat nog niet"
 
-#: links.py:186
+#: links.py:181
 msgid "A page you cannot see"
 msgstr "Een pagina die je niet kunt zien"
 

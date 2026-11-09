@@ -220,8 +220,8 @@ ROLLBACK = """1. Check out the release before on the server.
 ONBOARDING = """Welcome to the team. This page lists what to do in your first week.
 
 - [ ] Sign in to the board and the wiki.
-- [ ] Read how a release goes out in [[Deploying]].
-- [ ] Add yourself to [[Who is who]].
+- [ ] Read how a release goes out in [[/Engineering/Deploying]].
+- [ ] Add yourself to [[/Who is who]].
 - [ ] Pick up a ticket with a colleague.
 """
 
@@ -249,7 +249,7 @@ def welcome(visitor):
                 '- Open **Connect an agent** on the board, connect Claude, and ask it: *"What is assigned to '
                 'me on the board? Move my welcome ticket to Done and say so in a comment."*\n'
                 "- Then look at this ticket's history: Claude's changes say they were made through Claude.\n"
-                "- Read the team's wiki page on releases, [[Deploying]], and edit it: the ticket it names lists "
+                "- Read the team's wiki page on releases, [[/Engineering/Deploying]], and edit it: the ticket it names lists "
                 'it.\n\n'
                 'Everything here, your account too, is gone tomorrow morning.'
             ),

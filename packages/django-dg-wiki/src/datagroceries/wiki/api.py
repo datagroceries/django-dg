@@ -3,8 +3,8 @@ tools (datagroceries.wiki.mcp), which run these views.
 
 Changes go through datagroceries.wiki.operations, like the pages, and are checked by the pages' own forms, so the
 rules, who may make them (datagroceries.wiki.access) and the notifications are the same. A page the person may
-not read is not found. A page is named by its address, or by what a link to it would
-say ("Engineering/Deploying", "deploying"). A change to a page's title or text may say the version it
+not read is not found. A page is named by its whole address, in titles or slugs
+("Engineering/Deploying", "engineering/deploying"). A change to a page's title or text may say the version it
 started from, and is refused when the page changed since, as on the pages.
 """
 
@@ -74,19 +74,14 @@ class TranslateSerializer(serializers.Serializer):
 
 
 def _find(request, path: str | None, queryset=None) -> Page | None:
-    """The page `path` names, as a link to it would, among those the person may read; None for an empty
-    one, which is the top."""
+    """The page at `path`, its whole address, in titles or slugs, among those the person may read; None
+    for an empty one, which is the top."""
     if not path or not path.strip('/'):
         return None
-    name = links.reference(path.strip().rstrip('/'))
+    name = links.reference(f'/{path.strip().strip("/")}')
     found = links.resolve({name}).get(name) if name else None
     readable = access.pages(request.user, queryset if queryset is not None else Page.objects.all())
     page = readable.filter(pk=found.pk).first() if found else None
-    if page is None and found is not None and not name.startswith('/'):
-        # The end of an address names the highest page so ending; when that one is hidden, a page the
-        # person may read that ends so.
-        ends = readable.filter(path__endswith=f'/{name}') | readable.filter(path=name)
-        page = min(ends, key=lambda each: (each.path.count('/'), each.path), default=None)
     if page is None:
         raise NotFound(f'No page {path}.')
     return page

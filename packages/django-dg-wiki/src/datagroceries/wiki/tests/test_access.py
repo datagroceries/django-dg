@@ -53,8 +53,8 @@ class AccessTestCase(WikiTestCase):
             return Page.objects.create(title=title, parent=parent, body=body, creator=cls.user)
 
         cls.engineering = make('Engineering')
-        cls.infra = make('Infra', cls.engineering, body='Servers. See [[acquisitions]].')
-        cls.secret = make('Acquisitions', cls.engineering, body='Buy the rival. [[Infra]] scales.')
+        cls.infra = make('Infra', cls.engineering, body='Servers. See [[../acquisitions]].')
+        cls.secret = make('Acquisitions', cls.engineering, body='Buy the rival. [[../Infra]] scales.')
         cls.plan = make('Plan', cls.secret)
         cls.sales = make('Sales')
         cls.quarter = make('Q4', cls.sales)
@@ -114,10 +114,11 @@ class ReadTests(AccessTestCase):
         self.assertNotContains(self.client.get(self.infra.get_absolute_url()), 'Pages that link here')
         self.assertEqual(self.api.get(f'{API}engineering/infra/').json()['linked_from'], [])
 
-    def test_a_name_that_ends_its_address_finds_a_page_one_may_read(self):
+    def test_the_api_names_a_page_by_its_whole_address(self):
         self.make_page('Plan', self.sales)
 
-        self.assertEqual(self.api.get(f'{API}plan/').json()['path'], 'sales/plan')
+        self.assertEqual(self.api.get(f'{API}sales/plan/').json()['path'], 'sales/plan')
+        self.assertEqual(self.api.get(f'{API}plan/').status_code, 404)
 
     def test_its_files_are_not_found(self):
         attachment = self.secret.attachments.create(

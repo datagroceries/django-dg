@@ -301,3 +301,21 @@ complete as we like.*
 - **Fast enough for thousands of pages.** The answers are remembered per request, a branch someone may not
   read is skipped whole, and nothing is asked when the project leaves `may` as it is. Measured on 3,030
   pages: some 10 ms more than before per page by default, some 30 ms with rules per page.
+
+## 2026-11-09: Wiki links are relative, as in a browser (G-61)
+
+- **A link means one address.** "The end of an address will do" made `[[infra]]` on the page Sales find
+  `/engineering/infra`, and a page made elsewhere later could change where a link went. Now a link starts
+  from the page it is in, as a relative address does in a browser, or from the top with `/`; nothing is
+  looked for anywhere else.
+- **Every page is a folder of the pages under it**, as its address ends in `/`: `[[Rollback]]` and
+  `[[./Rollback]]` are under it, `[[../Onboarding]]` beside it. Two other routes were weighed. A page
+  with pages under it as a folder's index and one without as a file makes `[[Platform]]` the page beside
+  it, but a link changes meaning when a page gets its first page under it, which would need rewriting
+  behind the writer's back. Every page as a file beside a folder of its name keeps links stable and short
+  to the pages beside it, but a link to a page under it repeats the page's own name. Jasper links mostly
+  to the pages under a page, and wanted nothing to happen by itself: so the first route.
+- **Outside the wiki only a link from the top is one**, as a ticket has no place in the tree to start
+  from. The API and MCP tools take whole addresses only.
+- **Not backwards compatible**, as nobody uses the wiki yet: the seeds were rewritten; hq's test page was
+  left as Jasper wrote it.

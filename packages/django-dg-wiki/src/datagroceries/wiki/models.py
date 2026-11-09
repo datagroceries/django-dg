@@ -162,7 +162,7 @@ class Page(models.Model):
                 self.body = Page.objects.values_list('body', flat=True).get(pk=self.pk)
             else:
                 links.record(self)
-            links.refresh({self.slug} | set(Page.objects.filter(pk__in=moved).values_list('slug', flat=True)))
+            links.refresh({self.path} | set(Page.objects.filter(pk__in=moved).values_list('path', flat=True)))
 
     def get_absolute_url(self):
         return reverse('dg_wiki:page', args=[self.path])

@@ -57,21 +57,28 @@ wiki's own, as the board has its own. `Page.language` and `Page.original` make t
 translation names the same original.
 
 **Links** (`links.py`). A link names a page by its address, written in titles or slugs:
-`[[Engineering/Deploying]]` and `[[engineering/deploying]]` are the same.
+`[[Deploying/Rollback]]` and `[[deploying/rollback]]` are the same. It is found as a browser finds a
+relative address. Every page is also a folder of the pages under it, as its address ends in a `/`, so a
+link starts from the page it is in. On the page Engineering (`/engineering/`):
 
-- `[[Deploying]]`: the page called Deploying, wherever it is. The end of an address will do; when several
-  pages end so, the one highest in the tree wins. `[[Engineering/Deploying]]` says which.
-- `[[Deploying|how we ship]]`: the same page, with words of your own; without them a link shows the
-  page's title.
-- `[[/Engineering/Deploying]]`: a whole address, from the top: that page only, or no page.
-- `[[./Rollback]]`, `[[../Onboarding]]`: from the page the link is in, as with folders: `.` is that page
-  and `..` the page above it, so `./Rollback` is a page under it and `../Onboarding` one beside it.
-  Outside a page, as in a ticket, these stay text, as nothing gives them a place to start from.
+- `[[Deploying]]`, or `[[./Deploying]]`: the page Deploying under Engineering. `[[Deploying/Rollback]]` is
+  further down.
+- `[[../Sales]]`: the page Sales beside Engineering; each `../` goes one level up.
+- `[[/Sales/Q4]]`: from the top of the wiki. Outside a page, as in a ticket, only these are links, as
+  nothing gives the others a place to start from; they stay text.
+- `[[Deploying|how we ship]]`: with words of your own; without them a link shows the page's title.
+- Nothing else is looked for: `[[Deploying]]` on Sales is `/sales/deploying`, never a Deploying elsewhere in
+  the tree, so a link means one address only, and a page made elsewhere never changes where it goes.
 - A `/` at the end changes nothing: `[[Sales/]]` is `[[Sales]]`. A former address finds its page.
 - A link to a page not there yet shows dashed and red, and leads to where the page can be started, with
   the title from the link: at the address the link names, so only a title with the same slug will do, and
   only once the pages above it are there (`StartPageForm`, `views._missing`). A link with no name to show,
   as `[[..]]` with no page above, stays text.
+
+The rule was chosen over two others (G-61): a page with pages under it as a folder's index and one without
+as a file, where `[[Platform]]` would be the page beside it but a link would change meaning when a page
+got its first page under it; and every page a file beside a folder of its name, where a link to a page
+under it would repeat the page's own name. Links mostly go to the pages under a page, so those are short.
 
 The editor's writing help (the "?") explains these in a part of its own, wherever the wiki is installed,
 so in a ticket's editor too: `PageLinks.help_heading` and `PageLinks.help`.
@@ -80,8 +87,8 @@ so in a ticket's editor too: `PageLinks.help_heading` and `PageLinks.help`.
 installed. The page it renders in comes in the render's `context` (`{'wiki_page': page, 'scope':
 'wiki'}`). On save, `links.record` keeps the page's links; after an address changes, `links.follow`
 rewrites the links to the moved pages, and the relative links in them, in the way each was written (titles
-or slugs, its number of parts, relative or whole), and `links.refresh` looks the links to no page up
-again. The pages so rewritten are saved, each with a version of its own. Links in code are left alone.
+or slugs, relative or from the top), and `links.refresh` looks up again the links that name an address a
+page now has. The pages so rewritten are saved, each with a version of its own. Links in code are left alone.
 
 **Behaviour worth knowing.**
 
