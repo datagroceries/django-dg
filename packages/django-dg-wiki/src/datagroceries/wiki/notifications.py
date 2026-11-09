@@ -1,7 +1,8 @@
 """Messages about pages, to the people watching them and the people mentioned in them, through
 datagroceries.core.notifications.
 
-The operations call these after a change. Nobody is told about their own change. Watchers hear about
+The operations call these after a change. Nobody is told about their own change, nor about a page they may not
+read (datagroceries.wiki.access): they are not made to watch it either. Watchers hear about
 comments, not about every save: a page is written in many small saves, which its history keeps. Each person
 reads a message in their own language, so a message is a sentence still to translate.
 """
@@ -10,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from datagroceries.core import mentions, notifications, people
 from datagroceries.core.notifications import Message
+from datagroceries.wiki import access
 from datagroceries.wiki.conf import SCOPE
 from datagroceries.wiki.models import Page, Watcher
 
@@ -26,7 +28,8 @@ def _url(request, page: Page, anchor: str = '') -> str:
 
 def _watchers(page: Page, *excluded) -> list:
     excluded_ids = {user.pk for user in excluded}
-    return [watcher.user for watcher in page.watchers.select_related('user') if watcher.user_id not in excluded_ids]
+    watching = [watcher.user for watcher in page.watchers.select_related('user') if watcher.user_id not in excluded_ids]
+    return access.readers(page, watching)
 
 
 def written(request, page: Page, before: str):
@@ -35,6 +38,7 @@ def written(request, page: Page, before: str):
     watch(page, request.user)
     before_ids = {user.pk for user in mentions.mentioned(SCOPE, before)}
     new = [user for user in mentions.mentioned(SCOPE, page.body) if user.pk not in before_ids]
+    new = access.readers(page, new)
     watch(page, *new)
     summary = notifications.say(_('%(person)s mentioned you in %(page)s'), person=people.name(request.user), page=page)
     notifications.send(new, Message('mentioned', summary, _url(request, page), page, request.user))
@@ -47,6 +51,7 @@ def commented(request, comment, before: str | None = None):
     watch(page, author)
     before_ids = {user.pk for user in mentions.mentioned(SCOPE, before or '')}
     mentioned = [user for user in mentions.mentioned(SCOPE, comment.body) if user.pk not in before_ids]
+    mentioned = access.readers(page, mentioned)
     watch(page, *mentioned)
     url = _url(request, page, f'#comment-{comment.pk}')
     names = {'person': people.name(author), 'page': page}

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+Needs django-dg-core 1.3.0.
+
+- **Access per page.** What someone may do on a page, read, comment or write, is the project's
+  `People.may(user, right, page)`, asked about any page however deep, and about `TOP` for the top. By
+  default everyone who may use the wiki may do everything, as before. Reading a page needs read on every
+  page above it. Who may not read a page does not see it, nor the pages under it, anywhere: the tree,
+  search, the API and MCP tools, downloads, files, old addresses, and the wiki pages a ticket lists. A link
+  to it shows by the name the link gave it, a mention of someone who cannot see a page is muted, and they
+  do not hear about it. Controls show only to whoever may use them.
 - A link may end in a `/`, which changes nothing: `[[Sales/]]` is `[[Sales]]`, and a link to no page so
   written shows its name instead of nothing. A link to no page with no name to show, as `[[..]]` with no
   page above, stays text as written.

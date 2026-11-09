@@ -10,7 +10,8 @@ a wiki page, "." is that page and ".." the page above it: "[[./Rollback]]" is th
 it, "[[../Onboarding]]" the page "Onboarding" beside it. Elsewhere, as in a ticket, such a link stays
 text. A "/" at the end changes nothing: "[[Sales/]]" is "[[Sales]]". An address a page had before a
 rename or a move still finds it. A link to no page shows as one, and leads to where that page can be
-started.
+started. A link to a page the reader may not see (datagroceries.wiki.access) shows as one, by the name
+written, not its title, and leads nowhere.
 
 The wiki keeps the links in its own pages (Link): to list what links to a page, and to rewrite them when
 a page they name, or the page they are in, gets another address, so they keep saying where the page is.
@@ -26,7 +27,8 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from datagroceries.core import markdown
+from datagroceries.core import history, markdown
+from datagroceries.wiki import access
 from datagroceries.wiki.models import PATH_LENGTH, FormerPath, Link, Page, slug_of
 
 LINK_RE = re.compile(r'\[\[([^\[\]|\n]+)(?:\|([^\[\]\n]+))?\]\]')
@@ -122,12 +124,19 @@ class Missing:
     title: str
 
 
+@dataclasses.dataclass(frozen=True)
+class Hidden:
+    """A page the reader may not see, by the name the link gave it."""
+
+    title: str
+
+
 class PageLinks(markdown.Reference):
     name = 'wiki_links'
     # Before the board's: "[[Release T-12]]" is one link, to the page.
     priority = 6
     pattern = LINK_RE
-    classes: typing.ClassVar = {'a': {'wk-missing'}}
+    classes: typing.ClassVar = {'a': {'wk-missing'}, 'span': {'wk-hidden'}}
 
     @classmethod
     def help(cls):
@@ -144,9 +153,14 @@ class PageLinks(markdown.Reference):
         base = page.path if isinstance(page, Page) else None
         names = {match: reference(LINK_RE.fullmatch(match)[1], base) for match in matches}
         found = resolve(set(names.values()))
+        # Who reads it: the person the page being served is for; nobody outside a request.
+        request = history.current_request()
+        hidden = access.hidden(request.user if request else None)
         result = {}
         for match, path in names.items():
-            if path in found:
+            if path in found and found[path].pk in hidden:
+                result[match] = Hidden(name(LINK_RE.fullmatch(match)[1]) or match)
+            elif path in found:
                 result[match] = found[path]
             # A link to no page with no name to show stays text, as written, rather than show as nothing.
             elif path and (title := name(LINK_RE.fullmatch(match)[1])):
@@ -159,6 +173,9 @@ class PageLinks(markdown.Reference):
             href = f'{reverse("dg_wiki:page", args=[found.path])}?{urlencode({"title": found.title})}'
             link = ET.Element('a', {'href': href, 'class': 'wk-missing', 'title': _('No such page yet')})
             # As a link to a page shows its title: the name, not the way there.
+            link.text = label or found.title
+        elif isinstance(found, Hidden):
+            link = ET.Element('span', {'class': 'wk-hidden', 'title': _('A page you cannot see')})
             link.text = label or found.title
         else:
             link = ET.Element('a', href=found.get_absolute_url())

@@ -1,24 +1,27 @@
 {% extends 'dg_wiki/_wiki.html' %}
-{% load i18n humanize dg_core %}
+{% load i18n humanize dg_core dg_wiki %}
 
 {% block page_title %}{{ page.title }}{% endblock %}
 
-{% block wiki_head %}{% mention_people 'wiki' %}{% include 'dg_core/_editor_assets.html' %}{% endblock %}
+{% block wiki_head %}{% wiki_mention_people page %}{% include 'dg_core/_editor_assets.html' %}{% endblock %}
 
 {% block main %}
 {% include 'dg_wiki/_crumbs.html' %}
 <div class="wk-heading">
   <h1>{{ page.title }}</h1>
   <div class="d-flex gap-2">
-    <a class="btn btn-sm btn-primary" href="{% url 'dg_wiki:page_edit' page.path %}"><i class="bi bi-pencil"></i> {% translate "Edit" %}</a>
+    {% if can.write %}<a class="btn btn-sm btn-primary" href="{% url 'dg_wiki:page_edit' page.path %}"><i class="bi bi-pencil"></i> {% translate "Edit" %}</a>{% endif %}
     <div class="dropdown">
       <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% translate 'More' %}"><i class="bi bi-three-dots"></i></button>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="{% url 'dg_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-file-earmark-plus"></i> {% translate "New page under this one" %}</a></li>
-        <li><a class="dropdown-item" href="{% url 'dg_wiki:page_move' page.path %}"><i class="bi bi-arrow-right-square"></i> {% translate "Move" %}</a></li>
+        {% if can.write %}
+          <li><a class="dropdown-item" href="{% url 'dg_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-file-earmark-plus"></i> {% translate "New page under this one" %}</a></li>
+          <li><a class="dropdown-item" href="{% url 'dg_wiki:page_move' page.path %}"><i class="bi bi-arrow-right-square"></i> {% translate "Move" %}</a></li>
+        {% endif %}
         {% if can_translate %}<li><a class="dropdown-item" href="{% url 'dg_wiki:page_translate' page.path %}"><i class="bi bi-translate"></i> {% translate "Translate" %}</a></li>{% endif %}
         <li><a class="dropdown-item" href="{% url 'dg_wiki:page_history' page.path %}"><i class="bi bi-clock-history"></i> {% translate "History" %}</a></li>
         <li><a class="dropdown-item" href="{% url 'dg_wiki:page_export' page.path %}"><i class="bi bi-download"></i> {% if children %}{% translate "Download with the pages under it" %}{% else %}{% translate "Download as Markdown" %}{% endif %}</a></li>
+        {% if can.write %}
         <li><hr class="dropdown-divider"></li>
         <li>
           {% if children %}
@@ -30,6 +33,7 @@
             </form>
           {% endif %}
         </li>
+        {% endif %}
       </ul>
     </div>
   </div>
@@ -62,9 +66,9 @@
     {% elif children %}
       {# A page that only holds others shows them: what an index page would. #}
       <ul class="wk-index">{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
-      <p class="wk-muted small"><a class="link-secondary" href="{% url 'dg_wiki:page_edit' page.path %}">{% translate "Write an introduction" %}</a></p>
+      {% if can.write %}<p class="wk-muted small"><a class="link-secondary" href="{% url 'dg_wiki:page_edit' page.path %}">{% translate "Write an introduction" %}</a></p>{% endif %}
     {% else %}
-      <p class="wk-muted fst-italic">{% translate "This page is empty." %} <a href="{% url 'dg_wiki:page_edit' page.path %}">{% translate "Write it" %}</a></p>
+      <p class="wk-muted fst-italic">{% translate "This page is empty." %}{% if can.write %} <a href="{% url 'dg_wiki:page_edit' page.path %}">{% translate "Write it" %}</a>{% endif %}</p>
     {% endif %}
   </article>
   {% if headings %}
@@ -100,7 +104,7 @@
         <li><i class="bi bi-file-earmark wk-muted"></i> <a href="{{ attachment.get_absolute_url }}">{{ attachment.name }}</a> <span class="wk-muted small">{{ attachment.size|filesizeformat }}</span></li>
       {% endif %}{% endfor %}
     </ul>
-    <details>
+    {% if can.write %}<details>
       <summary class="small wk-muted"><i class="bi bi-upload"></i> {% translate "Add a file" %}</summary>
       <form method="post" action="{% url 'dg_wiki:page_attach' page.path %}" enctype="multipart/form-data" class="mt-2">
         {% csrf_token %}
@@ -109,7 +113,7 @@
           <button type="submit" class="btn btn-outline-secondary">{% translate "Upload" %}</button>
         </div>
       </form>
-    </details>
+    </details>{% endif %}
   </section>
 </div>
 

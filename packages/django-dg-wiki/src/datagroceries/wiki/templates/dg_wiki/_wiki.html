@@ -24,7 +24,8 @@
       {% csrf_token %}
       {% page_tree page %}
     </div>
-    <a class="btn btn-sm btn-outline-secondary mt-3" href="{% url 'dg_wiki:page_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New page" %}</a>
+    {% may_start_page as can_start %}
+    {% if can_start %}<a class="btn btn-sm btn-outline-secondary mt-3" href="{% url 'dg_wiki:page_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New page" %}</a>{% endif %}
   </nav>
   <main class="col-lg-9 col-xl-10 wk-main">
     {% block main %}{% endblock %}

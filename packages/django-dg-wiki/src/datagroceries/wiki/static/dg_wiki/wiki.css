@@ -64,6 +64,7 @@
 
 /* A link to a page that is not there yet. */
 .wk-prose a.wk-missing { color: var(--bs-danger-text-emphasis); text-decoration-style: dashed; }
+.wk-prose .wk-hidden { color: var(--bs-secondary-color); border-bottom: 1px dotted var(--bs-secondary-color); cursor: help; }
 
 /* Below the page: the pages under it, and the pages that link to it. */
 .wk-related { display: flex; flex-wrap: wrap; gap: 1rem 4rem; margin-top: 2.5rem; padding-top: 1rem;

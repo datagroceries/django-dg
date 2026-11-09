@@ -12,7 +12,9 @@ from django.db.models import Q
 from django.utils.html import escape
 from django.utils.safestring import SafeString, mark_safe
 
+from datagroceries.core import history
 from datagroceries.core.backlinks import Backlink
+from datagroceries.wiki import access
 from datagroceries.wiki.links import CODE_RE
 from datagroceries.wiki.models import Page
 
@@ -37,12 +39,12 @@ def words_of(query: str) -> list[str]:
     return query.split()[:MAX_WORDS]
 
 
-def search(query: str) -> list[Hit]:
-    """The pages that hold every word of `query`, the best first."""
+def search(query: str, pages=None) -> list[Hit]:
+    """The pages of `pages`, by default all, that hold every word of `query`, the best first."""
     words = words_of(query)
     if not words:
         return []
-    pages = Page.objects.all()
+    pages = Page.objects.all() if pages is None else pages
     for word in words:
         pages = pages.filter(Q(title__icontains=word) | Q(body__icontains=word))
     found = list(pages.order_by('-updated_at')[: MAX_HITS * 4])
@@ -72,7 +74,10 @@ def snippet(text: str, words: list[str]) -> SafeString:
 
 
 def naming(name: str) -> list[Backlink]:
-    """The pages that name `name`, such as a ticket's key, as a word outside code (datagroceries.core.backlinks)."""
+    """The pages that name `name`, such as a ticket's key, as a word outside code (datagroceries.core.backlinks),
+    that the person the request is for may read."""
     word = re.compile(rf'(?<![\w-]){re.escape(name)}(?![\w-])')
-    pages = Page.objects.filter(body__icontains=name).only('id', 'title', 'path', 'body').order_by('title')
+    request = history.current_request()
+    readable = access.pages(request.user if request else None)
+    pages = readable.filter(body__icontains=name).only('id', 'title', 'path', 'body').order_by('title')
     return [Backlink(page.title, page.get_absolute_url()) for page in pages if word.search(CODE_RE.sub('', page.body))]

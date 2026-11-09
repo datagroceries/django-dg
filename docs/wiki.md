@@ -99,3 +99,10 @@ again. The pages so rewritten are saved, each with a version of its own. Links i
   that reach the wiki.
 - What both the pages and the API do to a page lives in `operations.py`, so both follow the same rules
   and notify the same people; `versions.py` describes the versions for both.
+- What someone may do on a page (read, comment, write) is asked in one place, `access.py`, which asks the
+  project's `People.may` about the page, or `TOP` for the top. Reading needs read on every page above it
+  too. Every view, form, API call and MCP tool goes through it: a page is fetched with `access.page()` or
+  from `access.pages()`, never `Page.objects` alone, and each operation calls `access.require()` first.
+  `access` remembers the answers for the request, works out once which pages someone may not read
+  (`access.hidden()`, skipping a branch they may not read), and asks nothing when the project's `People`
+  leaves `may` as it is. A new view does the same.

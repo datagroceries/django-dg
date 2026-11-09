@@ -108,23 +108,52 @@ Superusers have every permission. Until a group or a person gets it, nobody else
 The people who may use an app are its people: they can be assigned and @-mentioned there. Losing
 the permission ends their access at once, on the pages and for every token or connected agent.
 
-### Per group of the board
+### Per group of the board, per page of the wiki
 
-Whoever may use the board may do everything in every group, unless you say otherwise. To give some
-people less, override `may(user, right, group)` in your `People` class (below). The board asks it
-wherever it shows or changes something, on the pages and in the API and MCP tools alike, with one of four
-rights, each including the ones before it:
+Whoever may use an app may do everything in it, unless you say otherwise. To give some people less,
+override `may(user, right, where)` in your `People` class (below). The apps ask it wherever they show or
+change something, on the pages and in the API and MCP tools alike, with one of four rights, each
+including the ones before it.
+
+#### Per group of the board
+
+The board asks about a group, `where` a `datagroceries.board.models.Group`:
 
 | Right | Lets someone |
 |---|---|
 | `read` | see the group's tickets, search them and watch them |
 | `comment` | also comment |
 | `write` | also create, change, move, assign, relate and delete tickets |
-| `manage` | also change the group's name, columns and settings, and delete it; with `group` None, make new groups |
+| `manage` | also change the group's name, columns and settings, and delete it; with `where` None, make new groups |
 
 Who may not read a group does not see its tickets anywhere: not on the board, in a search or the API. A
 page of one is not found, a relation to one shows as "a ticket you cannot see", and they do not hear
 about it, nor can it be assigned to them. Moving a ticket to another group needs `write` in both.
+
+#### Per page of the wiki
+
+The wiki asks about a page, `where` a `datagroceries.wiki.models.Page`, or about its top, above every
+page, `datagroceries.wiki.models.TOP`. Every page is asked about the same way, however deep: a page with
+pages under it is what elsewhere is a folder, and a right given to it is usually meant for the pages
+under it too, which your `may` decides by looking up the tree (`page.ancestors()`, the top first).
+
+| Right | Lets someone |
+|---|---|
+| `read` | see the page, its versions and files, search it, watch it and download it |
+| `comment` | also comment |
+| `write` | also edit, move, translate, restore a version, add files, delete; put pages under it, or with `TOP`, at the top |
+
+The wiki does not use `manage`. It adds one rule of its own: reading a page needs `read` on the top and on
+every page above it, as the page's address, its crumbs and the tree name them. Who may not read a page
+does not see it, nor the pages under it: not in the tree, a search or the API. Its address, old ones too,
+is not found, a link to it shows as "a page you cannot see" by the name the link gave it, and they do not
+hear about it. Moving a page needs `write` on it and where it goes.
+
+Name a page in your rules by the page itself, its id or a foreign key to it, not by its address: an address
+changes when the page or one above it is renamed or moved, and a rule kept by address would then stop
+counting without a word.
+
+#### Your rules
 
 There is no table, setting or page of DataGroceries' own for this: you decide in `may`, with whatever your
 project already has, such as Django's `has_perm`, django-guardian or a model of your own.
@@ -132,21 +161,36 @@ project already has, such as Django's `has_perm`, django-guardian or a model of 
 
 ```python
 from datagroceries.core.people import People, includes
+from datagroceries.wiki.models import TOP, Page
 
 
 class OurPeople(People):
-    def may(self, user, right, group):
+    def may(self, user, right, where):
         if user.is_superuser:
             return True
-        if group is None:  # making a new group
+        if isinstance(where, Page) or where is TOP:
+            return self.may_in_wiki(user, right, where)
+        if where is None:  # making a new board group
             return False
-        # A model of the project's own: which right each team has in which group.
-        granted = Access.objects.filter(team__members=user, group_slug=group.slug).values_list('right', flat=True)
+        # A model of the project's own: which right each team has in which board group.
+        granted = Access.objects.filter(team__members=user, group_slug=where.slug).values_list('right', flat=True)
         return any(includes(each, right) for each in granted)
+
+    def may_in_wiki(self, user, right, where):
+        # Another model of the project's own: a right a team has on a page, for the pages under it too.
+        # The nearest one up the tree counts; no rule at all lets everyone read.
+        rules = WikiAccess.for_user(user)  # {page id: right, or '' for nothing}, one query per request
+        for page in reversed([*where.ancestors(), where] if where is not TOP else []):
+            if page.pk in rules:
+                return bool(rules[page.pk]) and includes(rules[page.pk], right)
+        return right == 'read'
 ```
 
-`may` is asked often, a few times for each page, so keep it to a query or two, or remember its answers
-for the length of a request.
+`may` is asked often: on the board a few times for each page, in the wiki once for each page someone may
+read, as the tree shows them all. So keep it free of queries of its own, such as by loading someone's
+rules once and remembering them for the length of the request
+(`datagroceries.core.history.current_request()` is the request being served). The wiki remembers its
+answers for the request, and asks nothing when your `People` leaves `may` as it is.
 
 ## Your users
 

@@ -1,5 +1,12 @@
 # Changelog of django-dg-core
 
+## Unreleased
+
+- `People.may(user, right, where)` is asked about a wiki page, or the wiki's top, as well as a board
+  group; its third argument is called `where` now.
+- `people.restricts()`: whether the project's `People` overrides `may`, so an app can skip working out
+  who may see what when nothing is restricted.
+
 ## 1.2.0 (2026-11-08)
 
 - **What someone may do per group** is a method of `People`, `may(user, right, group)`, with `RIGHTS`

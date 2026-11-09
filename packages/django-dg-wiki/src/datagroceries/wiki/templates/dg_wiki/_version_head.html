@@ -5,7 +5,7 @@
       <span class="wk-muted">· {{ side.record.history_date|date:"SHORT_DATETIME_FORMAT" }}</span>
       {% if side.current %}<span class="badge text-bg-secondary ms-1">{% translate "Now" %}</span>{% endif %}
     </div>
-    {% if not side.current %}
+    {% if can.write and not side.current %}
       {% translate "Bring this version back? The page says this again, as a new version; nothing is lost." as question %}
       <form method="post" action="{% url 'dg_wiki:page_restore' page.path side.record.history_id %}"
             onsubmit="return confirm('{{ question|escapejs }}')">

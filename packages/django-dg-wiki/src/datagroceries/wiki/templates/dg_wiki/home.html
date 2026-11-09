@@ -15,6 +15,7 @@
   <p class="small"><a class="link-secondary" href="{% url 'dg_wiki:wiki_export' %}"><i class="bi bi-download"></i> {% translate "Download the whole wiki as Markdown" %}</a></p>
 {% else %}
   <p class="wk-muted">{% translate "The wiki is empty. Start with a page about what the team knows and others should too." %}</p>
-  <a class="btn btn-primary" href="{% url 'dg_wiki:page_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New page" %}</a>
+  {% may_start_page as can_start %}
+  {% if can_start %}<a class="btn btn-primary" href="{% url 'dg_wiki:page_create' %}"><i class="bi bi-plus-lg"></i> {% translate "New page" %}</a>{% endif %}
 {% endif %}
 {% endblock %}

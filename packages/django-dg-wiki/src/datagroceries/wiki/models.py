@@ -28,17 +28,21 @@ class Node:
     children: list['Node'] = dataclasses.field(default_factory=list)
 
 
+def build_tree(pages: list['Page']) -> list[Node]:
+    """`pages`, in their order, as a tree: the pages without a parent among them, each with the pages
+    under it."""
+    nodes = {page.pk: Node(page) for page in pages}
+    roots = []
+    for page in pages:
+        parent = nodes.get(page.parent_id)
+        (parent.children if parent else roots).append(nodes[page.pk])
+    return roots
+
+
 class PageQuerySet(models.QuerySet):
     def tree(self) -> list[Node]:
-        """These pages as a tree, from one query: the pages without a parent among them, each with the
-        pages under it, in their order."""
-        pages = list(self.only('id', 'parent_id', 'title', 'path', 'position', 'language'))
-        nodes = {page.pk: Node(page) for page in pages}
-        roots = []
-        for page in pages:
-            parent = nodes.get(page.parent_id)
-            (parent.children if parent else roots).append(nodes[page.pk])
-        return roots
+        """These pages as a tree, from one query."""
+        return build_tree(list(self.only('id', 'parent_id', 'title', 'path', 'position', 'language')))
 
 
 def slug_of(title: str) -> str:
@@ -62,6 +66,26 @@ class Version(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Top:
+    """The wiki's top, above every page: whoever may write here may make a page at the top
+    (datagroceries.wiki.access). There is one, `TOP`."""
+
+    pk = None
+    path = ''
+
+    def __str__(self):
+        return str(settings.DG_WIKI_NAME)
+
+    def __repr__(self):
+        return '<the top of the wiki>'
+
+    def ancestors(self) -> list:
+        return []
+
+
+TOP = Top()
 
 
 class Page(models.Model):
@@ -119,6 +143,8 @@ class Page(models.Model):
     def save(self, *args, **kwargs):
         from datagroceries.wiki import links  # noqa: PLC0415 - links imports this module
 
+        # It may be somewhere else now.
+        self.__dict__.pop('known_ancestors', None)
         with transaction.atomic():
             before = Page.objects.filter(pk=self.pk).values_list('path', flat=True).first() if self.pk else None
             self.slug = self._free_slug()
@@ -143,6 +169,8 @@ class Page(models.Model):
 
     def ancestors(self) -> list['Page']:
         """The pages above this one, the top first."""
+        if (known := self.__dict__.get('known_ancestors')) is not None:  # from the tree access.py loaded
+            return known
         parts = self.path.split('/')
         paths = ['/'.join(parts[:end]) for end in range(1, len(parts))]
         return sorted(Page.objects.filter(path__in=paths), key=lambda page: len(page.path))

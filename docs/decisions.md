@@ -281,3 +281,23 @@ complete as we like.*
   activates each person's own timezone gets it on every page. `DG_BOARD_DISPLAY_TIMEZONE`, one zone for
   everyone, went. `People` does not say a person's timezone: no message to someone else has a time in
   it yet; when one does, it gets `timezone(user)` as `language(user)`.
+
+## 2026-11-09: Access per page in the wiki (G-56)
+
+- **Every page is asked about, however deep**, through the same `People.may(user, right, where)` as the
+  board's groups, with `TOP` for the top. First proposed was access per top-level page only, as a "space",
+  since it would be predictable and cheap. Jasper preferred all pages equal: the wiki has no spaces on
+  purpose (a page with pages under it is what elsewhere is a folder), and a project that wants spaces
+  looks only at the topmost page in its `may`. Asking about every page is the more general hook; per
+  space is one way to answer it.
+- **Reading a page needs read on every page above it**, and the wiki enforces this itself rather than
+  leave it to the project: a page's address holds the slugs of the pages above it, and the crumbs and the
+  tree show their titles, so a readable page under an unreadable one would give them away. It is what
+  Confluence does with view restrictions. Writing and commenting are the project's alone.
+- **The project names a page by the page, not its address**, in its own rules: an address changes with
+  a rename or a move above it, and a rule by address would stop counting without a word.
+- **`manage` goes unused in the wiki.** With all pages equal there is nothing above `write` to manage:
+  starting a page at the top is `write` on `TOP`.
+- **Fast enough for thousands of pages.** The answers are remembered per request, a branch someone may not
+  read is skipped whole, and nothing is asked when the project leaves `may` as it is. Measured on 3,030
+  pages: some 10 ms more than before per page by default, some 30 ms with rules per page.

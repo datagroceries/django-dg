@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-07 13:18+0100\n"
+"POT-Creation-Date: 2026-11-09 17:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -25,77 +25,77 @@ msgstr "Wiki"
 msgid "Wiki pages"
 msgstr "Wikipagina's"
 
-#: forms.py:26
+#: forms.py:33
 msgid "At the top"
 msgstr "Bovenaan"
 
-#: forms.py:27
+#: forms.py:34
 msgid "Under"
 msgstr "Onder"
 
-#: forms.py:41 forms.py:152 templates/dg_wiki/page_edit.html:16
+#: forms.py:50 forms.py:161 templates/dg_wiki/page_edit.html:16
 msgid "Title"
 msgstr "Titel"
 
-#: forms.py:57
+#: forms.py:66
 msgid "No language said"
 msgstr "Geen taal opgegeven"
 
-#: forms.py:80 forms.py:148
+#: forms.py:89 forms.py:157
 msgid "Language"
 msgstr "Taal"
 
-#: forms.py:114
+#: forms.py:123
 msgid "That place is not in the tree."
 msgstr "Die plek staat niet in de boom."
 
-#: forms.py:129
+#: forms.py:138
 msgid "Leave a comment."
 msgstr "Schrijf een reactie."
 
-#: forms.py:155
+#: forms.py:164
 msgid "The title in that language."
 msgstr "De titel in die taal."
 
-#: links.py:127
+#: links.py:144
 msgid "[[Deploying]]"
 msgstr "[[Uitrollen]]"
 
-#: links.py:127
+#: links.py:144
 msgid "A link to the wiki page whose address ends so, the highest in the tree."
 msgstr ""
 "Een link naar de wikipagina waarvan het adres zo eindigt, de hoogste in de "
 "boom."
 
-#: links.py:128
+#: links.py:145
 msgid "[[Engineering/Deploying|how we ship]]"
 msgstr "[[Techniek/Uitrollen|hoe we uitrollen]]"
 
-#: links.py:128
+#: links.py:145
 msgid "The same, with words of your own."
 msgstr "Hetzelfde, met eigen woorden."
 
-#: links.py:129
+#: links.py:146
 msgid "[[/Engineering/Deploying]]"
 msgstr "[[/Techniek/Uitrollen]]"
 
-#: links.py:129
+#: links.py:146
 msgid "The wiki page at exactly that address, from the top."
 msgstr "De wikipagina op precies dat adres, vanaf de top."
 
-#: links.py:130
+#: links.py:147
 msgid "[[./Rollback]] [[../Onboarding]]"
 msgstr "[[./Terugdraaien]] [[../Inwerken]]"
 
-#: links.py:130
+#: links.py:147
 msgid "In a wiki page: the page under it, and the page beside it."
 msgstr "In een wikipagina: de pagina eronder, en de pagina ernaast."
 
-#: links.py:131
+#: links.py:148
 msgid "[[New page]]"
 msgstr "[[Nieuwe pagina]]"
 
-#: links.py:131
+#: links.py:148
 msgid ""
 "A link to a page that is not there yet shows red; following it starts the "
 "page."
@@ -103,35 +103,39 @@ msgstr ""
 "Een link naar een pagina die er nog niet is, is rood; wie hem volgt, begint "
 "die pagina."
 
-#: links.py:150 templates/dg_wiki/missing.html:8
+#: links.py:174 templates/dg_wiki/missing.html:8
 msgid "No such page yet"
 msgstr "Deze pagina bestaat nog niet"
 
-#: models.py:82
+#: links.py:178
+msgid "A page you cannot see"
+msgstr "Een pagina die je niet kunt zien"
+
+#: models.py:106
 msgid "under"
 msgstr "onder"
 
-#: models.py:85
+#: models.py:109
 msgid "title"
 msgstr "titel"
 
-#: models.py:92
+#: models.py:116
 msgid "text"
 msgstr "tekst"
 
-#: models.py:92
+#: models.py:116
 msgid "Markdown. [[Page title]] links to a page."
 msgstr "Markdown. [[Paginatitel]] linkt naar een pagina."
 
-#: models.py:94
+#: models.py:118
 msgid "language"
 msgstr "taal"
 
-#: models.py:161
+#: models.py:189
 msgid "A page cannot go under itself or a page under it."
 msgstr "Een pagina kan niet onder zichzelf of onder een pagina eronder."
 
-#: models.py:165
+#: models.py:193
 msgid ""
 "This page would be too deep in the tree, or its title too long, for an "
 "address."
@@ -139,35 +143,35 @@ msgstr ""
 "Deze pagina komt te diep in de boom, of haar titel is te lang, voor een "
 "adres."
 
-#: models.py:249
+#: models.py:277
 msgid "comment"
 msgstr "reactie"
 
-#: models.py:264
+#: models.py:292
 msgid "A reply cannot be replied to; reply to the comment above it instead."
 msgstr ""
 "Op een antwoord kun je niet antwoorden; antwoord op de reactie erboven."
 
-#: models.py:266
+#: models.py:294
 msgid "A reply must be on the same page as its comment."
 msgstr "Een antwoord moet op dezelfde pagina staan als de reactie."
 
-#: notifications.py:38
+#: notifications.py:43
 #, python-format
 msgid "%(person)s mentioned you in %(page)s"
 msgstr "%(person)s noemde je in %(page)s"
 
-#: notifications.py:54
+#: notifications.py:59
 #, python-format
 msgid "%(person)s mentioned you on %(page)s"
 msgstr "%(person)s noemde je bij %(page)s"
 
-#: notifications.py:57
+#: notifications.py:62
 #, python-format
 msgid "%(person)s commented on %(page)s"
 msgstr "%(person)s reageerde op %(page)s"
 
-#: operations.py:100 templates/dg_wiki/page.html:25
+#: operations.py:113 templates/dg_wiki/page.html:28
 msgid "Move or delete the pages under this page first."
 msgstr "Verplaats of verwijder eerst de pagina's onder deze pagina."
 
@@ -215,7 +219,7 @@ msgstr ""
 msgid "Reply"
 msgstr "Antwoorden"
 
-#: templates/dg_wiki/_comments.html:52
+#: templates/dg_wiki/_comments.html:53
 msgid "Comment"
 msgstr "Reageren"
 
@@ -261,7 +265,7 @@ msgid "Moving the page failed. The page will reload."
 msgstr ""
 "Het verplaatsen van de pagina is mislukt. De pagina wordt opnieuw geladen."
 
-#: templates/dg_wiki/_wiki.html:28 templates/dg_wiki/home.html:18
+#: templates/dg_wiki/_wiki.html:29 templates/dg_wiki/home.html:19
 #: templates/dg_wiki/page_create.html:4 templates/dg_wiki/page_create.html:8
 msgid "New page"
 msgstr "Nieuwe pagina"
@@ -299,43 +303,43 @@ msgstr "Geen pagina heeft het adres <code>%(path)s</code>. Beginnen?"
 msgid "More"
 msgstr "Meer"
 
-#: templates/dg_wiki/page.html:17
+#: templates/dg_wiki/page.html:18
 msgid "New page under this one"
 msgstr "Nieuwe pagina hieronder"
 
-#: templates/dg_wiki/page.html:18 templates/dg_wiki/page_move.html:19
+#: templates/dg_wiki/page.html:19 templates/dg_wiki/page_move.html:19
 msgid "Move"
 msgstr "Verplaatsen"
 
-#: templates/dg_wiki/page.html:19 templates/dg_wiki/page_translate.html:22
+#: templates/dg_wiki/page.html:21 templates/dg_wiki/page_translate.html:22
 msgid "Translate"
 msgstr "Vertalen"
 
-#: templates/dg_wiki/page.html:20
+#: templates/dg_wiki/page.html:22
 msgid "History"
 msgstr "Geschiedenis"
 
-#: templates/dg_wiki/page.html:21
+#: templates/dg_wiki/page.html:23
 msgid "Download with the pages under it"
 msgstr "Downloaden met de pagina's eronder"
 
-#: templates/dg_wiki/page.html:21
+#: templates/dg_wiki/page.html:23
 msgid "Download as Markdown"
 msgstr "Downloaden als Markdown"
 
-#: templates/dg_wiki/page.html:25 templates/dg_wiki/page.html:29
+#: templates/dg_wiki/page.html:28 templates/dg_wiki/page.html:32
 msgid "Delete"
 msgstr "Verwijderen"
 
-#: templates/dg_wiki/page.html:28
+#: templates/dg_wiki/page.html:31
 msgid "Delete this page? Its history stays."
 msgstr "Deze pagina verwijderen? Haar geschiedenis blijft bewaard."
 
-#: templates/dg_wiki/page.html:41
+#: templates/dg_wiki/page.html:45
 msgid "Also in"
 msgstr "Ook in:"
 
-#: templates/dg_wiki/page.html:48
+#: templates/dg_wiki/page.html:52
 #, python-format
 msgid ""
 "<a href=\"%(url)s\">%(title)s</a>, which this page translates, changed after "
@@ -344,52 +348,52 @@ msgstr ""
 "<a href=\"%(url)s\">%(title)s</a>, waarvan deze pagina een vertaling is, is "
 "later gewijzigd dan deze pagina. Er kan inmiddels meer staan."
 
-#: templates/dg_wiki/page.html:49
+#: templates/dg_wiki/page.html:53
 msgid "See what changed"
 msgstr "Bekijk wat er veranderde"
 
-#: templates/dg_wiki/page.html:54
+#: templates/dg_wiki/page.html:58
 #, python-format
 msgid "Last changed by %(person)s, %(when)s"
 msgstr "Laatst gewijzigd door %(person)s, %(when)s"
 
-#: templates/dg_wiki/page.html:65
+#: templates/dg_wiki/page.html:69
 msgid "Write an introduction"
 msgstr "Schrijf een inleiding"
 
-#: templates/dg_wiki/page.html:67
+#: templates/dg_wiki/page.html:71
 msgid "This page is empty."
 msgstr "Deze pagina is leeg."
 
-#: templates/dg_wiki/page.html:67
+#: templates/dg_wiki/page.html:71
 msgid "Write it"
 msgstr "Begin met schrijven"
 
-#: templates/dg_wiki/page.html:72
+#: templates/dg_wiki/page.html:76
 msgid "On this page"
 msgstr "Op deze pagina"
 
-#: templates/dg_wiki/page.html:81
+#: templates/dg_wiki/page.html:85
 msgid "Pages under this one"
 msgstr "Pagina's hieronder"
 
-#: templates/dg_wiki/page.html:87
+#: templates/dg_wiki/page.html:91
 msgid "Pages that link here"
 msgstr "Pagina's die hierheen linken"
 
-#: templates/dg_wiki/page.html:92
+#: templates/dg_wiki/page.html:96
 msgid "Files"
 msgstr "Bestanden"
 
-#: templates/dg_wiki/page.html:104
+#: templates/dg_wiki/page.html:108
 msgid "Add a file"
 msgstr "Bestand toevoegen"
 
-#: templates/dg_wiki/page.html:108
+#: templates/dg_wiki/page.html:112
 msgid "File"
 msgstr "Bestand"
 
-#: templates/dg_wiki/page.html:109
+#: templates/dg_wiki/page.html:113
 msgid "Upload"
 msgstr "Uploaden"
 
@@ -541,7 +545,7 @@ msgstr "Verplaatst naar onder “%(title)s”"
 msgid "Moved to the top"
 msgstr "Naar boven verplaatst"
 
-#: views.py:128
+#: views.py:137
 #, python-format
 msgid ""
 "%(who)s saved this page while you were editing it. Your text is still here: "
@@ -552,26 +556,26 @@ msgstr ""
 "nog: open de pagina in een ander tabblad om die van hen te zien, voeg de "
 "twee samen en sla opnieuw op om die van hen te vervangen."
 
-#: views.py:158
+#: views.py:168
 #, python-format
 msgid "“%(title)s” is deleted."
 msgstr "“%(title)s” is verwijderd."
 
-#: views.py:233
+#: views.py:249
 #, python-format
 msgid "The version of %(when)s is back."
 msgstr "De versie van %(when)s is teruggezet."
 
-#: views.py:254
+#: views.py:270
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
 
-#: views.py:287
+#: views.py:303
 msgid "A comment needs text."
 msgstr "Een reactie heeft tekst nodig."
 
-#: views.py:303
+#: views.py:319
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."
 

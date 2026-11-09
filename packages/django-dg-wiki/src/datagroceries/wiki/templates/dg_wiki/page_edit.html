@@ -1,9 +1,9 @@
 {% extends 'dg_wiki/_wiki.html' %}
-{% load i18n dg_core %}
+{% load i18n dg_core dg_wiki %}
 
 {% block page_title %}{% blocktranslate with title=page.title %}Editing {{ title }}{% endblocktranslate %}{% endblock %}
 
-{% block wiki_head %}{% mention_people 'wiki' %}{% include 'dg_core/_editor_assets.html' %}{% endblock %}
+{% block wiki_head %}{% wiki_mention_people page %}{% include 'dg_core/_editor_assets.html' %}{% endblock %}
 
 {% block main %}
 {% include 'dg_wiki/_crumbs.html' with ancestors=page.ancestors last=page %}

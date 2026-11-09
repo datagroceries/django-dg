@@ -1,6 +1,5 @@
 from django.urls import reverse
 
-from datagroceries.core import markdown
 from datagroceries.wiki.models import Link, Page
 from datagroceries.wiki.tests.test_pages import WikiTestCase
 
@@ -12,7 +11,7 @@ class LinkTests(WikiTestCase):
         self.deploying = self.make_page('Deploying', self.engineering)
 
     def test_a_link_names_a_page_by_its_address_in_titles_or_slugs(self):
-        html = markdown.render('[[Engineering/Deploying]] and [[engineering/deploying|how we ship]]')
+        html = self.render('[[Engineering/Deploying]] and [[engineering/deploying|how we ship]]')
 
         link = '<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">{}</a>'
         self.assertInHTML(link.format('Deploying'), html)
@@ -21,12 +20,12 @@ class LinkTests(WikiTestCase):
     def test_the_end_of_an_address_will_do_and_the_highest_page_wins(self):
         self.make_page('Deploying', self.make_page('Archive', self.make_page('Old')))
 
-        html = markdown.render('See [[Deploying]].')
+        html = self.render('See [[Deploying]].')
 
         self.assertInHTML('<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">Deploying</a>', html)
 
     def test_a_link_to_no_page_offers_to_start_it(self):
-        html = markdown.render('[[Engineering/Release notes]]')
+        html = self.render('[[Engineering/Release notes]]')
 
         self.assertInHTML(
             '<a class="wk-missing" href="/dg/wiki/engineering/release-notes/?title=Release+notes" '
@@ -37,7 +36,7 @@ class LinkTests(WikiTestCase):
         self.assertContains(response, 'value="Release notes"', status_code=404)
 
     def test_a_slash_at_the_end_changes_nothing(self):
-        html = markdown.render('[[Engineering/]], [[sales/]] and [[/Operations/]]')
+        html = self.render('[[Engineering/]], [[sales/]] and [[/Operations/]]')
 
         self.assertInHTML('<a href="/dg/wiki/engineering/" rel="noopener noreferrer">Engineering</a>', html)
         self.assertInHTML(
@@ -67,12 +66,12 @@ class LinkTests(WikiTestCase):
     def test_a_link_to_no_page_with_no_name_to_show_stays_as_written(self):
         draft = Page(title='Draft', slug='draft', path='drafts/draft')
 
-        html = markdown.render('[[..]], [[./]] and [[../New]]', context={'wiki_page': draft})
+        html = self.render('[[..]], [[./]] and [[../New]]', context={'wiki_page': draft})
 
         self.assertIn('[[..]], [[./]] and <a class="wk-missing" href="/dg/wiki/drafts/new/?title=New"', html)
 
     def test_links_in_code_and_tickets_keys_inside_a_link_are_left_alone(self):
-        html = markdown.render('`[[Deploying]]` and [[Deploying|before T-1]]')
+        html = self.render('`[[Deploying]]` and [[Deploying|before T-1]]')
 
         self.assertIn('<code>[[Deploying]]</code>', html)
         self.assertInHTML('<a href="/dg/wiki/engineering/deploying/" rel="noopener noreferrer">before T-1</a>', html)
@@ -214,9 +213,9 @@ class PlacedLinkTests(WikiTestCase):
         return self.client.get(page.get_absolute_url()).content.decode()
 
     def test_a_whole_address_names_that_page_only(self):
-        self.assertIn('href="/dg/wiki/deploying/"', markdown.render('[[/Deploying]]'))
-        self.assertIn('href="/dg/wiki/engineering/deploying/"', markdown.render('[[/Engineering/Deploying]]'))
-        self.assertIn('class="wk-missing"', markdown.render('[[/Rollback]]'))
+        self.assertIn('href="/dg/wiki/deploying/"', self.render('[[/Deploying]]'))
+        self.assertIn('href="/dg/wiki/engineering/deploying/"', self.render('[[/Engineering/Deploying]]'))
+        self.assertIn('class="wk-missing"', self.render('[[/Rollback]]'))
 
     def test_links_from_the_page_they_are_in(self):
         self.deploying.body = '[[./Rollback]], [[..]], [[../../Deploying|the other]] and [[./Checks]]'
@@ -239,7 +238,7 @@ class PlacedLinkTests(WikiTestCase):
         )
 
     def test_outside_a_page_a_relative_link_stays_text(self):
-        self.assertEqual(markdown.render('[[./Rollback]]'), '<p>[[./Rollback]]</p>')
+        self.assertEqual(self.render('[[./Rollback]]'), '<p>[[./Rollback]]</p>')
 
     def test_relative_links_stay_as_they_are_when_their_pages_move_together(self):
         self.deploying.body = 'See [[./Rollback]].'

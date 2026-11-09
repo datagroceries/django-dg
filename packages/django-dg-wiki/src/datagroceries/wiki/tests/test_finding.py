@@ -7,7 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
 
-from datagroceries.wiki import operations, search
+from datagroceries.wiki import search
 from datagroceries.wiki.forms import fingerprint
 from datagroceries.wiki.models import Page
 from datagroceries.wiki.tests.test_pages import WikiTestCase
@@ -155,7 +155,7 @@ class LanguageTests(WikiTestCase):
         self.translate(self.page, 'de', 'Ausrollen')
         dutch, german = Page.objects.get(title='Uitrollen'), Page.objects.get(title='Ausrollen')
 
-        operations.delete(None, self.page)
+        self.client.post(reverse('dg_wiki:page_delete', args=[self.page.path]))
 
         dutch.refresh_from_db()
         german.refresh_from_db()

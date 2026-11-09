@@ -5,7 +5,8 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from datagroceries.wiki.models import Comment, Page, flatten
+from datagroceries.wiki import access
+from datagroceries.wiki.models import TOP, Comment, Page, flatten
 
 
 def fingerprint(page: Page) -> str:
@@ -14,36 +15,44 @@ def fingerprint(page: Page) -> str:
 
 
 class PlaceField(forms.ModelChoiceField):
-    """Where in the tree a page goes: under one of `pages`, shown as the tree, or at the top."""
+    """Where in the tree a page goes: under a page, shown as the tree, or at the top; with `user`, only
+    where they may write (datagroceries.wiki.access)."""
 
-    def __init__(self, *, exclude: Page | None = None, **kwargs):
+    def __init__(self, *, user=None, exclude: Page | None = None, **kwargs):
         pages = Page.objects.all()
         if exclude is not None:
             pages = pages.exclude(pk=exclude.pk).exclude(path__startswith=f'{exclude.path}/')
+        if user is None:
+            tree, at_top = pages.tree(), True
+        else:
+            pages = pages.filter(pk__in=access.writable(user))
+            tree, at_top = access.tree(user), access.may(user, access.WRITE, TOP)
         super().__init__(
             queryset=pages,
-            required=False,
-            empty_label=_('At the top'),
+            required=not at_top,
+            empty_label=_('At the top') if at_top else None,
             label=_('Under'),
             widget=forms.Select(attrs={'class': 'form-select'}),
             **kwargs,
         )
         # In tree order, indented, rather than the queryset's order of position alone.
-        self.choices = [('', self.empty_label)] + [
-            (page.pk, '\N{EM SPACE}' * depth + page.title) for page, depth in flatten(pages.tree())
+        allowed = set(pages.values_list('pk', flat=True))
+        self.choices = ([('', self.empty_label)] if at_top else []) + [
+            (page.pk, '\N{EM SPACE}' * depth + page.title) for page, depth in flatten(tree) if page.pk in allowed
         ]
 
 
 class NewPageForm(forms.Form):
-    """A new page starts from its title alone; its text is written after."""
+    """A new page starts from its title alone; its text is written after. With `user`, it goes only where
+    they may write."""
 
     title = forms.CharField(
         label=_('Title'), max_length=255, widget=forms.TextInput(attrs={'class': 'form-control', 'autofocus': True})
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['parent'] = PlaceField()
+        self.fields['parent'] = PlaceField(user=user)
 
     def clean(self):
         data = super().clean()
@@ -84,10 +93,10 @@ class PageForm(forms.ModelForm):
 
 
 class MoveForm(forms.Form):
-    def __init__(self, *args, page: Page, **kwargs):
+    def __init__(self, *args, page: Page, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.page = page
-        self.fields['parent'] = PlaceField(exclude=page, initial=page.parent_id)
+        self.fields['parent'] = PlaceField(user=user, exclude=page, initial=page.parent_id)
 
     def clean(self):
         data = super().clean()

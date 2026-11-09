@@ -1,16 +1,17 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from datagroceries.core import attachments, markdown, people
-from datagroceries.wiki import export, operations, search, versions
+from datagroceries.wiki import access, export, operations, search, versions
+from datagroceries.wiki.access import READ, WRITE
 from datagroceries.wiki.compare import side_by_side
 from datagroceries.wiki.conf import SCOPE
 from datagroceries.wiki.forms import (
@@ -22,7 +23,7 @@ from datagroceries.wiki.forms import (
     TranslateForm,
     fingerprint,
 )
-from datagroceries.wiki.models import Attachment, Comment, FormerPath, Page
+from datagroceries.wiki.models import TOP, Attachment, Comment, Page
 from datagroceries.wiki.templatetags.dg_wiki import render_context, tree_context
 
 wiki_required = people.may_use_required(SCOPE)
@@ -32,10 +33,6 @@ CONTENTS_FROM = 3
 RECENT_PAGES = 15
 
 
-def _page(path: str) -> Page:
-    return get_object_or_404(Page.objects.select_related('parent'), path=path)
-
-
 def _last_change(page: Page):
     """The newest history record of the page, which says who last changed it, when, and how."""
     return page.history.select_related('history_user').first()
@@ -43,14 +40,14 @@ def _last_change(page: Page):
 
 @wiki_required
 def home(request):
-    recent = Page.objects.order_by('-updated_at')[:RECENT_PAGES]
+    recent = access.pages(request.user).order_by('-updated_at')[:RECENT_PAGES]
     return render(request, 'dg_wiki/home.html', {'recent': recent})
 
 
 @wiki_required
 def page_search(request):
     query = request.GET.get('q', '').strip()
-    hits = search.search(query) if query else []
+    hits = search.search(query, access.pages(request.user)) if query else []
     return render(request, 'dg_wiki/search.html', {'query': query, 'hits': hits, 'most': search.MAX_HITS})
 
 
@@ -58,10 +55,13 @@ def page_search(request):
 def page(request, path):
     found = Page.objects.select_related('parent').filter(path=path).first()
     if found is None:
-        former = FormerPath.objects.select_related('page').filter(path=path).first()
-        if former is not None:
-            return redirect(former.page)
+        if former := access.former(request.user, path):
+            return redirect(former)
         return _missing(request, path)
+    if not access.may(request.user, READ, found):
+        raise Http404(f'No page {path}.')
+    readable, hidden = access.pages(request.user), access.hidden(request.user)
+    can = access.rights(request.user, found)
     html, headings = markdown.render_document(found.body, context=render_context(found))
     last_change = _last_change(found)
     context = {
@@ -69,19 +69,23 @@ def page(request, path):
         'html': html,
         'headings': headings if len(headings) >= CONTENTS_FROM else [],
         'ancestors': found.ancestors(),
-        'children': found.children.all(),
+        'children': readable.filter(parent=found),
         'attachments': found.attachments.all(),
-        'backlinks': Page.objects.filter(links__target=found).exclude(pk=found.pk).order_by('title').distinct(),
+        'backlinks': readable.filter(links__target=found).exclude(pk=found.pk).order_by('title').distinct(),
         'last_change': last_change,
         'last_changed_by': versions.name(versions.changed_by(found, last_change)),
         'last_changed_via': versions.via(last_change),
         'comments': _comments(found),
         'comment_form': CommentForm(page=found),
-        'watchers': [watcher.user for watcher in found.watchers.select_related('user')],
-        'translations': [each for each in found.translation_group() if each.pk != found.pk],
-        'can_translate': len(settings.LANGUAGES) > len(found.translation_group()),
+        'watchers': access.readers(found, [watcher.user for watcher in found.watchers.select_related('user')]),
+        'translations': [each for each in found.translation_group() if each.pk != found.pk and each.pk not in hidden],
+        'can': can,
+        'can_translate': len(settings.LANGUAGES) > len(found.translation_group())
+        and access.may(request.user, WRITE, found.parent or TOP),
         # A translation older than the latest change to its original may say something else by now.
-        'behind': found.original if found.original and found.original.updated_at > found.updated_at else None,
+        'behind': found.original
+        if found.original and found.original.updated_at > found.updated_at and found.original.pk not in hidden
+        else None,
     }
     return render(request, 'dg_wiki/page.html', context)
 
@@ -90,27 +94,32 @@ def _missing(request, path):
     """The address of no page: an offer to start it, under the page the address goes through, if any,
     with the title a link to it gave, or else one from the address."""
     parent_path, _slash, slug = path.rpartition('/')
-    parent = Page.objects.filter(path=parent_path).first() if parent_path else None
+    parent = access.pages(request.user).filter(path=parent_path).first() if parent_path else None
     title = request.GET.get('title') or slug.replace('-', ' ').strip().capitalize()
-    form = NewPageForm(initial={'title': title, 'parent': parent.pk if parent else None})
+    form = NewPageForm(initial={'title': title, 'parent': parent.pk if parent else None}, user=request.user)
     return render(request, 'dg_wiki/missing.html', {'form': form, 'path': path}, status=404)
 
 
 @wiki_required
 def page_create(request):
     if request.method == 'POST':
-        form = NewPageForm(request.POST)
+        form = NewPageForm(request.POST, user=request.user)
         if form.is_valid():
             created = operations.create(request, form.cleaned_data['title'], form.cleaned_data['parent'])
             return redirect('dg_wiki:page_edit', created.path)
     else:
-        form = NewPageForm(initial={'parent': request.GET.get('parent'), 'title': request.GET.get('title', '')})
+        form = NewPageForm(
+            initial={'parent': request.GET.get('parent'), 'title': request.GET.get('title', '')}, user=request.user
+        )
+        if not form.fields['parent'].choices:
+            raise PermissionDenied
     return render(request, 'dg_wiki/page_create.html', {'form': form})
 
 
 @wiki_required
 def page_edit(request, path):
-    edited = _page(path)
+    edited = access.page(request.user, path)
+    access.require(request.user, WRITE, edited)
     if request.method != 'POST':
         form = PageForm(instance=edited)
         return render(request, 'dg_wiki/page_edit.html', {'page': edited, 'form': form})
@@ -138,8 +147,9 @@ def page_edit(request, path):
 
 @wiki_required
 def page_move(request, path):
-    moved = _page(path)
-    form = MoveForm(request.POST or None, page=moved)
+    moved = access.page(request.user, path)
+    access.require(request.user, WRITE, moved)
+    form = MoveForm(request.POST or None, page=moved, user=request.user)
     if request.method == 'POST' and form.is_valid():
         operations.move(request, moved, form.cleaned_data['parent'])
         return redirect(moved)
@@ -149,7 +159,7 @@ def page_move(request, path):
 @wiki_required
 @require_POST
 def page_delete(request, path):
-    deleted = _page(path)
+    deleted = access.page(request.user, path)
     try:
         operations.delete(request, deleted)
     except ValidationError as error:
@@ -169,16 +179,21 @@ def tree_arrange(request):
         return JsonResponse({'errors': [error for errors in form.errors.values() for error in errors]}, status=400)
     page = form.cleaned_data['page']
     operations.arrange(request, page, form.cleaned_data['parent'], form.cleaned_data['before'])
-    current = Page.objects.filter(pk=request.POST.get('current') or None).first()
-    tree = render_to_string('dg_wiki/_tree.html', tree_context(current, also_open=page), request)
+    current = access.pages(request.user).filter(pk=request.POST.get('current') or None).first()
+    tree = render_to_string('dg_wiki/_tree.html', tree_context(request.user, current, also_open=page), request)
     return JsonResponse({'tree': tree, 'url': current.get_absolute_url() if current else None})
 
 
 @wiki_required
 def page_history(request, path):
     """Every version of the page, newest first, with who made it and what it changed."""
-    shown = _page(path)
-    context = {'page': shown, 'ancestors': shown.ancestors(), 'versions': versions.of(shown)}
+    shown = access.page(request.user, path)
+    context = {
+        'page': shown,
+        'ancestors': shown.ancestors(),
+        'versions': versions.of(shown),
+        'can': access.rights(request.user, shown),
+    }
     return render(request, 'dg_wiki/page_history.html', context)
 
 
@@ -196,7 +211,7 @@ def _says(page: Page, record) -> bool:
 @wiki_required
 def page_compare(request, path, version):
     """A version of the page beside the one before it, or beside the version `with` names."""
-    shown = _page(path)
+    shown = access.page(request.user, path)
     record = get_object_or_404(shown.history.select_related('history_user'), history_id=version)
     if request.GET.get('with'):
         other = get_object_or_404(shown.history.select_related('history_user'), history_id=request.GET['with'])
@@ -220,6 +235,7 @@ def page_compare(request, path, version):
         'title_changed': older is not None and older.title != newer.title,
         'rows': side_by_side(older.body if older else '', newer.body),
         'latest': shown.history.first(),
+        'can': access.rights(request.user, shown),
     }
     return render(request, 'dg_wiki/page_compare.html', context)
 
@@ -227,7 +243,7 @@ def page_compare(request, path, version):
 @wiki_required
 @require_POST
 def page_restore(request, path, version):
-    shown = _page(path)
+    shown = access.page(request.user, path)
     record = get_object_or_404(shown.history, history_id=version)
     operations.restore(request, shown, record)
     messages.success(request, _('The version of %(when)s is back.') % {'when': versions.when(record.history_date)})
@@ -238,7 +254,7 @@ def page_restore(request, path, version):
 @require_POST
 def page_upload(request, path):
     """Where the Markdown editor uploads the images pasted or dropped into a page's text."""
-    shown = _page(path)
+    shown = access.page(request.user, path)
     return attachments.editor_upload(request, lambda upload: operations.attach(request, shown, upload))
 
 
@@ -246,7 +262,7 @@ def page_upload(request, path):
 @require_POST
 def page_attach(request, path):
     """A file put beside the page."""
-    shown = _page(path)
+    shown = access.page(request.user, path)
     upload = request.FILES.get('file')
     if upload is not None and upload.size > attachments.MAX_BYTES:
         messages.error(
@@ -261,7 +277,7 @@ def page_attach(request, path):
 
 @wiki_required
 def attachment(request, pk, name):
-    return attachments.serve(get_object_or_404(Attachment, pk=pk))
+    return attachments.serve(get_object_or_404(Attachment.objects.exclude(page__in=access.hidden(request.user)), pk=pk))
 
 
 def _comments(page: Page) -> list[Comment]:
@@ -281,7 +297,7 @@ def _comments(page: Page) -> list[Comment]:
 @wiki_required
 @require_POST
 def comment_create(request, path):
-    shown = _page(path)
+    shown = access.page(request.user, path)
     form = CommentForm(request.POST, page=shown)
     if not form.is_valid():
         messages.error(request, _('A comment needs text.'))
@@ -294,7 +310,7 @@ def comment_create(request, path):
 @require_POST
 def comment_edit(request, path, pk):
     """Only by its author."""
-    shown = _page(path)
+    shown = access.page(request.user, path)
     edited = get_object_or_404(shown.comments, pk=pk, author=request.user)
     body = request.POST.get('body', '').strip()
     if body:
@@ -307,7 +323,7 @@ def comment_edit(request, path, pk):
 @wiki_required
 @require_POST
 def page_watch(request, path):
-    shown = _page(path)
+    shown = access.page(request.user, path)
     operations.watch(request, shown, request.POST.get('watching') == 'yes')
     return redirect(f'{shown.get_absolute_url()}#comments')
 
@@ -321,7 +337,7 @@ def _download(content, name: str, content_type: str) -> HttpResponse:
 @wiki_required
 def page_export(request, path):
     """The page as a Markdown file; with the pages under it, as a zip of them all."""
-    shown = _page(path)
+    shown = access.page(request.user, path)
     if shown.children.exists():
         return _download(export.tree_zip(request, shown), f'{shown.slug}.zip', 'application/zip')
     return _download(export.page_markdown(request, shown), f'{shown.slug}.md', 'text/markdown; charset=utf-8')
@@ -336,7 +352,8 @@ def wiki_export(request):
 @wiki_required
 def page_translate(request, path):
     """A translation of the page, beside it, which opens in the editor with the page's text to translate."""
-    shown = _page(path)
+    shown = access.page(request.user, path)
+    access.require(request.user, WRITE, shown.parent or TOP)
     form = TranslateForm(request.POST or None, page=shown)
     if request.method == 'POST' and form.is_valid():
         made = operations.translate(request, shown, form.cleaned_data['language'], form.cleaned_data['title'])

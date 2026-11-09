@@ -23,7 +23,7 @@ The comments on a page, oldest first, each with its replies, and the box for the
     <article class="wk-comment" id="comment-{{ comment.pk }}">
       {% include 'dg_wiki/_comment_head.html' with item=comment %}
       <div class="wk-prose wk-comment-body">{{ comment.body|wiki_markdown:page }}</div>
-      <div class="wk-comment-actions">
+      {% if can.comment %}<div class="wk-comment-actions">
         <details>
           <summary><i class="bi bi-reply"></i> {% translate "Reply" %}</summary>
           <form method="post" action="{% url 'dg_wiki:comment_create' page.path %}" class="dg-editor mt-2">
@@ -35,20 +35,22 @@ The comments on a page, oldest first, each with its replies, and the box for the
           </form>
         </details>
         {% if comment.author == request.user %}{% include 'dg_wiki/_comment_edit.html' with item=comment %}{% endif %}
-      </div>
+      </div>{% endif %}
       {% for reply in comment.replies.all %}
         <div class="wk-reply" id="comment-{{ reply.pk }}">
           {% include 'dg_wiki/_comment_head.html' with item=reply %}
           <div class="wk-prose wk-comment-body">{{ reply.body|wiki_markdown:page }}</div>
-          {% if reply.author == request.user %}<div class="wk-comment-actions">{% include 'dg_wiki/_comment_edit.html' with item=reply %}</div>{% endif %}
+          {% if can.comment and reply.author == request.user %}<div class="wk-comment-actions">{% include 'dg_wiki/_comment_edit.html' with item=reply %}</div>{% endif %}
         </div>
       {% endfor %}
     </article>
   {% endfor %}
 
-  <form method="post" action="{% url 'dg_wiki:comment_create' page.path %}" class="dg-editor wk-comment-new">
-    {% csrf_token %}
-    {{ comment_form.body }}
-    <button type="submit" class="btn btn-sm btn-primary mt-2">{% translate "Comment" %}</button>
-  </form>
+  {% if can.comment %}
+    <form method="post" action="{% url 'dg_wiki:comment_create' page.path %}" class="dg-editor wk-comment-new">
+      {% csrf_token %}
+      {{ comment_form.body }}
+      <button type="submit" class="btn btn-sm btn-primary mt-2">{% translate "Comment" %}</button>
+    </form>
+  {% endif %}
 </section>

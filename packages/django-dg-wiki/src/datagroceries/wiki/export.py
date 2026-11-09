@@ -14,7 +14,7 @@ import zipfile
 
 from django.urls import reverse
 
-from datagroceries.wiki import links
+from datagroceries.wiki import access, links
 from datagroceries.wiki.models import Attachment, Page
 
 
@@ -37,6 +37,9 @@ def page_markdown(request, page: Page, *, files: dict | None = None, inside: dic
         return posixpath.relpath(path, here or '.')
 
     found = links.resolve({links.reference(match[1], page.path) for match in links.matches(page.body)})
+    # A page the reader may not see is named, not linked to.
+    hidden = access.hidden(request.user)
+    found = {path: target for path, target in found.items() if target.pk not in hidden}
 
     def link(match):
         written, label = match.groups()
@@ -60,8 +63,9 @@ def page_markdown(request, page: Page, *, files: dict | None = None, inside: dic
 
 
 def tree_zip(request, top: Page | None) -> bytes:
-    """`top` and every page under it, or the whole wiki, as a zip of Markdown files and their files."""
-    pages = [top, *top.descendants()] if top else list(Page.objects.all())
+    """`top` and every page under it, or the whole wiki, as a zip of Markdown files and their files: those
+    the reader may read."""
+    pages = [top, *access.pages(request.user, top.descendants())] if top else list(access.pages(request.user))
     # Under the zip's root, from `top`'s own address on: "deploying.md", "deploying/rollback.md".
     start = len(top.path) - len(top.slug) if top else 0
     inside = {page.pk: f'{page.path[start:]}.md' for page in pages}

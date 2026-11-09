@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from datagroceries.core.tests import TEST_AUTHENTICATION, issue
 from datagroceries.wiki import search
 from datagroceries.wiki.models import Page
-from datagroceries.wiki.tests import member
+from datagroceries.wiki.tests import member, serving
 
 URL = '/dg/mcp/'
 
@@ -149,5 +149,6 @@ class NamingTests(TestCase):
         Page.objects.create(title='Code', creator=user, body='`T-12` in code')
         Page.objects.create(title='Other', creator=user, body='About T-123.')
 
-        self.assertEqual([place.title for place in search.naming('T-12')], ['Release'])
-        self.assertEqual([place.url for place in search.naming('T-123')], ['/dg/wiki/other/', '/dg/wiki/release/'])
+        with serving(user):
+            self.assertEqual([place.title for place in search.naming('T-12')], ['Release'])
+            self.assertEqual([place.url for place in search.naming('T-123')], ['/dg/wiki/other/', '/dg/wiki/release/'])

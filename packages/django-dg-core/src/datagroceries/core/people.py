@@ -4,9 +4,9 @@ Who may use an app is a Django permission of that app's, such as "Can use the bo
 (`dg_board.use`), granted to groups or people in the admin; superusers have every one. Those who may
 use an app are its people: they can be assigned and @-mentioned there.
 
-Within an app, what someone may do comes from the same class: `may(user, right, group)`, with one of
-`RIGHTS` in one of the board's groups. By default whoever may use the app may do everything there; a
-project that wants less for some people says so in `may`.
+Within an app, what someone may do comes from the same class: `may(user, right, where)`, with one of
+`RIGHTS`, where `where` is a board group or a wiki page. By default whoever may use the app may do
+everything there; a project that wants less for some people says so in `may`.
 
 How the apps see a person comes from one class, `People`. A host project changes what differs in a
 subclass and names it in `DG_PEOPLE`, as allauth's adapters do: who may use an app, what they may do
@@ -58,14 +58,20 @@ class People:
         """Whether `user` may use `area` now: by default, an active user with its permission."""
         return user.is_authenticated and user.is_active and user.has_perm(area.permission)
 
-    def may(self, user, right: str, group) -> bool:
-        """Whether `user`, who may use the app (`may_use`), has `right`, one of RIGHTS, in `group`: a
-        board group, or None for what belongs to no group, such as making a new one. Each right includes
-        the ones before it, so a subclass answers "comment" with yes for whoever may "write" (`includes`
-        helps). By default yes: whoever may use the app may do everything in it.
+    def may(self, user, right: str, where) -> bool:
+        """Whether `user`, who may use the app (`may_use`), has `right`, one of RIGHTS, `where`:
+
+        - in a board group (`datagroceries.board.models.Group`), or with None, outside any group, such as
+          to make one;
+        - on a wiki page (`datagroceries.wiki.models.Page`), or the wiki's top
+          (`datagroceries.wiki.models.TOP`), above every page.
+
+        Each right includes the ones before it, so a subclass answers "comment" with yes for whoever may
+        "write" (`includes` helps). By default yes: whoever may use the app may do everything in it.
 
         For less, look anywhere: `user.has_perm`, django-guardian, a model of the project's own. Who may not
-        read a group does not see its tickets, nor hear about them."""
+        read a group does not see its tickets, nor hear about them; the same goes for a page, and for the
+        pages under one."""
         return True
 
     def members(self, area) -> QuerySet:
@@ -149,10 +155,16 @@ def may_use(user, scope: str) -> bool:
     return _people().may_use(user, _area(scope))
 
 
-def may(user, right: str, group) -> bool:
+def may(user, right: str, where) -> bool:
     if right not in RIGHTS:
         raise ValueError(f'Unknown right {right!r}; one of {", ".join(RIGHTS)}.')
-    return _people().may(user, right, group)
+    return _people().may(user, right, where)
+
+
+def restricts() -> bool:
+    """Whether the project says who may do what within an app (`People.may`), rather than yes to all who
+    may use it: the apps skip working it out when it does not."""
+    return type(_people()).may is not People.may
 
 
 def members(scope: str) -> QuerySet:

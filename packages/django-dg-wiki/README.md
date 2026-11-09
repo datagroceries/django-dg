@@ -21,6 +21,9 @@ A wiki for a Django project, that people and AI agents write together, next to t
   a page with all under it, or the whole wiki, as a zip with their images, the links between them kept.
 - A page in several languages: each translation beside it, linked to the others, and told when the page
   it translates changed after it.
+- Access per page, as the project decides: who may read, comment on or write a page and the pages under
+  it, in one method of the project's own (`People.may`), on the pages and for agents alike. By default
+  everyone who may use the wiki may do everything.
 - A REST API and MCP tools for everything the pages do but uploading and downloading files, and on a
   ticket, while the board is installed too, the wiki pages that name it.
 - English and Dutch, following the project's language.

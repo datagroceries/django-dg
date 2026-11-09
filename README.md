@@ -49,6 +49,8 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
   and an old one brought back.
 - **Comments, @-mentions and watchers**, images and files, search, translations, and pages downloaded as
   Markdown.
+- **Access per page**, as your project decides: who may read, comment on or write a page, and the pages
+  under it, on the pages and for agents alike.
 - **A REST API and MCP tools** for everything the pages do but uploading and downloading files.
 
 ![A wiki page in its tree, with a table of contents, a link to a ticket, the pages that link to it, and a comment](docs/screenshots/wiki.png)
@@ -95,9 +97,10 @@ Each app does a few things one way, on purpose, so some things are left out:
   a settings file and a URL include ([deploy/web1](deploy/web1/)).
 - **No sprints, estimates in points, due dates, priorities or time tracking**, and no custom fields: a
   ticket's fields are fixed in code. A size (hours, days, weeks) and labels are what there is.
-- **No access screens of its own.** Whoever may use the board may do everything in it, unless your
-  project says otherwise per group, in one method of your own: read, comment, write or manage
-  ([integrating.md](docs/integrating.md#per-group-of-the-board)).
+- **No access screens of its own.** Whoever may use the board or the wiki may do everything in it, unless
+  your project says otherwise, per group of the board or per page of the wiki, in one method of your own:
+  read, comment, write or manage
+  ([integrating.md](docs/integrating.md#per-group-of-the-board-per-page-of-the-wiki)).
 - **No live updates.** A page shows what was there when it loaded. In the wiki, a save made on top of
   someone else's is refused, naming them, rather than merged.
 - **English and Dutch only**, for now; another language is one more translation file.

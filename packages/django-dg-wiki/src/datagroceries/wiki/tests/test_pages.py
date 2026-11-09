@@ -2,10 +2,11 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from datagroceries.core import markdown
 from datagroceries.core.tests import person
 from datagroceries.wiki.forms import fingerprint
 from datagroceries.wiki.models import FormerPath, Page
-from datagroceries.wiki.tests import member
+from datagroceries.wiki.tests import member, serving
 
 
 class WikiTestCase(TestCase):
@@ -15,6 +16,11 @@ class WikiTestCase(TestCase):
 
     def setUp(self):
         self.client.force_login(self.user)
+
+    def render(self, text, context=None):
+        """`text` as the wiki shows it to the person signed in."""
+        with serving(self.user):
+            return markdown.render(text, context=context)
 
     def make_page(self, title, parent=None, body=''):
         return Page.objects.create(title=title, parent=parent, body=body, creator=self.user)
