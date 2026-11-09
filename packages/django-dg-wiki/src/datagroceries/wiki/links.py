@@ -135,10 +135,11 @@ class PageLinks(markdown.Reference):
             (
                 _('[[Platform]]'),
                 _(
-                    'A link starts in the folder it is written in, as an address does in a browser: on a folder, '
-                    'the page Platform in it; on a page of its own, Platform beside it, in the same folder.'
+                    'On a folder: the page Platform in it. A link starts in the folder it is written in, as an '
+                    'address does in a browser.'
                 ),
             ),
+            (_('[[Platform]]'), _('On a page of its own: the page Platform beside it, in the same folder.')),
             (_('[[Platform/Testing]]'), _('Further down: the page Testing, in the folder Platform.')),
             (_('[[../Sales]]'), _('Sales, one folder up. Each ../ goes one level up.')),
             (

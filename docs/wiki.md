@@ -62,7 +62,9 @@ the pages in it, as files and folders are; only a folder has pages in it. A fold
 Markdown link lands in a browser where a wiki link does. Nothing makes a page a folder by itself: "Make it a
 folder", and "Make it a page" for a folder with nothing in it (`operations.make_folder`), keep its address,
 and rewrite the relative links in its own text (`links.rebase`), which start from another folder then, to
-name the same addresses, in one version that says so.
+name the same addresses, in one version that says so. A folder says so beside its title and lists what is
+in it, and the editor says where the page's links start, with two addresses they would name
+(`link_start`).
 
 **Links** (`links.py`). A link names a page by its address, written in titles or slugs:
 `[[Deploying/Rollback]]` and `[[deploying/rollback]]` are the same. It starts in the folder it is written in

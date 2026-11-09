@@ -55,3 +55,17 @@ def tree_context(user, current=None, also_open: Page | None = None) -> dict:
 @register.inclusion_tag('dg_wiki/_tree.html', takes_context=True)
 def page_tree(context, current=None):
     return tree_context(context['request'].user, current)
+
+
+@register.inclusion_tag('dg_wiki/_link_start.html')
+def link_start(page: Page):
+    """Where the links written on `page` start, with the addresses two of them would name, for beside the
+    editor: in the folder it is, or the one it is in (datagroceries.wiki.links)."""
+    base = page.folder_path
+    up = base.rpartition('/')[0]
+    return {
+        'page': page,
+        'folder': page.parent if not page.folder else None,
+        'beside': f'/{base}/platform' if base else '/platform',
+        'up': (f'/{up}/sales' if up else '/sales') if base else None,
+    }

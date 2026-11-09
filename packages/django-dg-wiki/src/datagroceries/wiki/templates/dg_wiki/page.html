@@ -50,8 +50,9 @@
     </div>
   </div>
 </div>
-{% if translations or page.language %}
+{% if translations or page.language or page.folder %}
   <p class="wk-languages small mb-1">
+    {% if page.folder %}<span class="badge text-bg-light border" title="{% translate 'A folder: its text is the index of the pages in it.' %}">{% translate "Folder" %}</span>{% endif %}
     {% if page.language %}<span class="badge text-bg-light border">{{ page.language|language_name_local }}</span>{% endif %}
     {% if translations %}
       <span class="wk-muted">{% translate "Also in" %}</span>
@@ -92,10 +93,12 @@
 </div>
 
 <div class="wk-related">
-  {% if children and page.body %}
+  {% if page.folder and page.body or page.folder and not children %}
     <section>
-      <div class="wk-panel-title">{% translate "Pages under this one" %}</div>
-      <ul>{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
+      <div class="wk-panel-title">{% translate "In this folder" %}</div>
+      {% if children %}<ul>{% for child in children %}<li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>{% endfor %}</ul>
+      {% else %}<p class="wk-muted small mb-1">{% translate "Nothing in it yet" %}</p>{% endif %}
+      {% if can.write %}<a class="small" href="{% url 'dg_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-plus-lg"></i> {% translate "New page in this folder" %}</a>{% endif %}
     </section>
   {% endif %}
   {% if backlinks %}

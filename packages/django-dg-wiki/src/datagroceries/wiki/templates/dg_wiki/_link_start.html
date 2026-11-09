@@ -1,0 +1,12 @@
+{% load i18n %}{% comment %}
+Where the links written on a page start, with two addresses they would name, above its editor.
+{% endcomment %}<p class="wk-link-start small wk-muted mb-2"><i class="bi bi-link-45deg"></i>
+  {% if page.folder %}
+    {% blocktranslate with title=page.title %}<strong>{{ title }}</strong> is a folder: links written in it start in it.{% endblocktranslate %}
+  {% elif folder %}
+    {% blocktranslate with title=page.title folder=folder.title %}<strong>{{ title }}</strong> is a page in the folder {{ folder }}: links written in it start in {{ folder }}.{% endblocktranslate %}
+  {% else %}
+    {% blocktranslate with title=page.title %}<strong>{{ title }}</strong> is a page at the top of the wiki: links written in it start at the top.{% endblocktranslate %}
+  {% endif %}
+  {% blocktranslate %}<code>[[Platform]]</code> is <code>{{ beside }}</code>{% endblocktranslate %}{% if up %}, {% blocktranslate %}<code>[[../Sales]]</code> is <code>{{ up }}</code>{% endblocktranslate %}{% endif %}.
+</p>

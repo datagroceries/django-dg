@@ -21,8 +21,9 @@ Needs django-dg-core 1.3.0.
   it; only a folder has pages in it. A folder's address ends in `/`, a page's does not. "Make it a folder"
   and "Make it a page" (and `folder` in the API and MCP tools) change it, keeping its address and
   rewriting the relative links in its text. A download is as a real folder: `engineering/index.md` beside
-  `engineering/platform.md`. Needs the migration `0002_page_or_folder`, which makes the pages with pages
-  under them folders.
+  `engineering/platform.md`. A folder says so beside its title and lists what is in it; the editor says
+  where the links written in a page start, with the addresses two of them would name. Needs the
+  migration `0002_page_or_folder`, which makes the pages with pages under them folders.
 - **A link starts in the folder it is written in, as a relative address does in a browser**:
   `[[Platform]]` is the page in a folder, or beside a page, `[[../Sales]]` one folder up, and
   `[[/Engineering/Deploying]]` is from the top. Nothing is looked for elsewhere in the tree any more:

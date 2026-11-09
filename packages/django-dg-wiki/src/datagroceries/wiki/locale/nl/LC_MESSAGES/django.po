@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 20:06+0100\n"
+"POT-Creation-Date: 2026-11-09 20:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -69,41 +69,41 @@ msgstr "De titel in die taal."
 msgid "Links to wiki pages"
 msgstr "Links naar wikipagina's"
 
-#: links.py:136
+#: links.py:136 links.py:142
 msgid "[[Platform]]"
 msgstr "[[Platform]]"
 
 #: links.py:138
 msgid ""
-"A link starts in the folder it is written in, as an address does in a "
-"browser: on a folder, the page Platform in it; on a page of its own, "
-"Platform beside it, in the same folder."
-msgstr ""
-"Een link begint in de map waarin die geschreven is, zoals een adres in een "
-"browser: op een map de pagina Platform erin; op een losse pagina Platform "
-"ernaast, in dezelfde map."
+"On a folder: the page Platform in it. A link starts in the folder it is "
+"written in, as an address does in a browser."
+msgstr "Op een map: de pagina Platform erin. Een link begint in de map waarin die geschreven is, zoals een adres in een browser."
 
 #: links.py:142
+msgid "On a page of its own: the page Platform beside it, in the same folder."
+msgstr "Op een losse pagina: de pagina Platform ernaast, in dezelfde map."
+
+#: links.py:143
 msgid "[[Platform/Testing]]"
 msgstr "[[Platform/Testen]]"
 
-#: links.py:142
+#: links.py:143
 msgid "Further down: the page Testing, in the folder Platform."
 msgstr "Dieper: de pagina Testen, in de map Platform."
 
-#: links.py:143
+#: links.py:144
 msgid "[[../Sales]]"
 msgstr "[[../Verkoop]]"
 
-#: links.py:143
+#: links.py:144
 msgid "Sales, one folder up. Each ../ goes one level up."
 msgstr "Verkoop, een map hoger. Elke ../ gaat een niveau omhoog."
 
-#: links.py:145
+#: links.py:146
 msgid "[[/Engineering/Deploying]]"
 msgstr "[[/Techniek/Uitrollen]]"
 
-#: links.py:147
+#: links.py:148
 msgid ""
 "From the top of the wiki: Deploying, in Engineering. Outside the wiki, as in "
 "a ticket, only these work."
@@ -111,28 +111,28 @@ msgstr ""
 "Vanaf de top van de wiki: Uitrollen, in Techniek. Buiten de wiki, zoals in "
 "een ticket, werken alleen deze."
 
-#: links.py:151
+#: links.py:152
 msgid "[[Platform|our platform]]"
 msgstr "[[Platform|ons platform]]"
 
-#: links.py:151
+#: links.py:152
 msgid "A link with words of your own."
 msgstr "Een link met eigen woorden."
 
-#: links.py:152
+#: links.py:153
 msgid "[[New page]]"
 msgstr "[[Nieuwe pagina]]"
 
-#: links.py:152
+#: links.py:153
 msgid "A page that is not there yet shows red. Following the link starts it."
 msgstr ""
 "Een pagina die er nog niet is, is rood. Wie de link volgt, begint die pagina."
 
-#: links.py:178
+#: links.py:179
 msgid "No such page yet"
 msgstr "Deze pagina bestaat nog niet"
 
-#: links.py:182
+#: links.py:183
 msgid "A page you cannot see"
 msgstr "Een pagina die je niet kunt zien"
 
@@ -221,12 +221,12 @@ msgstr "Verplaats of verwijder eerst de pagina's onder deze pagina."
 msgid "Edit"
 msgstr "Bewerken"
 
-#: templates/dg_wiki/_comment_edit.html:6 templates/dg_wiki/page_edit.html:24
+#: templates/dg_wiki/_comment_edit.html:6 templates/dg_wiki/page_edit.html:25
 msgid "Save"
 msgstr "Opslaan"
 
 #: templates/dg_wiki/_comment_edit.html:7 templates/dg_wiki/_comments.html:34
-#: templates/dg_wiki/page_edit.html:25 templates/dg_wiki/page_move.html:20
+#: templates/dg_wiki/page_edit.html:26 templates/dg_wiki/page_move.html:20
 #: templates/dg_wiki/page_translate.html:23
 msgid "Cancel"
 msgstr "Annuleren"
@@ -265,6 +265,36 @@ msgstr "Antwoorden"
 msgid "Comment"
 msgstr "Reageren"
 
+#: templates/dg_wiki/_link_start.html:5
+#, python-format
+msgid ""
+"<strong>%(title)s</strong> is a folder: links written in it start in it."
+msgstr "<strong>%(title)s</strong> is een map: links die je hier schrijft, beginnen in deze map."
+
+#: templates/dg_wiki/_link_start.html:7
+#, python-format
+msgid ""
+"<strong>%(title)s</strong> is a page in the folder %(folder)s: links written "
+"in it start in %(folder)s."
+msgstr "<strong>%(title)s</strong> is een pagina in de map %(folder)s: links die je hier schrijft, beginnen in %(folder)s."
+
+#: templates/dg_wiki/_link_start.html:9
+#, python-format
+msgid ""
+"<strong>%(title)s</strong> is a page at the top of the wiki: links written "
+"in it start at the top."
+msgstr "<strong>%(title)s</strong> is een pagina bovenaan in de wiki: links die je hier schrijft, beginnen bovenaan."
+
+#: templates/dg_wiki/_link_start.html:11
+#, python-format
+msgid "<code>[[Platform]]</code> is <code>%(beside)s</code>"
+msgstr "<code>[[Platform]]</code> is <code>%(beside)s</code>"
+
+#: templates/dg_wiki/_link_start.html:11
+#, python-format
+msgid "<code>[[../Sales]]</code> is <code>%(up)s</code>"
+msgstr "<code>[[../Sales]]</code> is <code>%(up)s</code>"
+
 #: templates/dg_wiki/_new_page_form.html:14 templates/dg_wiki/missing.html:23
 msgid "Create and write"
 msgstr "Maken en schrijven"
@@ -273,7 +303,7 @@ msgstr "Maken en schrijven"
 msgid "No pages yet."
 msgstr "Nog geen pagina's."
 
-#: templates/dg_wiki/_tree_nodes.html:8
+#: templates/dg_wiki/_tree_nodes.html:8 templates/dg_wiki/page.html:100
 msgid "Nothing in it yet"
 msgstr "Nog leeg"
 
@@ -350,20 +380,26 @@ msgstr "Nog geen pagina op <code>/%(path)s</code>"
 msgid ""
 "It would go in <a href=\"%(url)s\">%(title)s</a>, which is a page, not a "
 "folder: make it a folder first."
-msgstr "Die zou komen in <a href=\"%(url)s\">%(title)s</a>, en dat is een pagina, geen map: maak er eerst een map van."
+msgstr ""
+"Die zou komen in <a href=\"%(url)s\">%(title)s</a>, en dat is een pagina, "
+"geen map: maak er eerst een map van."
 
 #: templates/dg_wiki/missing.html:13
 #, python-format
 msgid ""
 "The link leads here. Start the page <strong>%(title)s</strong>, in %(place)s."
-msgstr "De link leidt hierheen. Maak de pagina <strong>%(title)s</strong> aan, in %(place)s."
+msgstr ""
+"De link leidt hierheen. Maak de pagina <strong>%(title)s</strong> aan, in "
+"%(place)s."
 
 #: templates/dg_wiki/missing.html:14
 #, python-format
 msgid ""
 "The link leads here. Start the page <strong>%(title)s</strong>, at the top "
 "of the wiki."
-msgstr "De link leidt hierheen. Maak de pagina <strong>%(title)s</strong> aan, bovenaan in de wiki."
+msgstr ""
+"De link leidt hierheen. Maak de pagina <strong>%(title)s</strong> aan, "
+"bovenaan in de wiki."
 
 #: templates/dg_wiki/missing.html:15
 #, python-format
@@ -396,7 +432,7 @@ msgstr "Geen titel geeft dit adres, dus hier kan geen pagina staan."
 msgid "More"
 msgstr "Meer"
 
-#: templates/dg_wiki/page.html:18
+#: templates/dg_wiki/page.html:18 templates/dg_wiki/page.html:101
 msgid "New page in this folder"
 msgstr "Nieuwe pagina in deze map"
 
@@ -444,11 +480,19 @@ msgstr "Verwijderen"
 msgid "Delete this page? Its history stays."
 msgstr "Deze pagina verwijderen? Haar geschiedenis blijft bewaard."
 
-#: templates/dg_wiki/page.html:57
+#: templates/dg_wiki/page.html:55
+msgid "A folder: its text is the index of the pages in it."
+msgstr "Een map: de tekst is de inleiding op de pagina's erin."
+
+#: templates/dg_wiki/page.html:55
+msgid "Folder"
+msgstr "Map"
+
+#: templates/dg_wiki/page.html:58
 msgid "Also in"
 msgstr "Ook in:"
 
-#: templates/dg_wiki/page.html:64
+#: templates/dg_wiki/page.html:65
 #, python-format
 msgid ""
 "<a href=\"%(url)s\">%(title)s</a>, which this page translates, changed after "
@@ -457,52 +501,52 @@ msgstr ""
 "<a href=\"%(url)s\">%(title)s</a>, waarvan deze pagina een vertaling is, is "
 "later gewijzigd dan deze pagina. Er kan inmiddels meer staan."
 
-#: templates/dg_wiki/page.html:65
+#: templates/dg_wiki/page.html:66
 msgid "See what changed"
 msgstr "Bekijk wat er veranderde"
 
-#: templates/dg_wiki/page.html:70
+#: templates/dg_wiki/page.html:71
 #, python-format
 msgid "Last changed by %(person)s, %(when)s"
 msgstr "Laatst gewijzigd door %(person)s, %(when)s"
 
-#: templates/dg_wiki/page.html:81
+#: templates/dg_wiki/page.html:82
 msgid "Write an introduction"
 msgstr "Schrijf een inleiding"
 
-#: templates/dg_wiki/page.html:83
+#: templates/dg_wiki/page.html:84
 msgid "This page is empty."
 msgstr "Deze pagina is leeg."
 
-#: templates/dg_wiki/page.html:83
+#: templates/dg_wiki/page.html:84
 msgid "Write it"
 msgstr "Begin met schrijven"
 
-#: templates/dg_wiki/page.html:88
+#: templates/dg_wiki/page.html:89
 msgid "On this page"
 msgstr "Op deze pagina"
 
-#: templates/dg_wiki/page.html:97
-msgid "Pages under this one"
-msgstr "Pagina's hieronder"
+#: templates/dg_wiki/page.html:98
+msgid "In this folder"
+msgstr "In deze map"
 
-#: templates/dg_wiki/page.html:103
+#: templates/dg_wiki/page.html:106
 msgid "Pages that link here"
 msgstr "Pagina's die hierheen linken"
 
-#: templates/dg_wiki/page.html:108
+#: templates/dg_wiki/page.html:111
 msgid "Files"
 msgstr "Bestanden"
 
-#: templates/dg_wiki/page.html:120
+#: templates/dg_wiki/page.html:123
 msgid "Add a file"
 msgstr "Bestand toevoegen"
 
-#: templates/dg_wiki/page.html:124
+#: templates/dg_wiki/page.html:127
 msgid "File"
 msgstr "Bestand"
 
-#: templates/dg_wiki/page.html:125
+#: templates/dg_wiki/page.html:128
 msgid "Upload"
 msgstr "Uploaden"
 

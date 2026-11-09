@@ -358,6 +358,30 @@ class FolderTests(WikiTestCase):
 
         self.assertContains(response, '<li class="wk-tree-empty">Nothing in it yet</li>', html=True)
 
+    def test_the_editor_says_where_its_links_start(self):
+        engineering = self.make_page('Engineering', folder=True)
+        deploying = self.make_page('Deploying', engineering)
+
+        folder = self.client.get(reverse('dg_wiki:page_edit', args=[engineering.path]))
+        page = self.client.get(reverse('dg_wiki:page_edit', args=[deploying.path]))
+
+        self.assertContains(folder, '<strong>Engineering</strong> is a folder: links written in it start in it.')
+        self.assertContains(folder, '<code>[[Platform]]</code> is <code>/engineering/platform</code>')
+        self.assertContains(page, 'is a page in the folder Engineering: links written in it start in Engineering.')
+        self.assertContains(page, '<code>[[Platform]]</code> is <code>/engineering/platform</code>')
+        self.assertContains(page, '<code>[[../Sales]]</code> is <code>/sales</code>')
+
+    def test_a_folder_says_so_and_what_is_in_it(self):
+        engineering = self.make_page('Engineering', body='How we work.', folder=True)
+
+        response = self.client.get(engineering.get_absolute_url())
+
+        self.assertContains(response, '>Folder</span>')
+        self.assertContains(response, 'In this folder')
+        self.assertContains(response, 'Nothing in it yet')
+        self.assertContains(response, 'New page in this folder')
+        self.assertNotContains(self.client.get(self.make_page('Platform').get_absolute_url()), '>Folder</span>')
+
     def test_a_page_started_at_a_folder_s_address_is_a_folder(self):
         self.client.post('/dg/wiki/engineering/', {'title': 'Engineering'})
 
