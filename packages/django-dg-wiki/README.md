@@ -5,15 +5,17 @@ A wiki for a Django project, that people and AI agents write together, next to t
 
 ## What it does
 
-- Pages in Markdown, in one tree: a page with pages under it is what elsewhere is a space or a folder.
-  Addresses follow the tree (`dg/wiki/engineering/deploying/`), and a page renamed or moved keeps its
-  old address leading to it. Pages are put in order, or under another, by dragging them in the tree.
-- Pages and folders, as files and folders are: a folder's text is the index of the pages in it, and a page
-  becomes a folder, or back, when someone says so.
+- Pages in Markdown, in one tree of pages and folders, as files and folders are: a folder's text is the
+  index of the pages in it, and a page becomes a folder, or back, when someone says so. One name per
+  folder. Addresses follow the tree (`dg/wiki/engineering/` for a folder, `dg/wiki/engineering/deploying`
+  for a page), and a page renamed or moved keeps its old address leading to it. Pages are put in order,
+  or in a folder, by dragging them in the tree.
+- The wiki starts with its page `home` at the top, an ordinary page, as a site's `/` shows its
+  `index.html`.
 - Links between pages, as relative addresses in a browser, from the folder they are in: `[[Platform]]` is
   the page beside a page, or in a folder, `[[../Sales]]` one folder up, and `[[/Engineering/Deploying]]` is
-  from the top, also from a ticket's text. A page lists the pages that link to it, and the links follow
-  when a page is renamed or moved.
+  from the top, also from a ticket's text. A red link starts its page where it leads, with the folders it
+  goes in. A page lists the pages that link to it, and the links follow when a page is renamed or moved.
 - The Markdown editor of every DataGroceries app, and a table of contents beside a long page.
 - Every save kept, with who made it and through which agent; two versions compared side by side, and an
   earlier one brought back. A save is refused when someone else saved the page in the meantime.
@@ -22,7 +24,7 @@ A wiki for a Django project, that people and AI agents write together, next to t
 - Search through every page's title and text, and pages downloaded as Markdown: one page as a file, or
   a page with all under it, or the whole wiki, as a zip with their images, the links between them kept.
 - A page in several languages: each version beside it, new or linked from a page already there, and told
-  when the page it translates changed after it.
+  when the page it translates changed after it. The tree shows a page's language.
 - Access per page, as the project decides: who may read, comment on or write a page and the pages under
   it, in one method of the project's own (`People.may`), on the pages and for agents alike. By default
   everyone who may use the wiki may do everything.

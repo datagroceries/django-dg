@@ -8,13 +8,14 @@ how to install it are in its [README](../packages/django-dg-wiki/README.md).
 The wiki follows the board's principles ([board.md](board.md#principles-of-the-board)): no options, every
 part of a page one job, sparing with features. On top of those:
 
-- **One tree.** There are no spaces, books or folders apart from pages: a page with pages under it is
-  all of those. Its text is what elsewhere is an index page.
+- **One tree, of pages and folders.** There are no spaces or books: a folder is a page whose text is the
+  index of the pages in it, as files and folders are, and the wiki itself starts with its page `home`.
+  Only someone makes a page a folder, never the wiki by itself.
 - **An address is a page's place.** A page lives at the slugs of its ancestors and its own
-  (`dg/wiki/engineering/deploying/`). Renaming or moving changes it, and the old address keeps leading
-  to the page, so a link never breaks.
-- **Links follow.** A link written in the wiki names a page as people do, and is rewritten when that
-  page, or the page the link is in, gets another address.
+  (`dg/wiki/engineering/deploying`, a folder `dg/wiki/engineering/`), one name per folder. Renaming or
+  moving changes it, and the old address keeps leading to the page, so a link never breaks.
+- **Links are addresses, and follow.** A link names one address, as a relative address does in a
+  browser, and is rewritten when that page, or the page the link is in, gets another address.
 - **Nothing is lost.** Every save is a version; bringing an old one back is a new version, and a save
   made on top of someone else's is refused, naming them.
 
@@ -31,7 +32,8 @@ part of a page one job, sparing with features. On top of those:
   words marked, and an earlier one brought back.
 - Comments with one level of replies, @-mentions and watchers, as on the board.
 - Search through every title and text.
-- A language per page, and translations beside it that link to each other.
+- A language per page, and versions in other languages beside it, started new or linked from a page
+  already there, that link to each other.
 - A page, a page with all under it, or the whole wiki downloaded as Markdown.
 
 ### Integrations
