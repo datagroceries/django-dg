@@ -172,10 +172,13 @@ def page(title, creator, body, *, parent=None, position):
 
 
 def seed_wiki(ann, bob, chloe, move):
-    """A small tree of pages: links between them, one relative and one to a page nobody wrote yet, a
-    ticket's key, so the ticket lists the page, a second version and a comment."""
+    """A small tree of pages, a folder with two pages in it: links between them, one relative and one to a page
+    nobody wrote yet, a ticket's key, so the ticket lists the page, a second version and a comment."""
     with acting_as(bob):
         engineering = page('Engineering', bob, ENGINEERING, position=1)
+        # A folder from the start, without a version saying it became one.
+        Page.objects.filter(pk=engineering.pk).update(folder=True)
+        engineering.folder = True
         deploying = page('Deploying', bob, DEPLOYING.format(check='', move=move.key), parent=engineering, position=1)
         page('Rollback', bob, ROLLBACK, parent=engineering, position=2)
     with acting_as(ann):
@@ -208,7 +211,7 @@ DEPLOYING = """## Before
 
 Check the site, and the errors of the last ten minutes.{check}
 
-Something wrong? Go back as [[../Rollback]] says.
+Something wrong? Go back as [[Rollback]] says.
 
 The new server changes these steps: see {move}.
 """
@@ -249,8 +252,8 @@ def welcome(visitor):
                 '- Open **Connect an agent** on the board, connect Claude, and ask it: *"What is assigned to '
                 'me on the board? Move my welcome ticket to Done and say so in a comment."*\n'
                 "- Then look at this ticket's history: Claude's changes say they were made through Claude.\n"
-                "- Read the team's wiki page on releases, [[/Engineering/Deploying]], and edit it: the ticket it names lists "
-                'it.\n\n'
+                "- Read the team's wiki page on releases, [[/Engineering/Deploying]], and edit it: the ticket it names "
+                'lists it.\n\n'
                 'Everything here, your account too, is gone tomorrow morning.'
             ),
         )

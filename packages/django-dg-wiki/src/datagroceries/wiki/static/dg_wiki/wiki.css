@@ -16,6 +16,7 @@
 .wk-tree a { display: block; padding: .15rem .4rem; border-radius: .3rem; color: var(--bs-body-color); text-decoration: none;
              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wk-tree a:hover { background: var(--bs-tertiary-bg); }
+.wk-tree .wk-folder { color: var(--bs-secondary-color); margin-right: .3rem; }
 .wk-tree a[aria-current="page"] { background: var(--bs-secondary-bg); font-weight: 600; }
 .wk-tree li > a { margin-left: 1rem; }
 .wk-tree summary { display: flex; align-items: center; list-style: none; cursor: pointer; }

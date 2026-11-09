@@ -39,11 +39,11 @@ class CommentTests(WikiTestCase):
         response = self.comment('Looks **good**')
 
         made = Comment.objects.get()
-        self.assertRedirects(response, f'/dg/wiki/deploying/#comment-{made.pk}', fetch_redirect_response=False)
+        self.assertRedirects(response, f'/dg/wiki/deploying#comment-{made.pk}', fetch_redirect_response=False)
         [(emails, message)] = self.sent(task)
         self.assertEqual(emails, ('bob@example.com',))
         self.assertIn('Anna Tester commented on Deploying', message)
-        self.assertIn(f'/dg/wiki/deploying/#comment-{made.pk}\n', message)
+        self.assertIn(f'/dg/wiki/deploying#comment-{made.pk}\n', message)
         self.assertTrue(Watcher.objects.filter(page=self.page, user=self.user).exists())
         page = self.client.get(self.page.get_absolute_url())
         self.assertContains(page, '<strong>good</strong>')

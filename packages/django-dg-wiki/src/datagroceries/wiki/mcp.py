@@ -24,13 +24,13 @@ PAGE = {
 }
 MENTION = '@-mentioning someone by their handle (@ann) tells them about it.'
 LINKS = (
-    'A link to a wiki page starts from the page it is in, as a relative address does in a browser, every page '
-    'being a folder of the pages under it: in the page Engineering, [[Deploying]] is Engineering/Deploying, '
-    '[[Deploying/Rollback]] is further down, and [[../Sales]] is Sales, beside Engineering (each ../ goes one '
-    'level up). [[/Sales/Q4]] starts from the top of the wiki, and is the only kind that works outside the wiki, '
-    'as in a ticket. [[Deploying|how we ship]] links with words of its own. Nothing else is looked for: '
-    '[[Deploying]] never finds a page elsewhere in the tree. A link to a page not there yet shows red, and '
-    'following it starts that page.'
+    'A link to a wiki page starts in the folder it is written in, as a relative address does in a browser: on a '
+    'folder, such as Engineering, [[Deploying]] is the page Deploying in it; on a page of its own in Engineering, '
+    '[[Deploying]] is the page beside it, in the same folder. [[Deploying/Rollback]] goes further down, '
+    '[[../Sales]] one folder up (each ../ is one level). [[/Sales/Q4]] starts from the top of the wiki, and is '
+    'the only kind that works outside the wiki, as in a ticket. [[Deploying|how we ship]] links with words of '
+    'its own. Nothing else is looked for: [[Deploying]] never finds a page elsewhere in the tree. A link to a '
+    'page not there yet shows red, and following it starts that page.'
 )
 PAGE_FIELDS = {
     'title': {
@@ -45,7 +45,13 @@ PAGE_FIELDS = {
     },
     'parent': {
         'type': ['string', 'null'],
-        'description': 'The page to put it under, named as `path` is; empty or null for the top.',
+        'description': 'The folder to put it in, named as `path` is; empty or null for the top.',
+    },
+    'folder': {
+        'type': 'boolean',
+        'description': 'A folder, whose text is the index of the pages in it, or a page of its own. Only a folder '
+        'has pages in it, and only one with none in it becomes a page again. Making a page a folder keeps its '
+        'address and rewrites the relative links in its text, which then start from it, to name the same pages.',
     },
 }
 TOOLS = (

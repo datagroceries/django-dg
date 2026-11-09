@@ -7,11 +7,14 @@
 {% include 'dg_wiki/_crumbs.html' %}
 <h1 class="h3">{% translate "No such page yet" %}</h1>
 {% if absent %}
-{% url 'dg_wiki:page' absent.path as absent_url %}
+{% url 'dg_wiki:folder' absent.path as absent_url %}
 <p class="wk-muted">{% blocktranslate with title=absent.title %}No page has the address <code>{{ path }}</code>, and a page above it, <a class="wk-missing" href="{{ absent_url }}">{{ title }}</a>, is not there either. Start that one first.{% endblocktranslate %}</p>
+{% elif not_folder %}
+<p class="wk-muted">{% blocktranslate with url=not_folder.get_absolute_url title=not_folder.title %}No page has the address <code>{{ path }}</code>. It would go in <a href="{{ url }}">{{ title }}</a>, which is a page, not a folder: make it a folder first.{% endblocktranslate %}</p>
 {% elif form %}
 <p class="wk-muted">{% blocktranslate %}No page has the address <code>{{ path }}</code>. Start it?{% endblocktranslate %}
-  {% if parent %}{% blocktranslate with url=parent.get_absolute_url title=parent.title %}It goes under <a href="{{ url }}">{{ title }}</a>.{% endblocktranslate %}{% else %}{% translate "It goes at the top." %}{% endif %}</p>
+  {% if parent %}{% blocktranslate with url=parent.get_absolute_url title=parent.title %}It goes under <a href="{{ url }}">{{ title }}</a>.{% endblocktranslate %}{% else %}{% translate "It goes at the top." %}{% endif %}
+  {% if folder %}{% translate "It starts as a folder, for pages to go in." %}{% endif %}</p>
 <form method="post" class="wk-narrow">
   {% csrf_token %}
   {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}

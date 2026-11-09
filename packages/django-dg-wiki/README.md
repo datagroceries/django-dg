@@ -8,10 +8,12 @@ A wiki for a Django project, that people and AI agents write together, next to t
 - Pages in Markdown, in one tree: a page with pages under it is what elsewhere is a space or a folder.
   Addresses follow the tree (`dg/wiki/engineering/deploying/`), and a page renamed or moved keeps its
   old address leading to it. Pages are put in order, or under another, by dragging them in the tree.
-- Links between pages, as relative addresses in a browser, every page being a folder of the pages under
-  it: `[[Rollback]]` is the page under it, `[[../Onboarding]]` the page beside it, and
-  `[[/Engineering/Deploying]]` is from the top, also from a ticket's text. A page lists the pages that link to
-  it, and the links follow when a page is renamed or moved.
+- Pages and folders, as files and folders are: a folder's text is the index of the pages in it, and a page
+  becomes a folder, or back, when someone says so.
+- Links between pages, as relative addresses in a browser, from the folder they are in: `[[Platform]]` is
+  the page beside a page, or in a folder, `[[../Sales]]` one folder up, and `[[/Engineering/Deploying]]` is
+  from the top, also from a ticket's text. A page lists the pages that link to it, and the links follow
+  when a page is renamed or moved.
 - The Markdown editor of every DataGroceries app, and a table of contents beside a long page.
 - Every save kept, with who made it and through which agent; two versions compared side by side, and an
   earlier one brought back. A save is refused when someone else saved the page in the meantime.

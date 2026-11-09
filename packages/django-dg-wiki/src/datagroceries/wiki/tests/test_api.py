@@ -39,7 +39,7 @@ class WikiToolTests(TestCase):
 
     def setUp(self):
         self.client = token_client(self.user)
-        self.engineering = Page.objects.create(title='Engineering', creator=self.user)
+        self.engineering = Page.objects.create(title='Engineering', creator=self.user, folder=True)
         self.deploying = Page.objects.create(
             title='Deploying', parent=self.engineering, creator=self.user, body='Pull, then restart.'
         )
@@ -102,6 +102,19 @@ class WikiToolTests(TestCase):
         self.assertTrue(error)
         self.assertIn('parent', answer)
 
+    def test_a_folder_is_made_and_a_page_made_one(self):
+        folder, error = tool(self.client, 'create_page', title='Operations', folder=True)
+        self.assertFalse(error)
+        self.assertTrue(folder['folder'])
+        self.assertTrue(folder['url'].endswith('/dg/wiki/operations/'))
+
+        page, error = tool(self.client, 'update_page', path='Engineering/Deploying', folder=True)
+        self.assertFalse(error)
+        self.assertTrue(page['folder'])
+        answer, error = tool(self.client, 'update_page', path='Engineering', folder=False)
+        self.assertTrue(error)
+        self.assertIn('folder', answer)
+
     def test_search_and_the_tree(self):
         found, _error = tool(self.client, 'search_pages', q='restart')
         self.assertEqual([hit['path'] for hit in found['results']], ['engineering/deploying'])
@@ -159,4 +172,4 @@ class NamingTests(TestCase):
 
         with serving(user):
             self.assertEqual([place.title for place in search.naming('T-12')], ['Release'])
-            self.assertEqual([place.url for place in search.naming('T-123')], ['/dg/wiki/other/', '/dg/wiki/release/'])
+            self.assertEqual([place.url for place in search.naming('T-123')], ['/dg/wiki/other', '/dg/wiki/release'])

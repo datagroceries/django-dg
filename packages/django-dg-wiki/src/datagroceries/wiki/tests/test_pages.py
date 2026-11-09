@@ -6,7 +6,7 @@ from datagroceries.core import markdown
 from datagroceries.core.tests import person
 from datagroceries.wiki.forms import fingerprint
 from datagroceries.wiki.models import FormerPath, Page
-from datagroceries.wiki.tests import member, serving
+from datagroceries.wiki.tests import member, page, serving
 
 
 class WikiTestCase(TestCase):
@@ -22,8 +22,8 @@ class WikiTestCase(TestCase):
         with serving(self.user):
             return markdown.render(text, context=context)
 
-    def make_page(self, title, parent=None, body=''):
-        return Page.objects.create(title=title, parent=parent, body=body, creator=self.user)
+    def make_page(self, title, parent=None, body='', folder=False):
+        return page(title, self.user, parent, body=body, folder=folder)
 
 
 class TreeTests(WikiTestCase):
@@ -32,7 +32,7 @@ class TreeTests(WikiTestCase):
         deploying = self.make_page('Deploying to production', engineering)
 
         self.assertEqual(deploying.path, 'engineering/deploying-to-production')
-        self.assertEqual(deploying.get_absolute_url(), '/dg/wiki/engineering/deploying-to-production/')
+        self.assertEqual(deploying.get_absolute_url(), '/dg/wiki/engineering/deploying-to-production')
         self.assertEqual(deploying.ancestors(), [engineering])
 
     def test_pages_beside_each_other_with_the_same_title_get_their_own_address(self):
@@ -109,7 +109,7 @@ class TreeTests(WikiTestCase):
 
 class PageTests(WikiTestCase):
     def test_a_page_shows_its_text_its_place_and_who_wrote_it(self):
-        top = self.make_page('Engineering')
+        top = self.make_page('Engineering', folder=True)
         self.client.post(reverse('dg_wiki:page_create'), {'title': 'Deploying', 'parent': top.pk})
         deploying = Page.objects.get(title='Deploying')
         self.client.post(
@@ -174,12 +174,12 @@ class PageTests(WikiTestCase):
             {'title': 'Development', 'body': '', 'original': fingerprint(page)},
         )
 
-        self.assertRedirects(self.client.get('/dg/wiki/engineering/'), '/dg/wiki/development/')
+        self.assertRedirects(self.client.get('/dg/wiki/engineering'), '/dg/wiki/development')
 
     def test_the_address_of_no_page_offers_to_start_it_there(self):
-        top = self.make_page('Engineering')
+        top = self.make_page('Engineering', folder=True)
 
-        response = self.client.get('/dg/wiki/engineering/release-notes/')
+        response = self.client.get('/dg/wiki/engineering/release-notes')
 
         self.assertContains(response, 'No such page yet', status_code=404)
         self.assertContains(response, 'value="Release notes"', status_code=404)
@@ -187,30 +187,30 @@ class PageTests(WikiTestCase):
         self.assertNotContains(response, 'name="parent"', status_code=404)
 
     def test_a_page_started_at_an_address_goes_there_in_a_title_that_gives_it(self):
-        top = self.make_page('Engineering')
+        top = self.make_page('Engineering', folder=True)
 
-        response = self.client.post('/dg/wiki/engineering/release-notes/', {'title': 'Release Notés'})
+        response = self.client.post('/dg/wiki/engineering/release-notes', {'title': 'Release Notés'})
 
         self.assertRedirects(response, reverse('dg_wiki:page_edit', args=['engineering/release-notes']))
         started = Page.objects.get(path='engineering/release-notes')
         self.assertEqual((started.title, started.parent), ('Release Notés', top))
 
     def test_a_title_that_gives_another_address_is_refused(self):
-        self.make_page('Engineering')
+        self.make_page('Engineering', folder=True)
 
-        response = self.client.post('/dg/wiki/engineering/release-notes/', {'title': 'What changed'})
+        response = self.client.post('/dg/wiki/engineering/release-notes', {'title': 'What changed'})
 
         self.assertContains(response, 'the link would still lead nowhere', status_code=404)
         self.assertFalse(Page.objects.filter(title='What changed').exists())
 
     def test_a_page_above_that_is_not_there_either_is_started_first(self):
-        response = self.client.get('/dg/wiki/engineering/deploying/rollback/?title=Rollback')
+        response = self.client.get('/dg/wiki/engineering/deploying/rollback?title=Rollback')
 
         self.assertContains(
             response, '<a class="wk-missing" href="/dg/wiki/engineering/">Engineering</a>', html=True, status_code=404
         )
         self.assertNotContains(response, 'name="title"', status_code=404)
-        self.client.post('/dg/wiki/engineering/deploying/rollback/', {'title': 'Rollback'})
+        self.client.post('/dg/wiki/engineering/deploying/rollback', {'title': 'Rollback'})
         self.assertFalse(Page.objects.exists())
 
     def test_an_address_no_title_gives_offers_no_page(self):
@@ -221,7 +221,7 @@ class PageTests(WikiTestCase):
 
     def test_moving_a_page_takes_the_pages_under_it(self):
         engineering = self.make_page('Engineering')
-        handbook = self.make_page('Handbook')
+        handbook = self.make_page('Handbook', folder=True)
         deploying = self.make_page('Deploying', engineering)
         self.make_page('Rollback', deploying)
 
@@ -264,7 +264,70 @@ class PageTests(WikiTestCase):
         response = self.client.get(below.get_absolute_url()).content.decode()
 
         self.assertEqual(response.count('<details open>'), 2)
-        self.assertIn('aria-current="page">Deploying</a>', response)
+        self.assertIn(
+            'aria-current="page"><i class="bi bi-folder2 wk-folder" aria-hidden="true"></i>Deploying</a>', response
+        )
+
+
+class FolderTests(WikiTestCase):
+    """A page of its own, or a folder of pages, whose text is their index."""
+
+    def test_a_folder_s_address_ends_in_a_slash_and_a_page_s_does_not(self):
+        engineering = self.make_page('Engineering', folder=True)
+        deploying = self.make_page('Deploying', engineering)
+
+        self.assertEqual(
+            (engineering.get_absolute_url(), deploying.get_absolute_url()),
+            ('/dg/wiki/engineering/', '/dg/wiki/engineering/deploying'),
+        )
+        self.assertRedirects(self.client.get('/dg/wiki/engineering'), '/dg/wiki/engineering/')
+        self.assertRedirects(self.client.get('/dg/wiki/engineering/deploying/'), '/dg/wiki/engineering/deploying')
+
+    def test_a_page_goes_only_in_a_folder(self):
+        platform = self.make_page('Platform')
+
+        response = self.client.post(reverse('dg_wiki:page_create'), {'title': 'Testing', 'parent': platform.pk})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Page.objects.filter(title='Testing').exists())
+        self.assertContains(
+            self.client.get('/dg/wiki/platform/testing'), 'which is a page, not a folder', status_code=404
+        )
+
+    def test_a_page_made_a_folder_keeps_its_address_and_its_links_name_what_they_named(self):
+        engineering = self.make_page('Engineering', folder=True)
+        self.make_page('Algorithms', engineering)
+        platform = self.make_page(
+            'Platform',
+            engineering,
+            body='See [[Algorithms]], [[../Sales]], [[/Engineering/Algorithms|it]] and [[New]].',
+        )
+
+        response = self.client.post(reverse('dg_wiki:page_folder', args=[platform.path]), {'folder': 'yes'})
+
+        platform.refresh_from_db()
+        self.assertRedirects(response, '/dg/wiki/engineering/platform/')
+        self.assertTrue(platform.folder)
+        self.assertEqual(
+            platform.body, 'See [[../Algorithms]], [[../../Sales]], [[/Engineering/Algorithms|it]] and [[../New]].'
+        )
+        history = self.client.get(reverse('dg_wiki:page_history', args=[platform.path]))
+        self.assertContains(history, 'Made a folder')
+
+    def test_a_folder_with_pages_in_it_stays_one(self):
+        engineering = self.make_page('Engineering', folder=True)
+        self.make_page('Platform', engineering)
+
+        self.client.post(reverse('dg_wiki:page_folder', args=[engineering.path]), {'folder': 'no'})
+
+        engineering.refresh_from_db()
+        self.assertTrue(engineering.folder)
+        self.client.post(reverse('dg_wiki:page_folder', args=[engineering.path]), {'folder': 'yes'})
+
+    def test_a_page_started_at_a_folder_s_address_is_a_folder(self):
+        self.client.post('/dg/wiki/engineering/', {'title': 'Engineering'})
+
+        self.assertTrue(Page.objects.get(path='engineering').folder)
 
 
 class AccessTests(WikiTestCase):
@@ -288,5 +351,5 @@ class DutchTests(WikiTestCase):
 
         response = self.client.get(page.get_absolute_url())
 
-        self.assertContains(response, 'Nieuwe pagina hieronder')
+        self.assertContains(response, 'Maak er een map van')
         self.assertContains(response, 'Laatst gewijzigd door Anna Tester')

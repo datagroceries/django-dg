@@ -1,5 +1,5 @@
 // Dragging a page in the tree: onto the top or bottom edge of another page puts it before or after that
-// one, onto its middle puts it under it, last. The server answers with the tree as it is now. The Move
+// one, onto the middle of a folder puts it in it, last; onto a page, before or after it only. The server answers with the tree as it is now. The Move
 // page does the same without a mouse.
 (() => {
   const holder = document.querySelector('.wk-tree-holder');
@@ -46,7 +46,8 @@
     event.preventDefault();
     const box = link.getBoundingClientRect();
     const share = (event.clientY - box.top) / box.height;
-    const where = share < 0.25 ? 'before' : share > 0.75 ? 'after' : 'into';
+    const into = link.hasAttribute('data-folder') && share >= 0.25 && share <= 0.75;
+    const where = into ? 'into' : share < 0.5 ? 'before' : 'after';
     if (link !== target || where !== zone) {
       clear();
       target = link;

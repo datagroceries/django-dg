@@ -56,29 +56,37 @@ the page that is. `Comment`, `Watcher` and `Attachment` (on core's `attachments.
 wiki's own, as the board has its own. `Page.language` and `Page.original` make translations: every
 translation names the same original.
 
-**Links** (`links.py`). A link names a page by its address, written in titles or slugs:
-`[[Deploying/Rollback]]` and `[[deploying/rollback]]` are the same. It is found as a browser finds a
-relative address. Every page is also a folder of the pages under it, as its address ends in a `/`, so a
-link starts from the page it is in. On the page Engineering (`/engineering/`):
+**Pages and folders.** A page is a page of its own, or a folder (`Page.folder`), whose text is the index of
+the pages in it, as files and folders are; only a folder has pages in it. A folder's address ends in `/`
+(`/engineering/`), a page's does not (`/engineering/platform`), and the other one redirects, so a plain
+Markdown link lands in a browser where a wiki link does. Nothing makes a page a folder by itself: "Make it a
+folder", and "Make it a page" for a folder with nothing in it (`operations.make_folder`), keep its address,
+and rewrite the relative links in its own text (`links.rebase`), which start from another folder then, to
+name the same addresses, in one version that says so.
 
-- `[[Deploying]]`, or `[[./Deploying]]`: the page Deploying under Engineering. `[[Deploying/Rollback]]` is
-  further down.
-- `[[../Sales]]`: the page Sales beside Engineering; each `../` goes one level up.
+**Links** (`links.py`). A link names a page by its address, written in titles or slugs:
+`[[Deploying/Rollback]]` and `[[deploying/rollback]]` are the same. It starts in the folder it is written in
+(`Page.folder_path`), as a browser finds a relative address:
+
+- On the folder Engineering, `[[International]]` (or `[[./International]]`) is the page International in
+  it; on the page Platform, in Engineering, `[[Algorithms]]` is the page beside it, in the same folder.
+- `[[International/Belgium]]` goes further down, `[[../Sales]]` one folder up; each `../` is one level.
 - `[[/Sales/Q4]]`: from the top of the wiki. Outside a page, as in a ticket, only these are links, as
   nothing gives the others a place to start from; they stay text.
 - `[[Deploying|how we ship]]`: with words of your own; without them a link shows the page's title.
-- Nothing else is looked for: `[[Deploying]]` on Sales is `/sales/deploying`, never a Deploying elsewhere in
-  the tree, so a link means one address only, and a page made elsewhere never changes where it goes.
+- Nothing else is looked for: `[[Deploying]]` never finds a Deploying elsewhere in the tree, so a link
+  means one address only, and a page made elsewhere never changes where it goes.
 - A `/` at the end changes nothing: `[[Sales/]]` is `[[Sales]]`. A former address finds its page.
 - A link to a page not there yet shows dashed and red, and leads to where the page can be started, with
   the title from the link: at the address the link names, so only a title with the same slug will do, and
-  only once the pages above it are there (`StartPageForm`, `views._missing`). A link with no name to show,
-  as `[[..]]` with no page above, stays text.
+  only once the folders above it are there (`StartPageForm`, `views._missing`); at a folder's address, as
+  a folder. A link with no name to show, as `[[..]]` at the top, stays text.
 
-The rule was chosen over two others (G-61): a page with pages under it as a folder's index and one without
-as a file, where `[[Platform]]` would be the page beside it but a link would change meaning when a page
-got its first page under it; and every page a file beside a folder of its name, where a link to a page
-under it would repeat the page's own name. Links mostly go to the pages under a page, so those are short.
+This rule was the last of three (G-61, G-62): every page a folder made a link to a page beside it
+`[[../Platform]]`; every page a file beside a folder of its name made a link to a page in it repeat the
+page's own name. With pages and folders, both are short where they are wanted, on a folder its pages and
+on a page its neighbours, and a link changes meaning only when someone makes a page a folder, which
+rewrites it.
 
 The editor's writing help (the "?") explains these in a part of its own, wherever the wiki is installed,
 so in a ticket's editor too: `PageLinks.help_heading` and `PageLinks.help`.

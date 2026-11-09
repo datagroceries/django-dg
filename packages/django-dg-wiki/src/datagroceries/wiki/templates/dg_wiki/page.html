@@ -15,8 +15,20 @@
       <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% translate 'More' %}"><i class="bi bi-three-dots"></i></button>
       <ul class="dropdown-menu dropdown-menu-end">
         {% if can.write %}
-          <li><a class="dropdown-item" href="{% url 'dg_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-file-earmark-plus"></i> {% translate "New page under this one" %}</a></li>
+          {% if page.folder %}<li><a class="dropdown-item" href="{% url 'dg_wiki:page_create' %}?parent={{ page.pk }}"><i class="bi bi-file-earmark-plus"></i> {% translate "New page in this folder" %}</a></li>{% endif %}
           <li><a class="dropdown-item" href="{% url 'dg_wiki:page_move' page.path %}"><i class="bi bi-arrow-right-square"></i> {% translate "Move" %}</a></li>
+          {% if not page.folder or not children %}
+            <li>
+              <form method="post" action="{% url 'dg_wiki:page_folder' page.path %}">
+                {% csrf_token %}<input type="hidden" name="folder" value="{{ page.folder|yesno:'no,yes' }}">
+                {% if page.folder %}
+                  <button type="submit" class="dropdown-item" title="{% translate 'A page of its own again; its address stays.' %}"><i class="bi bi-file-earmark"></i> {% translate "Make it a page" %}</button>
+                {% else %}
+                  <button type="submit" class="dropdown-item" title="{% translate 'A folder, for pages to go in; its address stays.' %}"><i class="bi bi-folder"></i> {% translate "Make it a folder" %}</button>
+                {% endif %}
+              </form>
+            </li>
+          {% endif %}
         {% endif %}
         {% if can_translate %}<li><a class="dropdown-item" href="{% url 'dg_wiki:page_translate' page.path %}"><i class="bi bi-translate"></i> {% translate "Translate" %}</a></li>{% endif %}
         <li><a class="dropdown-item" href="{% url 'dg_wiki:page_history' page.path %}"><i class="bi bi-clock-history"></i> {% translate "History" %}</a></li>

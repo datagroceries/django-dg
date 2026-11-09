@@ -304,6 +304,9 @@ complete as we like.*
 
 ## 2026-11-09: Wiki links are relative, as in a browser (G-61)
 
+*Sharpened the same evening by "Pages and folders" (G-62), below: a link starts in the folder it is written
+in, and not every page is a folder.*
+
 - **A link means one address.** "The end of an address will do" made `[[infra]]` on the page Sales find
   `/engineering/infra`, and a page made elsewhere later could change where a link went. Now a link starts
   from the page it is in, as a relative address does in a browser, or from the top with `/`; nothing is
@@ -319,3 +322,18 @@ complete as we like.*
   from. The API and MCP tools take whole addresses only.
 - **Not backwards compatible**, as nobody uses the wiki yet: the seeds were rewritten; hq's test page was
   left as Jasper wrote it.
+
+## 2026-11-09: Pages and folders (G-62)
+
+- **A page is a page of its own or a folder**, as files and folders are, and a link starts in the folder it
+  is written in. Every page a folder (G-61) made the links to the pages in a folder short, but those to a
+  page's neighbours `[[../Platform]]`; Jasper links from a folder mostly to its pages, and from a page
+  mostly to its neighbours, so both should be short.
+- **Nothing happens by itself.** A page with pages under it becoming a folder of itself would change what
+  its links mean behind the writer's back. So it becomes one only through "Make it a folder", which keeps
+  its address and rewrites its own relative links to name what they named, as moving a page already does;
+  a folder with nothing in it becomes a page again the same way.
+- **Inside, one kind of thing**: a page with a flag, `folder`, rather than files and folders of their own,
+  or an "index" page per folder. The tree, rights per page (G-56), history and dragging stay as they were.
+- **A folder's address ends in "/"**, a page's does not, so that the browser agrees with the wiki on every
+  relative link, and a download is a real folder (`index.md`) that works on GitHub or MkDocs as it is.

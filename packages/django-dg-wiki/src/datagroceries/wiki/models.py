@@ -42,7 +42,7 @@ def build_tree(pages: list['Page']) -> list[Node]:
 class PageQuerySet(models.QuerySet):
     def tree(self) -> list[Node]:
         """These pages as a tree, from one query."""
-        return build_tree(list(self.only('id', 'parent_id', 'title', 'path', 'position', 'language')))
+        return build_tree(list(self.only('id', 'parent_id', 'title', 'path', 'folder', 'position', 'language')))
 
 
 def slug_of(title: str) -> str:
@@ -89,9 +89,13 @@ TOP = Top()
 
 
 class Page(models.Model):
-    """A page of the wiki. A page with pages under it is what elsewhere is a space or a folder.
+    """A page of the wiki: a page of its own, or a folder, whose text is its index and which may have pages
+    under it, as files and folders are. Only a folder has pages under it; a page becomes one, or a folder
+    with none under it a page, only when someone says so (operations.make_folder).
 
-    Its address is its `path`, the slugs of its ancestors and its own: "engineering/deploying". Saving
+    Its address is its `path`, the slugs of its ancestors and its own: "engineering/deploying". On the site a
+    folder's ends in "/" and a page's does not, so a relative link lands in a browser where it does in the
+    wiki: in the folder it is written in (`folder_path`, datagroceries.wiki.links). Saving
     keeps the slug after the title and the paths of the page and everything under it up to date; the
     addresses they had before keep leading to them (FormerPath), and links to them in other pages follow
     (datagroceries.wiki.links).
@@ -113,6 +117,7 @@ class Page(models.Model):
         help_text='The title as the end of the address, unique among the pages beside it.',
     )
     path = models.CharField(max_length=PATH_LENGTH, unique=True, editable=False)
+    folder = models.BooleanField(_('folder'), default=False, help_text='A folder of pages, its text their index.')
     body = models.TextField(_('text'), blank=True, default='', help_text=_('Markdown. [[Page title]] links to a page.'))
     language = models.CharField(
         _('language'), max_length=10, blank=True, help_text='One of settings.LANGUAGES, or empty when it says none.'
@@ -165,7 +170,12 @@ class Page(models.Model):
             links.refresh({self.path} | set(Page.objects.filter(pk__in=moved).values_list('path', flat=True)))
 
     def get_absolute_url(self):
-        return reverse('dg_wiki:page', args=[self.path])
+        return reverse('dg_wiki:folder' if self.folder else 'dg_wiki:page', args=[self.path])
+
+    @property
+    def folder_path(self) -> str:
+        """The address of the folder the page is in, or that it is: where its links start. Empty at the top."""
+        return self.path if self.folder else self.path.rpartition('/')[0]
 
     def ancestors(self) -> list['Page']:
         """The pages above this one, the top first."""
@@ -187,6 +197,12 @@ class Page(models.Model):
     def clean(self):
         if self.pk and self.parent_id and (self.parent_id == self.pk or self.parent.path.startswith(f'{self.path}/')):
             raise ValidationError({'parent': _('A page cannot go under itself or a page under it.')})
+        if self.parent_id and not self.parent.folder:
+            raise ValidationError(
+                {'parent': _('“%(title)s” is a page, not a folder: make it a folder first.') % {'title': self.parent}}
+            )
+        if not self.folder and self.pk and self.children.exists():
+            raise ValidationError(_('Only a folder has pages in it: move or delete them first.'))
         deepest = max([len(path) for path in self.descendants().values_list('path', flat=True)] or [0])
         below = deepest - len(self.path) if self.pk and deepest else 0
         if len(self._new_path(self._free_slug())) + below > PATH_LENGTH:

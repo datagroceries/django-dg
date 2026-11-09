@@ -15,6 +15,7 @@ from datagroceries.core.tests import TEST_AUTHENTICATION, addressed, issue
 from datagroceries.wiki import search
 from datagroceries.wiki.models import TOP, Comment, Page
 from datagroceries.wiki.tests import member, serving
+from datagroceries.wiki.tests import page as new_page
 from datagroceries.wiki.tests.test_pages import WikiTestCase
 
 API = '/dg/wiki/-/api/pages/'
@@ -50,11 +51,11 @@ class AccessTestCase(WikiTestCase):
         cls.bob = member(username='bob', email='bob@example.com', first_name='Bob')
 
         def make(title, parent=None, body=''):
-            return Page.objects.create(title=title, parent=parent, body=body, creator=cls.user)
+            return new_page(title, cls.user, parent, body=body)
 
         cls.engineering = make('Engineering')
-        cls.infra = make('Infra', cls.engineering, body='Servers. See [[../acquisitions]].')
-        cls.secret = make('Acquisitions', cls.engineering, body='Buy the rival. [[../Infra]] scales.')
+        cls.infra = make('Infra', cls.engineering, body='Servers. See [[acquisitions]].')
+        cls.secret = make('Acquisitions', cls.engineering, body='Buy the rival. [[Infra]] scales.')
         cls.plan = make('Plan', cls.secret)
         cls.sales = make('Sales')
         cls.quarter = make('Q4', cls.sales)
@@ -182,7 +183,7 @@ class WriteTests(AccessTestCase):
     def test_the_new_page_form_offers_only_places_one_may_write(self):
         form = self.client.get(reverse('dg_wiki:page_create')).context['form']
 
-        self.assertEqual([label.strip() for _value, label in form.fields['parent'].choices], ['Engineering', 'Infra'])
+        self.assertEqual([label.strip() for _value, label in form.fields['parent'].choices], ['Engineering'])
 
     def test_a_page_moves_only_to_where_one_may_write(self):
         moved = self.api.patch(f'{API}engineering/infra/', {'parent': 'sales'}, format='json')
@@ -202,13 +203,13 @@ class WriteTests(AccessTestCase):
         self.assertContains(page, f'data-page="{self.infra.pk}">')
 
     def test_a_page_a_link_names_is_started_only_where_one_may_write(self):
-        refused = self.client.post('/dg/wiki/legal/contracts/', {'title': 'Contracts'})
+        refused = self.client.post('/dg/wiki/sales/contracts', {'title': 'Contracts'})
 
         self.assertContains(refused, 'you may not start one there', status_code=404)
         self.assertNotContains(refused, 'name="title"', status_code=404)
         self.assertFalse(Page.objects.filter(title='Contracts').exists())
-        self.client.post('/dg/wiki/engineering/infra/runbook/', {'title': 'Runbook'})
-        self.assertTrue(Page.objects.filter(path='engineering/infra/runbook').exists())
+        self.client.post('/dg/wiki/engineering/runbook', {'title': 'Runbook'})
+        self.assertTrue(Page.objects.filter(path='engineering/runbook').exists())
 
     def test_under_a_page_one_may_not_read_an_address_is_not_found(self):
         missing = self.client.get('/dg/wiki/engineering/acquisitions/plan/budget/')

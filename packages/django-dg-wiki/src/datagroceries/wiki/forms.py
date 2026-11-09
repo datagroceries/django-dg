@@ -15,11 +15,12 @@ def fingerprint(page: Page) -> str:
 
 
 class PlaceField(forms.ModelChoiceField):
-    """Where in the tree a page goes: under a page, shown as the tree, or at the top; with `user`, only
-    where they may write (datagroceries.wiki.access)."""
+    """Where in the tree a page goes: in a folder, shown as the tree, or at the top; with `user`, only where
+    they may write (datagroceries.wiki.access)."""
 
     def __init__(self, *, user=None, exclude: Page | None = None, **kwargs):
-        pages = Page.objects.all()
+        # Only into a folder.
+        pages = Page.objects.filter(folder=True)
         if exclude is not None:
             pages = pages.exclude(pk=exclude.pk).exclude(path__startswith=f'{exclude.path}/')
         if user is None:

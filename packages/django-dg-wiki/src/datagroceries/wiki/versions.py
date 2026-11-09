@@ -42,6 +42,8 @@ def _changes(record, previous, earlier: dict, parents: dict) -> list[str]:
         changes.append(_('Renamed to “%(title)s”') % {'title': record.title})
     if record.body != previous.body:
         changes.append(_('Text changed'))
+    if record.folder != previous.folder:
+        changes.append(_('Made a folder') if record.folder else _('Made a page'))
     if record.parent_id != previous.parent_id:
         parent = parents.get(record.parent_id)
         changes.append(_('Moved under “%(title)s”') % {'title': parent.title} if parent else _('Moved to the top'))

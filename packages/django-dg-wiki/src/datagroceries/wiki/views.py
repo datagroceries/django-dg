@@ -61,6 +61,8 @@ def page(request, path):
         return _missing(request, path)
     if not access.may(request.user, READ, found):
         raise Http404(f'No page {path}.')
+    if found.folder != (request.resolver_match.url_name == 'folder'):
+        return redirect(found)
     readable, hidden = access.pages(request.user), access.hidden(request.user)
     can = access.rights(request.user, found)
     html, headings = markdown.render_document(found.body, context=render_context(found))
@@ -98,9 +100,10 @@ def _title(slug: str) -> str:
 
 def _missing(request, path):
     """The address of no page: an offer to start it there, under the pages above it, with the title a
-    link to it gave, or else one from the address, to whoever may write there. A page above it that is not
-    there either is to be started first, the highest first; an address that is not all slugs no title
-    gives. Under a page the person may not see, the address is not found."""
+    link to it gave, or else one from the address, to whoever may write there; as a folder at a folder's
+    address, ending in "/". A page above it that is not there either is to be started first, the highest
+    first, and one that is a page made a folder; an address that is not all slugs no title gives. Under a
+    page the person may not see, the address is not found."""
     parts = path.split('/')
     above = ['/'.join(parts[:end]) for end in range(1, len(parts))]
     found = {page.path: page for page in Page.objects.filter(path__in=above)}
@@ -109,15 +112,19 @@ def _missing(request, path):
     ancestors = [found[each] for each in above if each in found]
     absent = next((each for each in above if each not in found), None)
     parent = ancestors[-1] if ancestors else None
-    possible = absent is None and all(part and slug_of(part) == part for part in parts)
+    not_folder = parent if parent and not parent.folder else None
+    folder = request.resolver_match.url_name == 'folder'
+    possible = absent is None and not not_folder and all(part and slug_of(part) == part for part in parts)
     allowed = access.may(request.user, WRITE, parent or TOP)
     title = request.GET.get('title') or _title(parts[-1])
     data = request.POST if request.method == 'POST' else None
     form = StartPageForm(data, initial={'title': title}, path=path, parent=parent)
     if possible and allowed and form.is_valid():
-        created = operations.create(request, form.cleaned_data['title'], parent)
+        created = operations.create(request, form.cleaned_data['title'], parent, folder=folder)
         return redirect('dg_wiki:page_edit', created.path)
     context = {
+        'folder': folder,
+        'not_folder': not_folder,
         'form': form if possible and allowed else None,
         'possible': possible,
         'path': path,
@@ -195,6 +202,18 @@ def page_delete(request, path):
         return redirect(deleted)
     messages.success(request, _('“%(title)s” is deleted.') % {'title': deleted.title})
     return redirect(deleted.parent or 'dg_wiki:home')
+
+
+@wiki_required
+@require_POST
+def page_folder(request, path):
+    """Make the page a folder, or a folder with no pages in it a page again."""
+    shown = access.page(request.user, path)
+    try:
+        operations.make_folder(request, shown, request.POST.get('folder') == 'yes')
+    except ValidationError as error:
+        messages.error(request, error.messages[0])
+    return redirect(shown)
 
 
 @wiki_required

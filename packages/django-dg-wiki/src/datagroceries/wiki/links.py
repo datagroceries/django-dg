@@ -1,18 +1,19 @@
-"""Links to wiki pages: "[[Rollback]]" links to the page Rollback under the page it is in, and "[[Rollback|how we go
-back]]" does with words of its own, in every DataGroceries app's Markdown while the wiki is installed
-(datagroceries.core.markdown), so a ticket can link to a page too.
+"""Links to wiki pages: "[[Rollback]]" links to the page Rollback in the folder it is written in, and
+"[[Rollback|how we go back]]" does with words of its own, in every DataGroceries app's Markdown while the wiki
+is installed (datagroceries.core.markdown), so a ticket can link to a page too.
 
-A link names a page by its address, written in titles or in slugs: "Deploying/Rollback" and "deploying/rollback"
-are the same. It is found as a browser finds a relative address on a page whose address ends in "/", which a
-wiki page's does: every page is also a folder of the pages under it. On the page "engineering",
-"[[International]]" and "[[./International]]" are "engineering/international", "[[International/Belgium]]" is
-"engineering/international/belgium", and "[[../Sales]]" is "sales", beside it: each ".." goes one level up. A
-link that starts with "/" is from the top of the wiki: "[[/Sales/Q4]]". Nothing else is looked for: a link
-names one address, never a page somewhere else in the tree. Outside a wiki page, as in a ticket, only a link
-from the top is one; any other stays text. A "/" at the end changes nothing: "[[Sales/]]" is "[[Sales]]". An
-address a page had before a rename or a move still finds it. A link to no page shows as one, and leads to
-where that page can be started. A link to a page the reader may not see (datagroceries.wiki.access) shows
-as one, by the name written, not its title, and leads nowhere.
+A link names a page by its address, written in titles or in slugs: "Deploying/Rollback" and
+"deploying/rollback" are the same. It starts in the folder it is written in (Page.folder_path), as a browser
+finds a relative address: on the folder "engineering", "[[International]]" and "[[./International]]" are
+"engineering/international", in it; on the page "engineering/platform", "[[Algorithms]]" is
+"engineering/algorithms", beside it, in the same folder. "[[International/Belgium]]" goes further down, and
+"[[../Sales]]" one folder up: each ".." is one level. A link that starts with "/" is from the top of the wiki:
+"[[/Sales/Q4]]". Nothing else is looked for: a link names one address, never a page somewhere else in the
+tree. Outside a wiki page, as in a ticket, only a link from the top is one; any other stays text. A "/" at
+the end changes nothing: "[[Sales/]]" is "[[Sales]]". An address a page had before a rename or a move still
+finds it. A link to no page shows as one, and leads to where that page can be started. A link to a page the
+reader may not see (datagroceries.wiki.access) shows as one, by the name written, not its title, and leads
+nowhere.
 
 The wiki keeps the links in its own pages (Link): to list what links to a page, and to rewrite them when
 a page they name, or the page they are in, gets another address, so they keep saying where the page is, in
@@ -56,7 +57,7 @@ def reference(written: str, base: str | None = None) -> str:
     elif base is None:
         return ''
     else:
-        slugs = base.split('/')
+        slugs = base.split('/') if base else []
     for part in written.split('/'):
         if part.strip() == '..':
             if not slugs:
@@ -79,7 +80,7 @@ def resolve(references: set[str]) -> dict[str, Page]:
     are left out."""
     references = {reference for reference in references if reference}
     paths = {reference.removeprefix('/') for reference in references}
-    fields = ('id', 'parent_id', 'title', 'slug', 'path')
+    fields = ('id', 'parent_id', 'title', 'slug', 'path', 'folder')
     at = {page.path: page for page in Page.objects.filter(path__in=paths).only(*fields)}
     if rest := paths - at.keys():
         formers = FormerPath.objects.filter(path__in=rest).select_related('page')
@@ -132,28 +133,28 @@ class PageLinks(markdown.Reference):
         # The page names in an example and in what it says are translated alike.
         return [
             (
-                _('[[Rollback]]'),
+                _('[[Platform]]'),
                 _(
-                    'A link starts from the page it is in, as an address does in a browser: this is the page '
-                    'Rollback under it.'
+                    'A link starts in the folder it is written in, as an address does in a browser: on a folder, '
+                    'the page Platform in it; on a page of its own, Platform beside it, in the same folder.'
                 ),
             ),
-            (_('[[Rollback/Testing]]'), _('Further down: the page Testing, under Rollback, under this page.')),
-            (_('[[../Onboarding]]'), _('The page Onboarding beside this one. Each ../ goes one level up.')),
+            (_('[[Platform/Testing]]'), _('Further down: the page Testing, in the folder Platform.')),
+            (_('[[../Sales]]'), _('Sales, one folder up. Each ../ goes one level up.')),
             (
                 _('[[/Engineering/Deploying]]'),
                 _(
-                    'From the top of the wiki: Deploying, under Engineering. Outside the wiki, as in a ticket, '
+                    'From the top of the wiki: Deploying, in Engineering. Outside the wiki, as in a ticket, '
                     'only these work.'
                 ),
             ),
-            (_('[[Rollback|how we go back]]'), _('A link with words of your own.')),
+            (_('[[Platform|our platform]]'), _('A link with words of your own.')),
             (_('[[New page]]'), _('A page that is not there yet shows red. Following the link starts it.')),
         ]
 
     def resolve(self, matches):
         page = self.context.get('wiki_page')
-        base = page.path if isinstance(page, Page) else None
+        base = page.folder_path if isinstance(page, Page) else None
         names = {match: reference(LINK_RE.fullmatch(match)[1], base) for match in matches}
         found = resolve(set(names.values()))
         # Who reads it: the person the page being served is for; nobody outside a request.
@@ -188,7 +189,7 @@ class PageLinks(markdown.Reference):
 
 def record(page: Page):
     """Keep the links in the page's text as they are now."""
-    references = {reference(match[1], page.path) for match in matches(page.body)}
+    references = {reference(match[1], page.folder_path) for match in matches(page.body)}
     references = {path for path in references if path and len(path) <= PATH_LENGTH}
     found = resolve(references)
     Link.objects.filter(source=page).delete()
@@ -215,7 +216,9 @@ def follow(moved: dict[int, str]) -> set[int]:
         targets.setdefault(link.source_id, {})[link.reference] = link.target
     rewritten = set()
     for source in Page.objects.filter(pk__in=targets):
-        body = _rewrite(source.body, targets[source.pk], before=moved.get(source.pk, source.path), now=source.path)
+        before = moved.get(source.pk, source.path)
+        before = before if source.folder else before.rpartition('/')[0]
+        body = _rewrite(source.body, targets[source.pk], before=before, now=source.folder_path)
         if body != source.body:
             source.body = body
             source.save()
@@ -224,8 +227,8 @@ def follow(moved: dict[int, str]) -> set[int]:
 
 
 def _rewrite(text: str, targets: dict[str, Page], before: str, now: str) -> str:
-    """`text`, of the page at `now`, that was at `before` when its links named `targets`, with each link
-    naming its page as it is now, written the way it was."""
+    """`text`, of a page in the folder `now`, that was in `before` when its links named `targets`, with each
+    link naming its page as it is now, written the way it was."""
 
     def replace(match):
         written, label = match.groups()
@@ -260,7 +263,7 @@ def spelling(page: Page, written: str = '', base: str | None = None) -> str:
 
     if written.strip().startswith('/') or base is None:
         return '/' + '/'.join(spelled(chain))
-    here, there = base.split('/'), page.path.split('/')
+    here, there = (base.split('/') if base else []), page.path.split('/')
     shared = 0
     while shared < min(len(here), len(there)) and here[shared] == there[shared]:
         shared += 1
@@ -268,3 +271,29 @@ def spelling(page: Page, written: str = '', base: str | None = None) -> str:
     if not up and parts[:1] == ['.']:
         up = ['.']
     return '/'.join(up + spelled(chain[shared:])) or '.'
+
+
+def rebase(text: str, before: str, now: str) -> str:
+    """`text`, whose relative links started from the folder `before`, with each naming the same address
+    from the folder `now`, written in titles where it was; links from the top stay as they are."""
+
+    def replace(match):
+        written, label = match.groups()
+        address = reference(written, before)
+        if written.strip().startswith('/') or not address or reference(written, now) == address:
+            return match[0]
+        here, there = (now.split('/') if now else []), address.removeprefix('/').split('/')
+        shared = 0
+        while shared < min(len(here), len(there)) and here[shared] == there[shared]:
+            shared += 1
+        below = there[shared:]
+        named = [part.strip() for part in written.split('/') if part.strip() and part.strip() not in RELATIVE]
+        if len(named) >= len(below):
+            below = [
+                name if slug_of(name) == slug else slug
+                for name, slug in zip(named[len(named) - len(below) :], below, strict=True)
+            ]
+        new = '/'.join(['..'] * (len(here) - shared) + below) or '.'
+        return f'[[{new}|{label}]]' if label is not None else f'[[{new}]]'
+
+    return substitute(text, replace)

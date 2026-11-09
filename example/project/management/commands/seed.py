@@ -63,7 +63,9 @@ class Command(BaseCommand):
     def seed_wiki(self, author):
         if Page.objects.exists():
             return
-        engineering = Page.objects.create(title='Engineering', creator=author, position=1, body=ENGINEERING)
+        engineering = Page.objects.create(
+            title='Engineering', creator=author, position=1, body=ENGINEERING, folder=True
+        )
         Page.objects.create(title='Deploying', parent=engineering, creator=author, position=1, body=DEPLOYING)
         Page.objects.create(title='Onboarding', creator=author, position=2, body=ONBOARDING)
 

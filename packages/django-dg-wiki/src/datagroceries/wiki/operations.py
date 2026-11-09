@@ -7,7 +7,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils.translation import gettext as _
 
-from datagroceries.wiki import access, notifications
+from datagroceries.wiki import access, links, notifications
 from datagroceries.wiki.access import COMMENT, WRITE
 from datagroceries.wiki.models import TOP, Attachment, Comment, Page
 
@@ -16,12 +16,18 @@ def _last_position(parent: Page | None) -> int:
     return (Page.objects.filter(parent=parent).aggregate(last=Max('position'))['last'] or 0) + 1
 
 
-def create(request, title: str, parent: Page | None = None, body: str = '') -> Page:
-    """A new page by the requesting user, the last of the pages under `parent`, or at the top."""
+def create(request, title: str, parent: Page | None = None, body: str = '', folder: bool = False) -> Page:
+    """A new page, or `folder`, by the requesting user, the last of the pages in `parent`, a folder, or at
+    the top."""
     access.require(request.user, WRITE, parent or TOP)
     with transaction.atomic():
         page = Page.objects.create(
-            title=title, parent=parent, body=body, creator=request.user, position=_last_position(parent)
+            title=title,
+            parent=parent,
+            body=body,
+            folder=folder,
+            creator=request.user,
+            position=_last_position(parent),
         )
         notifications.written(request, page, '')
     access.forget()
@@ -39,6 +45,22 @@ def write(request, page: Page, title: str, body: str, language: str | None = Non
     with transaction.atomic():
         page.save()
         notifications.written(request, page, before)
+
+
+def make_folder(request, page: Page, folder: bool = True):
+    """Make the page a folder, or a folder with no pages in it a page again. Its address stays, so links to
+    it keep working; the relative links in its own text start from another folder now, so they are
+    rewritten in the same version to name what they named."""
+    access.require(request.user, WRITE, page)
+    if page.folder == folder:
+        return
+    if not folder and page.children.exists():
+        raise ValidationError(_('Move or delete the pages in this folder first.'))
+    before = page.folder_path
+    page.folder = folder
+    page.body = links.rebase(page.body, before, page.folder_path)
+    with transaction.atomic():
+        page.save()
 
 
 def move(request, page: Page, parent: Page | None):

@@ -28,6 +28,7 @@ urlpatterns = [
     path('<path:path>/-/edit/', views.page_edit, name='page_edit'),
     path('<path:path>/-/move/', views.page_move, name='page_move'),
     path('<path:path>/-/delete/', views.page_delete, name='page_delete'),
+    path('<path:path>/-/folder/', views.page_folder, name='page_folder'),
     path('<path:path>/-/history/', views.page_history, name='page_history'),
     path('<path:path>/-/history/<int:version>/', views.page_compare, name='page_compare'),
     path('<path:path>/-/history/<int:version>/restore/', views.page_restore, name='page_restore'),
@@ -38,5 +39,7 @@ urlpatterns = [
     path('<path:path>/-/watch/', views.page_watch, name='page_watch'),
     path('<path:path>/-/export/', views.page_export, name='page_export'),
     path('<path:path>/-/translate/', views.page_translate, name='page_translate'),
-    path('<path:path>/', views.page, name='page'),
+    # A folder's address ends in "/", a page's does not, as files and folders on a site (models.Page).
+    path('<path:path>/', views.page, name='folder'),
+    path('<path:path>', views.page, name='page'),
 ]

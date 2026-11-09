@@ -42,6 +42,7 @@ class PageFieldsSerializer(serializers.Serializer):
     language = serializers.CharField(allow_blank=True, max_length=10)
     parent = serializers.CharField(allow_blank=True, allow_null=True)
     before = serializers.CharField(allow_blank=True, allow_null=True)
+    folder = serializers.BooleanField()
     version = serializers.IntegerField()
 
     def validate_language(self, value):
@@ -107,6 +108,7 @@ def _detail(request, page: Page) -> dict:
     return {
         **_summary(page),
         'url': request.build_absolute_uri(page.get_absolute_url()),
+        'folder': page.folder,
         'language': page.language,
         'body': page.body,
         'version': last.history_id,
@@ -181,7 +183,7 @@ class PageListCreateView(WikiApiView):
         if not form.is_valid():
             raise form_errors(form)
         with transaction.atomic():
-            page = operations.create(request, data['title'], parent, data.get('body', ''))
+            page = operations.create(request, data['title'], parent, data.get('body', ''), data.get('folder', False))
             if data.get('language'):
                 Page.objects.filter(pk=page.pk).update(language=data['language'])
                 page.language = data['language']
@@ -196,6 +198,11 @@ class PageDetailView(WikiApiView):
         data = validated(PageFieldsSerializer, request, partial=True)
         with transaction.atomic():
             page = _find(request, path, Page.objects.select_for_update())
+            if 'folder' in data:
+                try:
+                    operations.make_folder(request, page, data['folder'])
+                except DjangoValidationError as error:
+                    raise ValidationError({'folder': error.messages}) from error
             texts = {field: data.get(field, getattr(page, field)) for field in ('title', 'body', 'language')}
             if any(texts[field] != getattr(page, field) for field in texts):
                 latest = page.history.first().history_id

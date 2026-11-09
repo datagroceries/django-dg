@@ -36,14 +36,14 @@ def page_markdown(request, page: Page, *, files: dict | None = None, inside: dic
     def relative(path: str) -> str:
         return posixpath.relpath(path, here or '.')
 
-    found = links.resolve({links.reference(match[1], page.path) for match in links.matches(page.body)})
+    found = links.resolve({links.reference(match[1], page.folder_path) for match in links.matches(page.body)})
     # A page the reader may not see is named, not linked to.
     hidden = access.hidden(request.user)
     found = {path: target for path, target in found.items() if target.pk not in hidden}
 
     def link(match):
         written, label = match.groups()
-        target = found.get(links.reference(written, page.path))
+        target = found.get(links.reference(written, page.folder_path))
         text = (label or '').strip() or (target.title if target else links.name(written))
         if target is None:
             # With no name to show, the link as it was written.
@@ -68,7 +68,8 @@ def tree_zip(request, top: Page | None) -> bytes:
     pages = [top, *access.pages(request.user, top.descendants())] if top else list(access.pages(request.user))
     # Under the zip's root, from `top`'s own address on: "deploying.md", "deploying/rollback.md".
     start = len(top.path) - len(top.slug) if top else 0
-    inside = {page.pk: f'{page.path[start:]}.md' for page in pages}
+    # A folder is its index, as on a site: "engineering/index.md" beside "engineering/deploying.md".
+    inside = {page.pk: f'{page.path[start:]}/index.md' if page.folder else f'{page.path[start:]}.md' for page in pages}
     attachments = list(Attachment.objects.filter(page__in=pages))
     files = {}
     for attachment in attachments:

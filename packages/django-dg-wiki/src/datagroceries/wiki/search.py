@@ -79,5 +79,5 @@ def naming(name: str) -> list[Backlink]:
     word = re.compile(rf'(?<![\w-]){re.escape(name)}(?![\w-])')
     request = history.current_request()
     readable = access.pages(request.user if request else None)
-    pages = readable.filter(body__icontains=name).only('id', 'title', 'path', 'body').order_by('title')
+    pages = readable.filter(body__icontains=name).only('id', 'title', 'path', 'folder', 'body').order_by('title')
     return [Backlink(page.title, page.get_absolute_url()) for page in pages if word.search(CODE_RE.sub('', page.body))]

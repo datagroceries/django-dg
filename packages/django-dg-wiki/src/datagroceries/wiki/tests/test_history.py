@@ -104,7 +104,7 @@ class HistoryTests(WikiTestCase):
 
         Page.objects.filter(pk=self.page.pk).update(body='')
         response = self.client.get(self.page.get_absolute_url())
-        self.assertContains(response, '<ul class="wk-index"><li><a href="/dg/wiki/shipping/rollback/">Rollback</a>')
+        self.assertContains(response, '<ul class="wk-index"><li><a href="/dg/wiki/shipping/rollback">Rollback</a>')
 
 
 class FileTests(WikiTestCase):

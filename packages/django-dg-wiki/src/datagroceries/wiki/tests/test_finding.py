@@ -38,7 +38,7 @@ class SearchTests(WikiTestCase):
         response = self.client.get(reverse('dg_wiki:search'), {'q': 'deploy'})
 
         self.assertContains(response, 'Pages with “deploy”')
-        self.assertContains(response, 'href="/dg/wiki/deploying/"')
+        self.assertContains(response, 'href="/dg/wiki/deploying"')
         self.assertContains(self.client.get(reverse('dg_wiki:search'), {'q': 'nothing'}), 'No page holds')
 
 
@@ -51,7 +51,7 @@ class ExportTests(WikiTestCase):
         settings.enable()
         self.addCleanup(settings.disable)
         self.engineering = self.make_page('Engineering', body='See [[./Deploying]], [[../Onboarding]] and [[Nowhere]].')
-        self.deploying = self.make_page('Deploying', self.engineering, body='Back to [[..|the top]]. `[[Code]]`')
+        self.deploying = self.make_page('Deploying', self.engineering, body='Back to [[.|the folder]]. `[[Code]]`')
         self.make_page('Onboarding')
 
     def test_a_page_without_pages_under_it_is_one_markdown_file(self):
@@ -60,7 +60,7 @@ class ExportTests(WikiTestCase):
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="deploying.md"')
         self.assertEqual(
             response.content.decode(),
-            '# Deploying\n\nBack to [the top](http://testserver/dg/wiki/engineering/). `[[Code]]`\n',
+            '# Deploying\n\nBack to [the folder](http://testserver/dg/wiki/engineering/). `[[Code]]`\n',
         )
 
     def test_a_page_with_pages_under_it_is_a_zip_with_links_between_its_files(self):
@@ -74,14 +74,16 @@ class ExportTests(WikiTestCase):
         archive = zipfile.ZipFile(io.BytesIO(response.content))
         attachment = self.deploying.attachments.get()
         file_name = f'engineering/deploying.files/{attachment.pk}-shot.png'
-        self.assertEqual(sorted(archive.namelist()), sorted(['engineering.md', 'engineering/deploying.md', file_name]))
         self.assertEqual(
-            archive.read('engineering.md').decode(),
-            '# Engineering\n\nSee [Deploying](engineering/deploying.md), '
-            '[Onboarding](http://testserver/dg/wiki/onboarding/) and Nowhere.\n',
+            sorted(archive.namelist()), sorted(['engineering/index.md', 'engineering/deploying.md', file_name])
+        )
+        self.assertEqual(
+            archive.read('engineering/index.md').decode(),
+            '# Engineering\n\nSee [Deploying](deploying.md), '
+            '[Onboarding](http://testserver/dg/wiki/onboarding) and Nowhere.\n',
         )
         deploying = archive.read('engineering/deploying.md').decode()
-        self.assertIn('Back to [the top](../engineering.md).', deploying)
+        self.assertIn('Back to [the folder](index.md).', deploying)
         self.assertIn(f'![shot](deploying.files/{attachment.pk}-shot.png)', deploying)
         self.assertEqual(archive.read(file_name), b'\x89PNG')
 
@@ -89,7 +91,7 @@ class ExportTests(WikiTestCase):
         response = self.client.get(reverse('dg_wiki:wiki_export'))
 
         names = zipfile.ZipFile(io.BytesIO(response.content)).namelist()
-        self.assertEqual(sorted(names), ['engineering.md', 'engineering/deploying.md', 'onboarding.md'])
+        self.assertEqual(sorted(names), ['engineering/deploying.md', 'engineering/index.md', 'onboarding.md'])
 
 
 @override_settings(LANGUAGES=[('en', 'English'), ('nl', 'Nederlands'), ('de', 'Deutsch')])

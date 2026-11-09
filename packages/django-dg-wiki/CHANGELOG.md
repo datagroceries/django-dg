@@ -17,13 +17,19 @@ Needs django-dg-core 1.3.0.
 - Following a link to a page that is not there yet starts it where the link says, no longer under a page
   of your choice: its title may change only as far as the address stays the same, so the link finds it,
   and a page above it that is not there either is offered to be started first.
-- **A link starts from the page it is in, as a relative address does in a browser**, every page being a
-  folder of the pages under it: `[[Rollback]]` is the page under it, `[[../Onboarding]]` the page beside
-  it, and `[[/Engineering/Deploying]]` is from the top. Nothing is looked for elsewhere in the tree any
-  more: `[[Deploying]]` no longer finds `engineering/deploying` from another page. Outside the wiki, as in
-  a ticket, only links from the top are links. The API and MCP tools name a page by its whole address
-  only. Not backwards compatible: a link written as the end of an address now names a page under the one
-  it is in.
+- **Pages and folders.** A page is a page of its own or a folder, whose text is the index of the pages in
+  it; only a folder has pages in it. A folder's address ends in `/`, a page's does not. "Make it a folder"
+  and "Make it a page" (and `folder` in the API and MCP tools) change it, keeping its address and
+  rewriting the relative links in its text. A download is as a real folder: `engineering/index.md` beside
+  `engineering/platform.md`. Needs the migration `0002_page_or_folder`, which makes the pages with pages
+  under them folders.
+- **A link starts in the folder it is written in, as a relative address does in a browser**:
+  `[[Platform]]` is the page in a folder, or beside a page, `[[../Sales]]` one folder up, and
+  `[[/Engineering/Deploying]]` is from the top. Nothing is looked for elsewhere in the tree any more:
+  `[[Deploying]]` no longer finds `engineering/deploying` from another page. Outside the wiki, as in a
+  ticket, only links from the top are links. The API and MCP tools name a page by its whole address only.
+  Not backwards compatible: a link written as the end of an address now names a page in the folder it is
+  written in.
 - The editor's writing help explains links to wiki pages in a part of their own, with plainer examples
   of each way to write one: by name, with words of your own, by the whole address, and from the page the
   link is in. The MCP tools and docs/wiki.md say the same.
