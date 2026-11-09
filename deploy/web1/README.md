@@ -99,7 +99,7 @@ gildehq.com, with their DNS records. The server's own names (the user, folders a
 mistake, not against losing the server. To restore one, into an empty database:
 
 ```bash
-sudo -u gilde pg_restore --clean --if-exists --dbname gilde /srv/gilde/backups/dg-<date>.dump
+sudo -u gilde pg_restore --clean --if-exists --dbname datagroceries /srv/gilde/backups/dg-<date>.dump
 ```
 
 ## Logs

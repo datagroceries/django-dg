@@ -10,7 +10,7 @@ User=gilde
 Group=gilde
 # The dumps are for the gilde user alone.
 UMask=0077
-ExecStart=/bin/sh -c 'pg_dump --format=custom gilde > /srv/gilde/backups/dg-$(date +%%F).dump'
+ExecStart=/bin/sh -c 'pg_dump --format=custom datagroceries > /srv/gilde/backups/dg-$(date +%%F).dump'
 ExecStart=/usr/bin/find /srv/gilde/backups -name 'dg-*.dump' -mtime +14 -delete
 NoNewPrivileges=true
 PrivateTmp=true
