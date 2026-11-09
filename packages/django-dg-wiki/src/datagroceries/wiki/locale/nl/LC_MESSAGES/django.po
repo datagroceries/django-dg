@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 20:11+0100\n"
+"POT-Creation-Date: 2026-11-09 20:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: apps.py:8 conf.py:10 mcp.py:215
+#: apps.py:8 conf.py:10 mcp.py:227
 msgid "Wiki"
 msgstr "Wiki"
 
@@ -33,7 +33,7 @@ msgstr "Bovenaan"
 msgid "Under"
 msgstr "Onder"
 
-#: forms.py:51 forms.py:192 templates/dg_wiki/page_edit.html:16
+#: forms.py:51 forms.py:201 templates/dg_wiki/page_edit.html:16
 msgid "Title"
 msgstr "Titel"
 
@@ -49,7 +49,7 @@ msgstr ""
 msgid "No language set"
 msgstr "Geen taal opgegeven"
 
-#: forms.py:120 forms.py:188
+#: forms.py:120 forms.py:197
 msgid "Language"
 msgstr "Taal"
 
@@ -61,9 +61,23 @@ msgstr "Die plek staat niet in de boom."
 msgid "Leave a comment."
 msgstr "Schrijf een reactie."
 
-#: forms.py:195
+#: forms.py:183
+msgid ""
+"A folder is in no language of its own, so it has no versions in other "
+"languages."
+msgstr "Een map is niet in een eigen taal, dus heeft die geen versies in andere talen."
+
+#: forms.py:185
+msgid "Give this page a language first, on its edit page."
+msgstr "Geef deze pagina eerst een taal, bij Bewerken."
+
+#: forms.py:204
 msgid "The title in that language."
 msgstr "De titel in die taal."
+
+#: forms.py:235
+msgid "Page"
+msgstr "Pagina"
 
 #: links.py:129
 msgid "Links to wiki pages"
@@ -176,6 +190,11 @@ msgid "Only a folder has pages in it: move or delete them first."
 msgstr "Alleen een map heeft pagina's erin: verplaats of verwijder ze eerst."
 
 #: models.py:209
+#, python-format
+msgid "There is already a page called “%(title)s” here."
+msgstr "Hier staat al een pagina die “%(title)s” heet."
+
+#: models.py:213
 msgid ""
 "This page would be too deep in the tree, or its title too long, for an "
 "address."
@@ -183,16 +202,16 @@ msgstr ""
 "Deze pagina komt te diep in de boom, of haar titel is te lang, voor een "
 "adres."
 
-#: models.py:293
+#: models.py:297
 msgid "comment"
 msgstr "reactie"
 
-#: models.py:308
+#: models.py:312
 msgid "A reply cannot be replied to; reply to the comment above it instead."
 msgstr ""
 "Op een antwoord kun je niet antwoorden; antwoord op de reactie erboven."
 
-#: models.py:310
+#: models.py:314
 msgid "A reply must be on the same page as its comment."
 msgstr "Een antwoord moet op dezelfde pagina staan als de reactie."
 
@@ -215,7 +234,7 @@ msgstr "%(person)s reageerde op %(page)s"
 msgid "Move or delete the pages in this folder first."
 msgstr "Verplaats of verwijder eerst de pagina's in deze map."
 
-#: operations.py:135 templates/dg_wiki/page.html:40
+#: operations.py:160 templates/dg_wiki/page.html:43
 msgid "Move or delete the pages under this page first."
 msgstr "Verplaats of verwijder eerst de pagina's onder deze pagina."
 
@@ -229,7 +248,6 @@ msgstr "Opslaan"
 
 #: templates/dg_wiki/_comment_edit.html:7 templates/dg_wiki/_comments.html:34
 #: templates/dg_wiki/page_edit.html:26 templates/dg_wiki/page_move.html:20
-#: templates/dg_wiki/page_translate.html:23
 msgid "Cancel"
 msgstr "Annuleren"
 
@@ -311,7 +329,7 @@ msgstr "Maken en schrijven"
 msgid "No pages yet."
 msgstr "Nog geen pagina's."
 
-#: templates/dg_wiki/_tree_nodes.html:8 templates/dg_wiki/page.html:100
+#: templates/dg_wiki/_tree_nodes.html:8 templates/dg_wiki/page.html:103
 msgid "Nothing in it yet"
 msgstr "Nog leeg"
 
@@ -440,7 +458,7 @@ msgstr "Geen titel geeft dit adres, dus hier kan geen pagina staan."
 msgid "More"
 msgstr "Meer"
 
-#: templates/dg_wiki/page.html:18 templates/dg_wiki/page.html:101
+#: templates/dg_wiki/page.html:18 templates/dg_wiki/page.html:104
 msgid "New page in this folder"
 msgstr "Nieuwe pagina in deze map"
 
@@ -464,43 +482,43 @@ msgstr "Een map, voor pagina's erin; het adres blijft."
 msgid "Make it a folder"
 msgstr "Maak er een map van"
 
-#: templates/dg_wiki/page.html:33 templates/dg_wiki/page_translate.html:22
-msgid "Translate"
-msgstr "Vertalen"
+#: templates/dg_wiki/page.html:34 templates/dg_wiki/page.html:35
+msgid "In another language"
+msgstr "In een andere taal"
 
-#: templates/dg_wiki/page.html:34
+#: templates/dg_wiki/page.html:37
 msgid "History"
 msgstr "Geschiedenis"
 
-#: templates/dg_wiki/page.html:35
+#: templates/dg_wiki/page.html:38
 msgid "Download with the pages under it"
 msgstr "Downloaden met de pagina's eronder"
 
-#: templates/dg_wiki/page.html:35
+#: templates/dg_wiki/page.html:38
 msgid "Download as Markdown"
 msgstr "Downloaden als Markdown"
 
-#: templates/dg_wiki/page.html:40 templates/dg_wiki/page.html:44
+#: templates/dg_wiki/page.html:43 templates/dg_wiki/page.html:47
 msgid "Delete"
 msgstr "Verwijderen"
 
-#: templates/dg_wiki/page.html:43
+#: templates/dg_wiki/page.html:46
 msgid "Delete this page? Its history stays."
 msgstr "Deze pagina verwijderen? Haar geschiedenis blijft bewaard."
 
-#: templates/dg_wiki/page.html:55
+#: templates/dg_wiki/page.html:58
 msgid "A folder: its text is the index of the pages in it."
 msgstr "Een map: de tekst is de inleiding op de pagina's erin."
 
-#: templates/dg_wiki/page.html:55
+#: templates/dg_wiki/page.html:58
 msgid "Folder"
 msgstr "Map"
 
-#: templates/dg_wiki/page.html:58
+#: templates/dg_wiki/page.html:61
 msgid "Also in"
 msgstr "Ook in:"
 
-#: templates/dg_wiki/page.html:65
+#: templates/dg_wiki/page.html:68
 #, python-format
 msgid ""
 "<a href=\"%(url)s\">%(title)s</a>, which this page translates, changed after "
@@ -509,52 +527,52 @@ msgstr ""
 "<a href=\"%(url)s\">%(title)s</a>, waarvan deze pagina een vertaling is, is "
 "later gewijzigd dan deze pagina. Er kan inmiddels meer staan."
 
-#: templates/dg_wiki/page.html:66
+#: templates/dg_wiki/page.html:69
 msgid "See what changed"
 msgstr "Bekijk wat er veranderde"
 
-#: templates/dg_wiki/page.html:71
+#: templates/dg_wiki/page.html:74
 #, python-format
 msgid "Last changed by %(person)s, %(when)s"
 msgstr "Laatst gewijzigd door %(person)s, %(when)s"
 
-#: templates/dg_wiki/page.html:82
+#: templates/dg_wiki/page.html:85
 msgid "Write an introduction"
 msgstr "Schrijf een inleiding"
 
-#: templates/dg_wiki/page.html:84
+#: templates/dg_wiki/page.html:87
 msgid "This page is empty."
 msgstr "Deze pagina is leeg."
 
-#: templates/dg_wiki/page.html:84
+#: templates/dg_wiki/page.html:87
 msgid "Write it"
 msgstr "Begin met schrijven"
 
-#: templates/dg_wiki/page.html:89
+#: templates/dg_wiki/page.html:92
 msgid "On this page"
 msgstr "Op deze pagina"
 
-#: templates/dg_wiki/page.html:98
+#: templates/dg_wiki/page.html:101
 msgid "In this folder"
 msgstr "In deze map"
 
-#: templates/dg_wiki/page.html:106
+#: templates/dg_wiki/page.html:109
 msgid "Pages that link here"
 msgstr "Pagina's die hierheen linken"
 
-#: templates/dg_wiki/page.html:111
+#: templates/dg_wiki/page.html:114
 msgid "Files"
 msgstr "Bestanden"
 
-#: templates/dg_wiki/page.html:123
+#: templates/dg_wiki/page.html:126
 msgid "Add a file"
 msgstr "Bestand toevoegen"
 
-#: templates/dg_wiki/page.html:127
+#: templates/dg_wiki/page.html:130
 msgid "File"
 msgstr "Bestand"
 
-#: templates/dg_wiki/page.html:128
+#: templates/dg_wiki/page.html:131
 msgid "Upload"
 msgstr "Uploaden"
 
@@ -622,21 +640,57 @@ msgstr "De pagina's eronder gaan mee. Het oude adres blijft hierheen leiden."
 
 #: templates/dg_wiki/page_translate.html:4
 #, python-format
-msgid "Translating %(title)s"
-msgstr "%(title)s vertalen"
+msgid "%(title)s in other languages"
+msgstr "%(title)s in andere talen"
 
 #: templates/dg_wiki/page_translate.html:8
 #, python-format
-msgid "Translate “%(title)s”"
-msgstr "“%(title)s” vertalen"
+msgid "“%(title)s” in other languages"
+msgstr "“%(title)s” in andere talen"
 
-#: templates/dg_wiki/page_translate.html:20
+#: templates/dg_wiki/page_translate.html:21
+msgid "It stays, as a page of its own."
+msgstr "Die blijft bestaan, als losse pagina."
+
+#: templates/dg_wiki/page_translate.html:21
+msgid "Unlink"
+msgstr "Loskoppelen"
+
+#: templates/dg_wiki/page_translate.html:28
+msgid "This page is in no other language yet."
+msgstr "Deze pagina is er nog in geen andere taal."
+
+#: templates/dg_wiki/page_translate.html:32
+msgid "A new page in another language"
+msgstr "Een nieuwe pagina in een andere taal"
+
+#: templates/dg_wiki/page_translate.html:44
 msgid ""
-"The translation goes beside this page, and opens in the editor with this "
-"page's text, to translate."
-msgstr ""
-"De vertaling komt naast deze pagina, en opent in de editor met de tekst van "
-"deze pagina, om te vertalen."
+"It goes beside this page, and opens in the editor with this page's text, for "
+"you to translate."
+msgstr "Die komt naast deze pagina, en opent in de editor met de tekst van deze pagina, zodat je die kunt vertalen."
+
+#: templates/dg_wiki/page_translate.html:45
+msgid "Start it"
+msgstr "Beginnen"
+
+#: templates/dg_wiki/page_translate.html:50
+msgid "A page that is already there"
+msgstr "Een pagina die er al is"
+
+#: templates/dg_wiki/page_translate.html:56
+msgid ""
+"A page in another language, not linked to others yet, becomes a version of "
+"this one."
+msgstr "Een pagina in een andere taal, die nog niet aan andere is gekoppeld, wordt een versie van deze."
+
+#: templates/dg_wiki/page_translate.html:58
+msgid "Link it"
+msgstr "Koppelen"
+
+#: templates/dg_wiki/page_translate.html:62
+msgid "Back to the page"
+msgstr "Terug naar de pagina"
 
 #: templates/dg_wiki/search.html:4
 #, python-format

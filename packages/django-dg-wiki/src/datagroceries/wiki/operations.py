@@ -127,6 +127,31 @@ def translate(request, page: Page, language: str, title: str) -> Page:
     return made
 
 
+def link(request, page: Page, other: Page):
+    """Make `other`, a page in another language that is linked to none, a version of `page` in it."""
+    access.require(request.user, WRITE, page)
+    access.require(request.user, WRITE, other)
+    Page.objects.filter(pk=other.pk).update(original=page.original or page)
+
+
+def unlink(request, page: Page):
+    """Take the page out of the versions in other languages it is one of; they stay linked to each other."""
+    access.require(request.user, WRITE, page)
+    with transaction.atomic():
+        if page.original_id:
+            Page.objects.filter(pk=page.pk).update(original=None)
+        else:
+            _hand_on(page)
+
+
+def _hand_on(page: Page):
+    """The first of the page's translations becomes the original of the others, as the page goes."""
+    translations = list(page.translations.order_by('pk'))
+    if translations:
+        Page.objects.filter(pk__in=[each.pk for each in translations[1:]]).update(original=translations[0])
+        Page.objects.filter(pk=translations[0].pk).update(original=None)
+
+
 def delete(request, page: Page):
     """Delete a page that has no pages under it, and its files; its history stays. The first of its
     translations becomes the original of the others."""
@@ -134,10 +159,7 @@ def delete(request, page: Page):
     if page.children.exists():
         raise ValidationError(_('Move or delete the pages under this page first.'))
     with transaction.atomic():
-        translations = list(page.translations.order_by('pk'))
-        if translations:
-            Page.objects.filter(pk__in=[each.pk for each in translations[1:]]).update(original=translations[0])
-            Page.objects.filter(pk=translations[0].pk).update(original=None)
+        _hand_on(page)
         files = [attachment.file for attachment in page.attachments.all()]
         page.delete()
         transaction.on_commit(lambda: [file.delete(save=False) for file in files])

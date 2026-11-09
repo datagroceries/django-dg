@@ -177,8 +177,17 @@ class CommentForm(forms.ModelForm):
         self.fields['parent'].queryset = page.comments.filter(parent=None)
 
 
+def why_no_versions(page: Page):
+    """Why `page` can have no versions in other languages, if it cannot: a folder, or no language of its own."""
+    if page.folder:
+        return _('A folder is in no language of its own, so it has no versions in other languages.')
+    if not page.language:
+        return _('Give this page a language first, on its edit page.')
+    return None
+
+
 class TranslateForm(forms.Form):
-    """A translation of `page` into a language it is not in yet."""
+    """A new page beside `page`, in a language it is not in yet, starting from its text to translate."""
 
     def __init__(self, *args, page: Page, **kwargs):
         super().__init__(*args, **kwargs)
@@ -191,7 +200,7 @@ class TranslateForm(forms.Form):
         self.fields['title'] = forms.CharField(
             label=_('Title'),
             max_length=255,
-            initial=page.title,
+            # Not the page's own: two pages of a name cannot be in one folder.
             help_text=_('The title in that language.'),
             widget=forms.TextInput(attrs={'class': 'form-control'}),
         )
@@ -199,6 +208,39 @@ class TranslateForm(forms.Form):
 
     def clean(self):
         data = super().clean()
+        if reason := why_no_versions(self.page):
+            raise forms.ValidationError(reason)
         if 'title' in data:
             Page(title=data['title'], parent=self.page.parent).clean()
+        return data
+
+
+class LinkForm(forms.Form):
+    """A page that is already there, in a language `page` is not in yet, and linked to no others, to make a
+    version of it; with `user`, one they may read."""
+
+    def __init__(self, *args, page: Page, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        taken = {each.language for each in page.translation_group()}
+        pages = Page.objects.all() if user is None else access.pages(user)
+        candidates = (
+            pages.filter(folder=False, original=None, translations=None)
+            .exclude(language='')
+            .exclude(language__in=taken)
+            .exclude(pk=page.pk)
+            .order_by('path')
+        )
+        self.fields['other'] = forms.ModelChoiceField(
+            candidates,
+            label=_('Page'),
+            empty_label=None,
+            widget=forms.Select(attrs={'class': 'form-select'}),
+        )
+        self.fields['other'].label_from_instance = lambda each: f'{each.title} · /{each.path} · {each.language}'
+        self.page = page
+
+    def clean(self):
+        data = super().clean()
+        if reason := why_no_versions(self.page):
+            raise forms.ValidationError(reason)
         return data

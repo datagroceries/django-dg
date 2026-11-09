@@ -104,8 +104,40 @@ class LanguageTests(WikiTestCase):
 
     def translate(self, page, language, title):
         return self.client.post(
-            reverse('dg_wiki:page_translate', args=[page.path]), {'language': language, 'title': title}
+            reverse('dg_wiki:page_translate', args=[page.path]), {'action': 'new', 'language': language, 'title': title}
         )
+
+    def test_a_page_with_no_language_has_no_versions_in_others(self):
+        unsaid = self.make_page('Holidays')
+
+        self.assertContains(self.client.get(unsaid.get_absolute_url()), 'Give this page a language first')
+        self.assertContains(self.translate(unsaid, 'nl', 'Vakantie'), 'Give this page a language first')
+        self.assertFalse(Page.objects.filter(title='Vakantie').exists())
+
+    def test_a_version_in_another_language_needs_a_name_of_its_own(self):
+        response = self.translate(self.page, 'nl', 'Deploying')
+
+        self.assertContains(response, 'There is already a page called “Deploying” here.')
+        self.assertEqual(Page.objects.count(), 1)
+
+    def test_a_page_that_is_already_there_is_linked_and_unlinked(self):
+        dutch = self.make_page('Uitrollen', body='Trek binnen, herstart.')
+        Page.objects.filter(pk=dutch.pk).update(language='nl')
+        url = reverse('dg_wiki:page_translate', args=[self.page.path])
+
+        self.client.post(url, {'action': 'link', 'other': dutch.pk})
+
+        dutch.refresh_from_db()
+        self.assertEqual(dutch.original, self.page)
+        self.assertContains(self.client.get(self.page.get_absolute_url()), 'Also in')
+        self.client.post(url, {'action': 'unlink', 'version': dutch.pk})
+        dutch.refresh_from_db()
+        self.assertIsNone(dutch.original)
+
+    def test_the_tree_shows_a_page_s_language(self):
+        response = self.client.get(self.page.get_absolute_url())
+
+        self.assertContains(response, 'Deploying <span class="wk-tree-language">EN</span></a>')
 
     def test_a_translation_starts_from_the_text_beside_its_page(self):
         response = self.translate(self.page, 'nl', 'Uitrollen')

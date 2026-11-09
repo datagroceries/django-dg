@@ -4,11 +4,11 @@ Each page as a link, as every one is a page; a folder with the arrow that opens 
   <li>
     {% if node.page.folder or node.children %}
       <details{% if node.page.pk in open_ids %} open{% endif %}>
-        <summary><a href="{{ node.page.get_absolute_url }}" data-page="{{ node.page.pk }}"{% if node.page.folder %} data-folder{% endif %}{% if node.page.pk not in writable %} draggable="false"{% endif %}{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}</a></summary>
+        <summary><a href="{{ node.page.get_absolute_url }}" data-page="{{ node.page.pk }}"{% if node.page.folder %} data-folder{% endif %}{% if node.page.pk not in writable %} draggable="false"{% endif %}{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}{% if node.page.language %} <span class="wk-tree-language">{{ node.page.language|upper }}</span>{% endif %}</a></summary>
         <ul>{% if node.children %}{% include 'dg_wiki/_tree_nodes.html' with nodes=node.children %}{% else %}<li class="wk-tree-empty">{% translate "Nothing in it yet" %}</li>{% endif %}</ul>
       </details>
     {% else %}
-      <a href="{{ node.page.get_absolute_url }}" data-page="{{ node.page.pk }}"{% if node.page.pk not in writable %} draggable="false"{% endif %}{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}</a>
+      <a href="{{ node.page.get_absolute_url }}" data-page="{{ node.page.pk }}"{% if node.page.pk not in writable %} draggable="false"{% endif %}{% if node.page.pk == current.pk %} aria-current="page"{% endif %}>{{ node.page.title }}{% if node.page.language %} <span class="wk-tree-language">{{ node.page.language|upper }}</span>{% endif %}</a>
     {% endif %}
   </li>
 {% endfor %}

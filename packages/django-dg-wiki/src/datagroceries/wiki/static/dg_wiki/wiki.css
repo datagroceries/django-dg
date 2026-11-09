@@ -16,6 +16,7 @@
 .wk-tree a { display: block; padding: .15rem .4rem; border-radius: .3rem; color: var(--bs-body-color); text-decoration: none;
              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wk-tree a:hover { background: var(--bs-tertiary-bg); }
+.wk-tree .wk-tree-language { font-size: .625rem; font-weight: 600; color: var(--bs-secondary-color); border: 1px solid var(--bs-border-color); border-radius: .25rem; padding: 0 .2rem; vertical-align: .1em; }
 .wk-tree .wk-tree-empty { margin-left: 1rem; padding: .15rem .4rem; color: var(--bs-secondary-color); font-size: .8125rem; }
 .wk-tree a[aria-current="page"] { background: var(--bs-secondary-bg); font-weight: 600; }
 .wk-tree li > a { margin-left: 1rem; }

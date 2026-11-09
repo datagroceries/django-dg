@@ -21,8 +21,8 @@ A wiki for a Django project, that people and AI agents write together, next to t
 - Comments and replies, with @-mentions; the people watching a page hear about new comments.
 - Search through every page's title and text, and pages downloaded as Markdown: one page as a file, or
   a page with all under it, or the whole wiki, as a zip with their images, the links between them kept.
-- A page in several languages: each translation beside it, linked to the others, and told when the page
-  it translates changed after it.
+- A page in several languages: each version beside it, new or linked from a page already there, and told
+  when the page it translates changed after it.
 - Access per page, as the project decides: who may read, comment on or write a page and the pages under
   it, in one method of the project's own (`People.may`), on the pages and for agents alike. By default
   everyone who may use the wiki may do everything.

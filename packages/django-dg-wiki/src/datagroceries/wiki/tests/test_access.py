@@ -218,6 +218,7 @@ class WriteTests(AccessTestCase):
         self.assertNotContains(missing, 'Acquisitions', status_code=404)
 
     def test_a_translation_goes_only_where_one_may_write(self):
+        Page.objects.filter(pk__in=[self.legal.pk, self.infra.pk]).update(language='en')
         refused = self.api.post(f'{API}legal/-/translations/', {'language': 'nl', 'title': 'Juridisch'})
 
         self.assertEqual(refused.status_code, 403)

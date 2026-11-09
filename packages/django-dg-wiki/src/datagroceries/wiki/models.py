@@ -203,6 +203,10 @@ class Page(models.Model):
             )
         if not self.folder and self.pk and self.children.exists():
             raise ValidationError(_('Only a folder has pages in it: move or delete them first.'))
+        # One name per folder, as in a file system: a link names one page only.
+        siblings = Page.objects.filter(parent=self.parent_id, slug=slug_of(self.title) or 'page').exclude(pk=self.pk)
+        if siblings.exists():
+            raise ValidationError(_('There is already a page called “%(title)s” here.') % {'title': siblings.first()})
         deepest = max([len(path) for path in self.descendants().values_list('path', flat=True)] or [0])
         below = deepest - len(self.path) if self.pk and deepest else 0
         if len(self._new_path(self._free_slug())) + below > PATH_LENGTH:

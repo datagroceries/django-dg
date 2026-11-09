@@ -120,8 +120,15 @@ page now has. The pages so rewritten are saved, each with a version of its own. 
   comment watch of themselves.
 - Search (`search.py`) is `icontains` on every word, so it runs on any database; pages with the words in
   their title come first. Its text around the first word leaves Markdown's marks out.
-- A translation goes beside its page, starting from its text. A translation older than the latest change
-  to its original says so. Deleting the original makes its first translation the original of the others.
+- A page with a language can have versions in other languages ("In another language"; not "Translate",
+  as the wiki writes no translation itself): a new page beside it, starting from its text to translate, or
+  a page already there, in another language and linked to no others. A version can be unlinked again. A
+  folder has no versions, as it is in no language of its own. A version older than the latest change to
+  its original says so. Deleting the original, or unlinking it, makes its first version the original of the
+  others. The tree shows a page's language after its title.
+- One name per folder, as in a file system: a page whose title gives the slug of another in the same
+  folder is refused (`Page.clean`), on creating, renaming, moving and dragging; `platform-2` is only made
+  where nobody chose the name, as by the ORM.
 - An export (`export.py`) is one Markdown file, or a zip of files at their addresses with their images
   beside them; links between the files in it become relative links, other links the wiki's address.
 - The ticket's list of wiki pages comes through core's `backlinks` registry: the wiki registers its pages

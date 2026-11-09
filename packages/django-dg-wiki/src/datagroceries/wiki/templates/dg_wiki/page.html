@@ -30,7 +30,10 @@
             </li>
           {% endif %}
         {% endif %}
-        {% if can_translate %}<li><a class="dropdown-item" href="{% url 'dg_wiki:page_translate' page.path %}"><i class="bi bi-translate"></i> {% translate "Translate" %}</a></li>{% endif %}
+        {% if not page.folder %}
+          {% if why_no_versions %}<li><span class="dropdown-item disabled" title="{{ why_no_versions }}"><i class="bi bi-translate"></i> {% translate "In another language" %}</span></li>
+          {% else %}<li><a class="dropdown-item" href="{% url 'dg_wiki:page_translate' page.path %}"><i class="bi bi-translate"></i> {% translate "In another language" %}</a></li>{% endif %}
+        {% endif %}
         <li><a class="dropdown-item" href="{% url 'dg_wiki:page_history' page.path %}"><i class="bi bi-clock-history"></i> {% translate "History" %}</a></li>
         <li><a class="dropdown-item" href="{% url 'dg_wiki:page_export' page.path %}"><i class="bi bi-download"></i> {% if children %}{% translate "Download with the pages under it" %}{% else %}{% translate "Download as Markdown" %}{% endif %}</a></li>
         {% if can.write %}

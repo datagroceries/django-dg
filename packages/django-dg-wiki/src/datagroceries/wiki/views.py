@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
@@ -18,12 +17,14 @@ from datagroceries.wiki.conf import SCOPE
 from datagroceries.wiki.forms import (
     ArrangeForm,
     CommentForm,
+    LinkForm,
     MoveForm,
     NewPageForm,
     PageForm,
     StartPageForm,
     TranslateForm,
     fingerprint,
+    why_no_versions,
 )
 from datagroceries.wiki.models import TOP, Attachment, Comment, Page, slug_of
 from datagroceries.wiki.templatetags.dg_wiki import render_context, tree_context
@@ -84,8 +85,7 @@ def page(request, path):
         'watchers': access.readers(found, [watcher.user for watcher in found.watchers.select_related('user')]),
         'translations': [each for each in found.translation_group() if each.pk != found.pk and each.pk not in hidden],
         'can': can,
-        'can_translate': len(settings.LANGUAGES) > len(found.translation_group())
-        and access.may(request.user, WRITE, found.parent or TOP),
+        'why_no_versions': why_no_versions(found),
         # A translation older than the latest change to its original may say something else by now.
         'behind': found.original
         if found.original and found.original.updated_at > found.updated_at and found.original.pk not in hidden
@@ -409,11 +409,32 @@ def wiki_export(request):
 
 @wiki_required
 def page_translate(request, path):
-    """A translation of the page, beside it, which opens in the editor with the page's text to translate."""
+    """The page in other languages: its versions in them, each of which can be unlinked; a new page beside
+    it in another, which opens in the editor with its text to translate; or a page that is already there
+    linked as one."""
     shown = access.page(request.user, path)
-    access.require(request.user, WRITE, shown.parent or TOP)
-    form = TranslateForm(request.POST or None, page=shown)
-    if request.method == 'POST' and form.is_valid():
-        made = operations.translate(request, shown, form.cleaned_data['language'], form.cleaned_data['title'])
+    action = request.POST.get('action') if request.method == 'POST' else None
+    new = TranslateForm(request.POST if action == 'new' else None, page=shown)
+    linked = LinkForm(request.POST if action == 'link' else None, page=shown, user=request.user)
+    if action == 'new' and new.is_valid():
+        made = operations.translate(request, shown, new.cleaned_data['language'], new.cleaned_data['title'])
         return redirect('dg_wiki:page_edit', made.path)
-    return render(request, 'dg_wiki/page_translate.html', {'page': shown, 'form': form, 'ancestors': shown.ancestors()})
+    if action == 'link' and linked.is_valid():
+        operations.link(request, shown, linked.cleaned_data['other'])
+        return redirect('dg_wiki:page_translate', shown.path)
+    group = [each for each in shown.translation_group() if each.pk not in access.hidden(request.user)]
+    if action == 'unlink':
+        version = get_object_or_404(Page, pk=request.POST.get('version'), pk__in=[each.pk for each in group])
+        operations.unlink(request, version)
+        return redirect('dg_wiki:page_translate', shown.path)
+    context = {
+        'page': shown,
+        'ancestors': shown.ancestors(),
+        'versions': [each for each in group if each.pk != shown.pk],
+        'why_not': why_no_versions(shown),
+        # Only while a language is left for it.
+        'new': new if access.may(request.user, WRITE, shown.parent or TOP) and new.fields['language'].choices else None,
+        'linked': linked if access.may(request.user, WRITE, shown) and linked.fields['other'].queryset else None,
+        'can': access.rights(request.user, shown),
+    }
+    return render(request, 'dg_wiki/page_translate.html', context)

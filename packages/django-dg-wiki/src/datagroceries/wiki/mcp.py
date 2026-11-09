@@ -178,17 +178,29 @@ TOOLS = (
     ),
     Tool(
         'translate_page',
-        'Translate a wiki page',
-        'A translation of the page into another language, beside it, starting from its text: write the '
-        'translation into it with update_page.',
+        'Add a wiki page in another language',
+        'A version of a page, which has a language, in another: either a new page beside it, starting from its '
+        'text, which you then translate and write with update_page (give language and title), or a page that is '
+        'already there in another language and linked to no others (give page). Its title must differ from the '
+        "other pages' in the folder.",
         PageTranslationsView,
         'POST',
         {
             'path': PAGE,
             'language': {'type': 'string', 'description': 'A language code, such as "nl", the page is not in yet.'},
             'title': {'type': 'string', 'description': 'The title in that language.'},
+            'page': {**PAGE, 'description': 'A page already there to link instead, named as `path` is.'},
         },
-        required=('language', 'title'),
+        path=('path',),
+    ),
+    Tool(
+        'unlink_page_translation',
+        'Unlink a wiki page from its other languages',
+        'Take a page out of the versions in other languages it is one of; it stays, as a page of its own, and '
+        'the others stay linked to each other.',
+        PageTranslationsView,
+        'DELETE',
+        {'path': PAGE},
         path=('path',),
     ),
     Tool(

@@ -296,6 +296,34 @@ class PageTests(WikiTestCase):
         self.assertIn('aria-current="page">Deploying</a>', response)
 
 
+class NameTests(WikiTestCase):
+    """One name per folder, as in a file system."""
+
+    def test_a_second_page_of_the_same_name_in_a_folder_is_refused(self):
+        self.make_page('Notes')
+
+        response = self.client.post(reverse('dg_wiki:page_create'), {'title': 'notes!'})
+
+        self.assertContains(response, 'There is already a page called “Notes” here.')
+        self.assertEqual(Page.objects.count(), 1)
+
+    def test_a_page_is_not_renamed_or_moved_onto_another_s_name(self):
+        engineering = self.make_page('Engineering', folder=True)
+        self.make_page('Notes', engineering)
+        other = self.make_page('Other')
+        notes = self.make_page('Notes')
+
+        renamed = self.client.post(
+            reverse('dg_wiki:page_edit', args=[other.path]),
+            {'title': 'Notes', 'body': '', 'language': '', 'original': fingerprint(other)},
+        )
+        moved = self.client.post(reverse('dg_wiki:page_move', args=[notes.path]), {'parent': engineering.pk})
+
+        self.assertContains(renamed, 'There is already a page called “Notes” here.')
+        self.assertContains(moved, 'There is already a page called “Notes” here.')
+        self.assertEqual(Page.objects.filter(parent=engineering).count(), 1)
+
+
 class FolderTests(WikiTestCase):
     """A page of its own, or a folder of pages, whose text is their index."""
 

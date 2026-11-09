@@ -31,6 +31,13 @@ Needs django-dg-core 1.3.0.
   ticket, only links from the top are links. The API and MCP tools name a page by its whole address only.
   Not backwards compatible: a link written as the end of an address now names a page in the folder it is
   written in.
+- **Versions in other languages.** "Translate" is "In another language" now, and offers a new page beside
+  the page, with its text to translate, or links a page that is already there, in another language; a
+  version can be unlinked. Only a page with a language has them, and a folder none. The tree shows a
+  page's language. The MCP tool `translate_page` takes `page` to link one, and `unlink_page_translation`
+  is new.
+- **One name per folder**: a second page of the same name in a folder is refused, on creating, renaming,
+  moving and dragging, rather than made `platform-2`.
 - The editor's writing help explains links to wiki pages in a part of their own, with plainer examples
   of each way to write one: by name, with words of your own, by the whole address, and from the page the
   link is in. The MCP tools and docs/wiki.md say the same.

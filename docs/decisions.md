@@ -337,3 +337,15 @@ in, and not every page is a folder.*
   or an "index" page per folder. The tree, rights per page (G-56), history and dragging stay as they were.
 - **A folder's address ends in "/"**, a page's does not, so that the browser agrees with the wiki on every
   relative link, and a download is a real folder (`index.md`) that works on GitHub or MkDocs as it is.
+
+## 2026-11-09: Versions in other languages; one name per folder (G-64)
+
+- **"Translate" became "In another language"**: the wiki writes no translation, a person or an agent
+  does. Besides a new page to translate, a page already there in another language can be linked as a
+  version, and unlinked again, as Jasper first expected.
+- **Only a page with a language has versions**, and a folder none: a folder is in no language of its own.
+  Separate folders per language (`/nl/...`, `/en/...`) with their pages linked is the way to a tree per
+  language.
+- **One name per folder, everywhere**, as in a file system. Two versions of a page beside each other both
+  called Platform confused, and with exact addresses `[[Platform]]` finds only one of two pages of a name;
+  the second is refused rather than made `platform-2`.

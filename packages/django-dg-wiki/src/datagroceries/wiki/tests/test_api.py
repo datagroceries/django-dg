@@ -115,6 +115,21 @@ class WikiToolTests(TestCase):
         self.assertTrue(error)
         self.assertIn('folder', answer)
 
+    def test_a_page_in_another_language_is_linked_and_unlinked(self):
+        Page.objects.filter(pk=self.deploying.pk).update(language='en')
+        dutch = Page.objects.create(title='Uitrollen', parent=self.engineering, creator=self.user, language='nl')
+
+        page, error = tool(self.client, 'translate_page', path='Engineering/Deploying', page='Engineering/Uitrollen')
+
+        self.assertFalse(error)
+        self.assertEqual(
+            page['translations'], [{'path': 'engineering/uitrollen', 'title': 'Uitrollen', 'language': 'nl'}]
+        )
+        page, error = tool(self.client, 'unlink_page_translation', path='Engineering/Uitrollen')
+        self.assertFalse(error)
+        dutch.refresh_from_db()
+        self.assertIsNone(dutch.original)
+
     def test_search_and_the_tree(self):
         found, _error = tool(self.client, 'search_pages', q='restart')
         self.assertEqual([hit['path'] for hit in found['results']], ['engineering/deploying'])
@@ -149,6 +164,7 @@ class WikiToolTests(TestCase):
         self.assertEqual(edited['body'], 'Right.')
         self.assertEqual(tool(self.client, 'unwatch_page', path='Engineering/Deploying')[0]['watchers'], [])
 
+        Page.objects.filter(pk=self.deploying.pk).update(language='en')
         with override_settings(LANGUAGES=[('en', 'English'), ('nl', 'Nederlands')]):
             dutch, error = tool(
                 self.client, 'translate_page', path='Engineering/Deploying', language='nl', title='Uitrollen'

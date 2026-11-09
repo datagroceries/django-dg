@@ -22,7 +22,7 @@ from datagroceries.core.authentication import DataGroceriesAuthentication, HasTo
 from datagroceries.wiki import access, links, notifications, operations, search, versions
 from datagroceries.wiki.access import WRITE
 from datagroceries.wiki.conf import SCOPE
-from datagroceries.wiki.forms import ArrangeForm, CommentForm, NewPageForm, TranslateForm
+from datagroceries.wiki.forms import ArrangeForm, CommentForm, LinkForm, NewPageForm, TranslateForm
 from datagroceries.wiki.models import TOP, Page, flatten
 
 LIST_LIMIT = 200
@@ -70,8 +70,11 @@ class CommentEditSerializer(serializers.Serializer):
 
 
 class TranslateSerializer(serializers.Serializer):
-    language = serializers.CharField()
-    title = serializers.CharField(max_length=255)
+    """A new page in another language (`language` and `title`), or one that is already there (`page`)."""
+
+    language = serializers.CharField(required=False)
+    title = serializers.CharField(max_length=255, required=False)
+    page = serializers.CharField(required=False)
 
 
 def _find(request, path: str | None, queryset=None) -> Page | None:
@@ -212,9 +215,12 @@ class PageDetailView(WikiApiView):
                         'Read it again, put the two together, and send the change with the new version.'
                     )
                 if texts['title'] != page.title:
-                    form = NewPageForm({'title': texts['title'], 'parent': page.parent_id or ''})
-                    if not form.is_valid():
-                        raise form_errors(form)
+                    renamed = Page(pk=page.pk, title=texts['title'], parent=page.parent, slug=page.slug, path=page.path)
+                    renamed.folder = page.folder
+                    try:
+                        renamed.clean()
+                    except DjangoValidationError as error:
+                        raise ValidationError({'title': error.messages}) from error
                 operations.write(request, page, texts['title'], texts['body'], texts['language'])
             _place(request, page, data)
         page.refresh_from_db()
@@ -311,11 +317,25 @@ class PageWatchView(WikiApiView):
 
 class PageTranslationsView(WikiApiView):
     def post(self, request, path):
-        """A translation of the page, beside it, starting from its text."""
+        """A new page in another language, beside it, starting from its text to translate; or a page that is
+        already there, in another language, linked as a version of it."""
         data = validated(TranslateSerializer, request)
         page = _find(request, path)
+        if 'page' in data:
+            other = _find(request, data['page'])
+            form = LinkForm({'other': other.pk}, page=page, user=request.user)
+            if not form.is_valid():
+                raise form_errors(form)
+            operations.link(request, page, other)
+            return Response(_detail(request, page))
         form = TranslateForm(data, page=page)
         if not form.is_valid():
             raise form_errors(form)
         made = operations.translate(request, page, form.cleaned_data['language'], form.cleaned_data['title'])
         return Response(_detail(request, made), status=status.HTTP_201_CREATED)
+
+    def delete(self, request, path):
+        """Take the page out of the versions in other languages it is one of."""
+        page = _find(request, path)
+        operations.unlink(request, page)
+        return Response(_detail(request, page))
