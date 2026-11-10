@@ -14,6 +14,7 @@ through one MCP endpoint.
 The apps are **the board**, a kanban ticket tracker, and **the wiki**, the team's own knowledge next to
 it.
 
+> [!TIP]
 > **Missing something? Please tell us.** DataGroceries is young, and we want it to become the board and
 > wiki you would choose. If a feature you need is missing, or something is in your way, say so in a
 > [feature request](https://github.com/datagroceries/django-dg/issues/new?labels=enhancement) or in
