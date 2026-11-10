@@ -1,6 +1,6 @@
 # Changelog of django-dg-board
 
-## Unreleased
+## 1.2.1 (2026-11-10)
 
 - Someone not signed in sees nothing of the board, also when the project's `People.may_use` lets them
   read the wiki: not its pages, and no ticket's title where a wiki page names it.

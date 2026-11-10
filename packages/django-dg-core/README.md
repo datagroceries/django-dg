@@ -11,9 +11,10 @@ app, such as [django-dg-board](https://pypi.org/project/django-dg-board/), bring
   [django-dg-connect](https://pypi.org/project/django-dg-connect/), or the project's own DRF
   authentication), and on every request checks that the person may still use the app and that the
   token covers it. A request without credentials gets a `401` that tells MCP clients where to sign in.
-- **People.** Who may use an app is a Django permission; how DataGroceries names people, their @-handles,
-  their email address and their image come from one class a project may subclass. No assumptions about
-  the user model.
+- **People.** Who may use an app is a Django permission; what someone may do in it, whether someone not
+  signed in may read, how DataGroceries names people, their @-handles, whom the editor suggests after an
+  @, their email address and their image come from one class a project may subclass. No assumptions
+  about the user model.
 - **Notifications** by email, or through a notifier of the project's own, once the change is committed.
 - **A layout of its own**, with Bootstrap and Bootstrap Icons in the package, so the apps' pages work in
   any project; override one template to show them in yours.

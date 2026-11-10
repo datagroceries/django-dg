@@ -60,7 +60,8 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
 - **Comments, @-mentions and watchers**, images and files, search, a page's versions in other languages,
   and pages downloaded as Markdown.
 - **Access per page**, as your project decides: who may read, comment on or write a page, and the pages
-  under it, on the pages and for agents alike.
+  under it, on the pages and for agents alike. A part of the wiki can be open to read without an account,
+  such as your product's documentation.
 - **A REST API and MCP tools** for everything the pages do but uploading and downloading files.
 
 ![A wiki page in its tree, with a table of contents, a link to a ticket, the pages that link to it, and a comment](docs/screenshots/wiki.png)

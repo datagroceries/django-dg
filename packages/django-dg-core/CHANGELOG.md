@@ -1,6 +1,8 @@
 # Changelog of django-dg-core
 
-## Unreleased
+## 1.4.0 (2026-11-10)
+
+Wiki 1.3.0 needs it.
 
 - `People.suggested(area)`: whom the editor suggests after an @, by default everyone a mention reaches
   (`members`). A mention of someone it leaves out still reaches them, written by their handle.

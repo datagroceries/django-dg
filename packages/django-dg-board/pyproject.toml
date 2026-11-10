@@ -1,6 +1,6 @@
 [project]
 name = "django-dg-board"
-version = "1.2.0"
+version = "1.2.1"
 description = "A kanban ticket tracker for Django that people and AI agents work on together."
 readme = "README.md"
 license = "MIT"
