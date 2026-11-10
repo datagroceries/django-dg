@@ -27,7 +27,8 @@ A wiki for a Django project, that people and AI agents write together, next to t
   when the page it translates changed after it. The tree shows a page's language.
 - Access per page, as the project decides: who may read, comment on or write a page and the pages under
   it, in one method of the project's own (`People.may`), on the pages and for agents alike. By default
-  everyone who may use the wiki may do everything.
+  everyone who may use the wiki may do everything. A project can let people without an account read the
+  pages it opens up.
 - A REST API and MCP tools for everything the pages do but uploading and downloading files, and on a
   ticket, while the board is installed too, the wiki pages that name it.
 - English and Dutch, following the project's language.

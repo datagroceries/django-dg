@@ -1,5 +1,10 @@
 # Changelog of django-dg-board
 
+## Unreleased
+
+- Someone not signed in sees nothing of the board, also when the project's `People.may_use` lets them
+  read the wiki: not its pages, and no ticket's title where a wiki page names it.
+
 ## 1.2.0 (2026-11-08)
 
 Needs django-dg-core 1.2.0, for `People.may`.

@@ -6,10 +6,12 @@ It asks the project's `People` (datagroceries.core.people.may), after `may_use`,
 about the same way, however deep; a project that gives rights to a part of the tree looks up the tree in
 its `may` (`page.ancestors()`).
 
-The wiki adds one rule of its own: reading a page needs read on the top and on every page above it, as
-its address, its crumbs and the tree name them. Who may not read a page does not see it, nor the pages
-under it: they are missing from the tree, searches and the API, their addresses are not found, and a link
-to one shows as a page they cannot see.
+The wiki adds two rules of its own. Reading a page needs read on the top and on every page above it, as
+its address, its crumbs and the tree name them. And someone not signed in, whom a project lets in
+(`may_use`), can only read: a comment, a version and a watcher need a person.
+
+Who may not read a page does not see it, nor the pages under it: they are missing from the tree, searches
+and the API, their addresses are not found, and a link to one shows as a page they cannot see.
 
 The answers are remembered for the request, and a branch someone may not read is skipped whole, so the
 tree costs one question per page they may read; none when the project does not restrict anything.
@@ -45,7 +47,7 @@ def _asked(user, right: str, where: Page | Top) -> bool:
 
 
 def _may(user, right: str, where: Page | Top, above: list) -> bool:
-    if user is None or not people.may_use(user, SCOPE):
+    if user is None or not people.may_use(user, SCOPE) or (right != READ and not user.is_authenticated):
         return False
     return all(_asked(user, READ, each) for each in above) and _asked(user, right, where)
 
@@ -127,7 +129,8 @@ def _wiki(user) -> _Wiki | None:
     if user is not None and people.may_use(user, SCOPE) and not people.restricts():
         return None
     known = _remembered('wiki')
-    key = user.pk if user is not None else None
+    # Someone not signed in has no pk, as no user has; they may read more than no user may.
+    key = (user.pk, user.is_authenticated) if user is not None else None
     if key not in known:
         known[key] = _Wiki(user)
     return known[key]
@@ -158,6 +161,8 @@ def tree(user) -> list:
 
 def writable(user) -> set[int]:
     """The ids of the pages `user` may write on: change, and put pages under."""
+    if user is None or not user.is_authenticated:
+        return set()
     wiki = _wiki(user)
     if wiki is None:
         return set(Page.objects.values_list('pk', flat=True))

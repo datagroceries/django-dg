@@ -4,6 +4,7 @@ import pathlib
 from django import template
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.views import redirect_to_login
 from django.urls import reverse
 from django.utils.translation import get_language_info
 
@@ -48,6 +49,13 @@ def dg_apps(context) -> list[dict]:
     for app in found:
         app['current'] = request.path.startswith(app['url'])
     return found if len(found) > 1 else []
+
+
+@register.simple_tag(takes_context=True)
+def sign_in_url(context) -> str:
+    """The project's sign-in page (LOGIN_URL), coming back to the page shown, for someone who reads it
+    without being signed in."""
+    return redirect_to_login(context['request'].get_full_path()).url
 
 
 @register.inclusion_tag('dg_core/_markdown_help.html')

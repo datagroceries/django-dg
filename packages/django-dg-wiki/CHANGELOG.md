@@ -1,5 +1,13 @@
 # Changelog of django-dg-wiki
 
+## Unreleased
+
+- **Reading without an account**, where the project lets someone not signed in (`People.may_use` and
+  `may`, asked about Django's `AnonymousUser`): a page, its versions, a search and a download. They can
+  only read, whatever `may` says, see no controls, watchers or people to mention, and are offered to sign
+  in to comment. Needs django-dg-core with `may_use_required(scope, anonymous=True)`.
+- A page shows its files part only when it has files, or to whoever may add one.
+
 ## 1.2.0 (2026-11-09)
 
 Needs django-dg-core 1.3.0, and the migration `0002_pages_and_folders`, which makes the pages with

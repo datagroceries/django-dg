@@ -153,6 +153,34 @@ Name a page in your rules by the page itself, its id or a foreign key to it, not
 changes when the page or one above it is renamed or moved, and a rule kept by address would then stop
 counting without a word.
 
+#### Readers without an account
+
+The wiki can be read by someone not signed in, where you let them: all of it, or part of it, such as the
+pages that explain your product. Say so in `may_use`, which is asked about them too (Django's
+`AnonymousUser`), on the wiki's pages that only show: a page, its versions, a search, a download. Then
+`may` says what they may read, as for anyone:
+
+```python
+class OurPeople(People):
+    def may_use(self, user, area):
+        if not user.is_authenticated:
+            return area.scope == 'wiki'
+        return super().may_use(user, area)
+
+    def may(self, user, right, where):
+        if not user.is_authenticated:  # the top, and the folder Docs with everything in it
+            return where is TOP or any(page.pk == DOCS for page in [*where.ancestors(), where])
+        return super().may(user, right, where)
+```
+
+`DOCS` is the folder's id, kept where your project keeps such things, as an address may change.
+
+Someone not signed in can only read, whatever `may` says: a comment, a version and a watcher need a
+person. Where they would comment, the page offers to sign in, at your `LOGIN_URL`; whether they can make
+an account there is your project's. They see the names on what they read: who changed it, who commented,
+who is mentioned in it. The board stays closed to them, and so do the API and MCP tools, which need a
+token. By default `may_use` says no to them, and they are sent to sign in, as before.
+
 #### Your rules
 
 There is no table, setting or page of DataGroceries' own for this: you decide in `may`, with whatever your
@@ -198,7 +226,7 @@ DataGroceries sees your users through one class, `datagroceries.core.people.Peop
 
 | Method | Default |
 |---|---|
-| `may_use(user, area)` | an active user with the area's permission |
+| `may_use(user, area)` | an active user with the area's permission; nobody not signed in (above) |
 | `may(user, right, group)` | True: whoever may use the board may do everything in every group (above) |
 | `members(area)` | everyone who may use the area, sorted by name |
 | `name(user)` | first and last name, or a `name` field, or else the username |

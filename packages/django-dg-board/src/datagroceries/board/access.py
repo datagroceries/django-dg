@@ -4,7 +4,8 @@ asks, so an agent never does more than its person may.
 It asks the project's `People` (datagroceries.core.people.may), after `may_use`: by default whoever may
 use the board may do everything. A ticket's rights are those of its group. Who may not read a group does
 not see its tickets: they are missing from boards, searches and the API, a page of one is not found, and
-a relation to one shows as a ticket they cannot see.
+a relation to one shows as a ticket they cannot see. Someone not signed in sees nothing of the board,
+whatever the project's `may_use` says, also where a wiki page names a ticket.
 """
 
 from django.core.exceptions import PermissionDenied
@@ -17,9 +18,13 @@ from datagroceries.core import people
 READ, COMMENT, WRITE, MANAGE = people.RIGHTS
 
 
+def _uses(user) -> bool:
+    return user is not None and user.is_authenticated and people.may_use(user, SCOPE)
+
+
 def may(user, right: str, group: Group | None) -> bool:
     """Whether `user` has `right` in `group`, or with None, outside any group, such as to make one."""
-    return user is not None and people.may_use(user, SCOPE) and people.may(user, right, group)
+    return _uses(user) and people.may(user, right, group)
 
 
 def visible_to(group: Group):
@@ -30,7 +35,7 @@ def visible_to(group: Group):
 
 def groups(user, right: str = READ) -> list[Group]:
     """The groups in which `user` has `right`, in the board's order; none for no user, as outside a request."""
-    if user is None or not people.may_use(user, SCOPE):
+    if not _uses(user):
         return []
     return [group for group in Group.objects.all() if people.may(user, right, group)]
 

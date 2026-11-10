@@ -150,3 +150,8 @@ page now has. The pages so rewritten are saved, each with a version of its own. 
   `access` remembers the answers for the request, works out once which pages someone may not read
   (`access.hidden()`, skipping a branch they may not read), and asks nothing when the project's `People`
   leaves `may` as it is. A new view does the same.
+- Someone not signed in reads the pages the project lets them (`People.may_use` and `may`, asked about
+  Django's `AnonymousUser`), on the views that only show (`wiki_shown`): a page, its versions, a search, a
+  download. They can only read, whatever `may` says (`access._may`), and the page shows them no controls,
+  watchers or people to mention, but a link to sign in where the comments would take theirs. Every other
+  view sends them to sign in (`wiki_required`).

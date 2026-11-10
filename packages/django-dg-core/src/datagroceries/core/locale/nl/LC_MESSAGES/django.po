@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 09:25+0100\n"
+"POT-Creation-Date: 2026-11-10 08:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -28,30 +28,30 @@ msgstr ""
 msgid "%(person)s cannot see this"
 msgstr "%(person)s kan dit niet zien"
 
-#: templates/dg_core/_markdown_help.html:7
 #: templates/dg_core/_markdown_help.html:8
+#: templates/dg_core/_markdown_help.html:9
 msgid "bold"
 msgstr "vet"
 
-#: templates/dg_core/_markdown_help.html:7
 #: templates/dg_core/_markdown_help.html:8
+#: templates/dg_core/_markdown_help.html:9
 msgid "italic"
 msgstr "cursief"
 
-#: templates/dg_core/_markdown_help.html:7
 #: templates/dg_core/_markdown_help.html:8
+#: templates/dg_core/_markdown_help.html:9
 msgid "struck"
 msgstr "doorgestreept"
 
-#: templates/dg_core/_markdown_help.html:9
+#: templates/dg_core/_markdown_help.html:10
 msgid "Heading"
 msgstr "Kop"
 
-#: templates/dg_core/_markdown_help.html:10
+#: templates/dg_core/_markdown_help.html:11
 msgid "A heading, and a smaller one under it."
 msgstr "Een kop, en een kleinere eronder."
 
-#: templates/dg_core/_markdown_help.html:12
+#: templates/dg_core/_markdown_help.html:13
 msgid ""
 "A list, or a numbered one. Two spaces before the dash put an item under the "
 "one above."
@@ -59,57 +59,57 @@ msgstr ""
 "Een lijst, of een genummerde. Twee spaties voor het streepje zetten een punt "
 "onder het punt erboven."
 
-#: templates/dg_core/_markdown_help.html:13
+#: templates/dg_core/_markdown_help.html:14
 msgid "A list of things to do, with checkboxes."
 msgstr "Een lijst van dingen om te doen, met vinkjes."
 
-#: templates/dg_core/_markdown_help.html:14
+#: templates/dg_core/_markdown_help.html:15
 msgid "A quote."
 msgstr "Een citaat."
 
-#: templates/dg_core/_markdown_help.html:16
+#: templates/dg_core/_markdown_help.html:17
 msgid ""
 "Code in a sentence; a line of three backticks above and below a block of "
 "code."
 msgstr ""
 "Code in een zin; een regel van drie backticks boven en onder een blok code."
 
-#: templates/dg_core/_markdown_help.html:17
+#: templates/dg_core/_markdown_help.html:18
 msgid "words"
 msgstr "woorden"
 
-#: templates/dg_core/_markdown_help.html:18
+#: templates/dg_core/_markdown_help.html:19
 msgid "A link. An address on its own becomes a link too."
 msgstr "Een link. Een los adres wordt ook een link."
 
-#: templates/dg_core/_markdown_help.html:19
+#: templates/dg_core/_markdown_help.html:20
 msgid "Name"
 msgstr "Naam"
 
-#: templates/dg_core/_markdown_help.html:19
+#: templates/dg_core/_markdown_help.html:20
 msgid "Role"
 msgstr "Rol"
 
-#: templates/dg_core/_markdown_help.html:20
+#: templates/dg_core/_markdown_help.html:21
 msgid "A table: a row per line, the second line under the heads."
 msgstr "Een tabel: een rij per regel, de tweede regel onder de koppen."
 
-#: templates/dg_core/_markdown_help.html:21
+#: templates/dg_core/_markdown_help.html:22
 msgid "description"
 msgstr "beschrijving"
 
-#: templates/dg_core/_markdown_help.html:22
+#: templates/dg_core/_markdown_help.html:23
 msgid ""
 "An image: paste or drop one into the text, and it is uploaded and put in."
 msgstr ""
 "Een afbeelding: plak of sleep er een in de tekst, dan wordt hij geüpload en "
 "ingevoegd."
 
-#: templates/dg_core/_markdown_help.html:23
+#: templates/dg_core/_markdown_help.html:24
 msgid "Enter"
 msgstr "Enter"
 
-#: templates/dg_core/_markdown_help.html:24
+#: templates/dg_core/_markdown_help.html:25
 msgid "A new line stays a new line; an empty line starts a new paragraph."
 msgstr ""
 "Een nieuwe regel blijft een nieuwe regel; een lege regel begint een nieuwe "
@@ -122,6 +122,10 @@ msgstr "Apps"
 #: templates/dg_core/base.html:38
 msgid "Language"
 msgstr "Taal"
+
+#: templates/dg_core/base.html:50
+msgid "Sign in"
+msgstr "Inloggen"
 
 #: templates/dg_core/notifications/email.html:9
 msgid "Open"

@@ -5,6 +5,7 @@ import io
 import zipfile
 from unittest import mock
 
+from django.contrib.auth.models import AnonymousUser
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -12,7 +13,7 @@ from rest_framework.test import APIClient
 from datagroceries.core import people
 from datagroceries.core.people import People
 from datagroceries.core.tests import TEST_AUTHENTICATION, addressed, issue
-from datagroceries.wiki import search
+from datagroceries.wiki import access, search
 from datagroceries.wiki.models import TOP, Comment, Page
 from datagroceries.wiki.tests import member, serving
 from datagroceries.wiki.tests import page as new_page
@@ -254,3 +255,76 @@ class PeopleTests(AccessTestCase):
         self.assertContains(page, '<span class="dg-mention dg-mention-unseen" title="Bob cannot see this">@bob</span>')
         self.assertContains(page, '<span class="dg-mention" title="Anna Tester">@anna</span>')
         self.assertContains(page, '{"handle": "bob", "name": "Bob", "unseen": true}')
+
+
+class Public(People):
+    """A project that lets anyone in, signed in or not, and lets them read the top and Sales, with what is
+    under it; to be sure, it says yes to anything else asked about there too."""
+
+    def may_use(self, user, area):
+        return not user.is_authenticated or super().may_use(user, area)
+
+    def may(self, user, right, where):
+        return user.is_authenticated or where is TOP or 'sales' in where.path.split('/')[:1]
+
+
+@override_settings(DG_PEOPLE=f'{__name__}.Public')
+class AnonymousTests(WikiTestCase):
+    """Someone not signed in, where the project lets them read part of the wiki."""
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.sales = new_page('Sales', cls.user, body='Our customers.')
+        cls.quarter = new_page('Q4', cls.user, cls.sales)
+        cls.engineering = new_page('Engineering', cls.user)
+        Comment.objects.create(page=cls.sales, author=cls.user, body='Looks good.')
+
+    def setUp(self):
+        self.client.logout()
+
+    def test_they_read_what_the_project_lets_them(self):
+        page = self.client.get(self.sales.get_absolute_url())
+
+        self.assertContains(page, 'Our customers.')
+        self.assertContains(page, 'Looks good.')
+        self.assertContains(page, '>Q4<')
+        self.assertNotContains(page, 'Engineering')
+        self.assertEqual(self.client.get(self.engineering.get_absolute_url()).status_code, 404)
+        found = self.client.get(reverse('dg_wiki:search'), {'q': 'customers'})
+        self.assertContains(found, 'Sales')
+        self.assertEqual(self.client.get(reverse('dg_wiki:page_history', args=[self.sales.path])).status_code, 200)
+        self.assertEqual(self.client.get(reverse('dg_wiki:page_export', args=[self.sales.path])).status_code, 200)
+
+    def test_they_only_read_whatever_may_says(self):
+        page = self.client.get(self.sales.get_absolute_url())
+
+        for control in ('page_edit', 'page_move', 'page_delete', 'page_attach', 'page_watch', 'comment_create'):
+            self.assertNotContains(page, reverse(f'dg_wiki:{control}', args=[self.sales.path]))
+        self.assertNotContains(page, reverse('dg_wiki:page_create'))
+        # Nor who may be mentioned, which is for the editor.
+        self.assertNotContains(page, 'dg-mention-people')
+        self.assertContains(page, f'/admin/login/?next={self.sales.get_absolute_url()}">Sign in to comment</a>')
+        only_read = {'read': True, 'comment': False, 'write': False, 'manage': False}
+        self.assertEqual(access.rights(AnonymousUser(), self.sales), only_read)
+
+    def test_changing_anything_sends_them_to_sign_in(self):
+        edit = self.client.get(reverse('dg_wiki:page_edit', args=[self.sales.path]))
+        comment = self.client.post(reverse('dg_wiki:comment_create', args=[self.sales.path]), {'body': 'Spam'})
+
+        for refused in (edit, comment):
+            self.assertEqual(refused.status_code, 302)
+            self.assertIn('/admin/login/', refused['Location'])
+        self.assertEqual(Comment.objects.count(), 1)
+
+    def test_a_link_to_a_page_not_there_yet_does_not_start_it(self):
+        self.client.post('/dg/wiki/sales/leads', {'title': 'Leads'})
+
+        self.assertFalse(Page.objects.filter(path='sales/leads').exists())
+
+    def test_without_a_project_letting_them_in_they_are_sent_to_sign_in(self):
+        with override_settings(DG_PEOPLE='datagroceries.core.people.People'):
+            page = self.client.get(self.sales.get_absolute_url())
+
+        self.assertEqual(page.status_code, 302)
+        self.assertIn('/admin/login/', page['Location'])

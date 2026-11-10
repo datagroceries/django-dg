@@ -46,7 +46,8 @@ blocks title, extra_head, content, container_class and extra_scripts.
             </ul>
           </form>
         {% endif %}
-        {% if user.is_authenticated %}<span class="navbar-text py-0">{{ user|person_name }}</span>{% endif %}
+        {% if user.is_authenticated %}<span class="navbar-text py-0">{{ user|person_name }}</span>
+        {% else %}<a class="link-secondary" href="{% sign_in_url %}">{% translate "Sign in" %}</a>{% endif %}
       </div>
     </nav>
     <div class="{% block container_class %}container{% endblock %}">

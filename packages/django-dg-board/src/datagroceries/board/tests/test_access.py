@@ -3,6 +3,7 @@
 
 from unittest import mock
 
+from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -243,6 +244,36 @@ class MentionTests(AccessTestCase):
         page = self.client.get(reverse('dg_board:ticket_peek', args=[self.sales.key]))
 
         self.assertContains(page, '<span class="dg-mention" title="Bob">@bob</span>')
+
+
+class Everyone(People):
+    """A project that lets anyone in, signed in or not, to do anything."""
+
+    def may_use(self, user, area):
+        return True
+
+
+@override_settings(DG_PEOPLE=f'{__name__}.Everyone')
+class AnonymousTests(AccessTestCase):
+    """Someone not signed in, whom the project lets in, as the wiki may: the board stays closed to them."""
+
+    def setUp(self):
+        pass
+
+    def test_its_pages_send_them_to_sign_in(self):
+        for url in (reverse('dg_board:board'), self.platform.get_absolute_url()):
+            refused = self.client.get(url)
+
+            self.assertEqual(refused.status_code, 302)
+            self.assertIn('/admin/login/', refused['Location'])
+
+    def test_a_key_in_a_text_links_without_its_title(self):
+        request = RequestFactory().get('/')
+        request.user = AnonymousUser()
+        with history.recording(request):
+            html = render_markdown(f'See {self.platform.key}.')
+
+        self.assertNotIn('Fix the login', html)
 
 
 class RightsTests(TestCase):

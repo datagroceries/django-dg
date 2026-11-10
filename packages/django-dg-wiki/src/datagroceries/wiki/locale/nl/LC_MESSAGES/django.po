@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 21:18+0100\n"
+"POT-Creation-Date: 2026-11-10 08:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -286,6 +286,10 @@ msgstr "Antwoorden"
 #: templates/dg_wiki/_comments.html:53
 msgid "Comment"
 msgstr "Reageren"
+
+#: templates/dg_wiki/_comments.html:56
+msgid "Sign in to comment"
+msgstr "Log in om te reageren"
 
 #: templates/dg_wiki/_link_start.html:5
 #, python-format
@@ -783,7 +787,7 @@ msgstr "Verplaatst naar onder “%(title)s”"
 msgid "Moved to the top"
 msgstr "Naar boven verplaatst"
 
-#: views.py:189
+#: views.py:191
 #, python-format
 msgid ""
 "%(who)s saved this page while you were editing it. Your text is still here: "
@@ -794,25 +798,25 @@ msgstr ""
 "nog: open de pagina in een ander tabblad om die van hen te zien, voeg de "
 "twee samen en sla opnieuw op om die van hen te vervangen."
 
-#: views.py:220
+#: views.py:222
 #, python-format
 msgid "“%(title)s” is deleted."
 msgstr "“%(title)s” is verwijderd."
 
-#: views.py:313
+#: views.py:315
 #, python-format
 msgid "The version of %(when)s is back."
 msgstr "De versie van %(when)s is teruggezet."
 
-#: views.py:334
+#: views.py:336
 #, python-format
 msgid "%(name)s is larger than %(size)s MB."
 msgstr "%(name)s is groter dan %(size)s MB."
 
-#: views.py:367
+#: views.py:369
 msgid "A comment needs text."
 msgstr "Een reactie heeft tekst nodig."
 
-#: views.py:383
+#: views.py:385
 msgid "A comment needs text; the old one is kept."
 msgstr "Een reactie heeft tekst nodig; de oude blijft staan."

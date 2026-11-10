@@ -30,6 +30,8 @@ from datagroceries.wiki.models import HOME, TOP, Attachment, Comment, Page, slug
 from datagroceries.wiki.templatetags.dg_wiki import render_context, tree_context
 
 wiki_required = people.may_use_required(SCOPE)
+# The pages that only show, which someone not signed in may see too, where the project lets them.
+wiki_shown = people.may_use_required(SCOPE, anonymous=True)
 
 # How many headings a page needs before a table of contents beside it helps.
 CONTENTS_FROM = 3
@@ -41,7 +43,7 @@ def _last_change(page: Page):
     return page.history.select_related('history_user').first()
 
 
-@wiki_required
+@wiki_shown
 def home(request):
     """The wiki's start: its page `home` at the top, when there is one, as a site's "/" shows its
     index.html; else what changed lately."""
@@ -53,14 +55,14 @@ def home(request):
     return render(request, 'dg_wiki/home.html', context)
 
 
-@wiki_required
+@wiki_shown
 def page_search(request):
     query = request.GET.get('q', '').strip()
     hits = search.search(query, access.pages(request.user)) if query else []
     return render(request, 'dg_wiki/search.html', {'query': query, 'hits': hits, 'most': search.MAX_HITS})
 
 
-@wiki_required
+@wiki_shown
 def page(request, path):
     found = Page.objects.select_related('parent').filter(path=path).first()
     if found is None:
@@ -248,7 +250,7 @@ def tree_arrange(request):
     return JsonResponse({'tree': tree, 'url': current.get_absolute_url() if current else None})
 
 
-@wiki_required
+@wiki_shown
 def page_history(request, path):
     """Every version of the page, newest first, with who made it and what it changed."""
     shown = access.page(request.user, path)
@@ -272,7 +274,7 @@ def _says(page: Page, record) -> bool:
     return (record.title, record.body) == (page.title, page.body)
 
 
-@wiki_required
+@wiki_shown
 def page_compare(request, path, version):
     """A version of the page beside the one before it, or beside the version `with` names."""
     shown = access.page(request.user, path)
@@ -339,7 +341,7 @@ def page_attach(request, path):
     return redirect(shown)
 
 
-@wiki_required
+@wiki_shown
 def attachment(request, pk, name):
     return attachments.serve(get_object_or_404(Attachment.objects.exclude(page__in=access.hidden(request.user)), pk=pk))
 
@@ -398,7 +400,7 @@ def _download(content, name: str, content_type: str) -> HttpResponse:
     return response
 
 
-@wiki_required
+@wiki_shown
 def page_export(request, path):
     """The page as a Markdown file; with the pages under it, as a zip of them all."""
     shown = access.page(request.user, path)
@@ -407,13 +409,13 @@ def page_export(request, path):
     return _download(export.page_markdown(request, shown), f'{shown.slug}.md', 'text/markdown; charset=utf-8')
 
 
-@wiki_required
+@wiki_shown
 def wiki_export(request):
     """Every page, as a zip of Markdown files."""
     return _download(export.tree_zip(request, None), 'wiki.zip', 'application/zip')
 
 
-@wiki_required
+@wiki_shown
 def page_translate(request, path):
     """The page in other languages: its versions in them, each of which can be unlinked; a new page beside
     it in another, which opens in the editor with its text to translate; or a page that is already there

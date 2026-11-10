@@ -55,7 +55,9 @@ class People:
     subclass in `DG_PEOPLE`."""
 
     def may_use(self, user, area) -> bool:
-        """Whether `user` may use `area` now: by default, an active user with its permission."""
+        """Whether `user` may use `area` now: by default, an active user with its permission. Someone not
+        signed in (Django's `AnonymousUser`) is asked about too, on the pages of an area that lets them
+        read (the wiki's): by default no. Who is let in this way can only read, whatever `may` says."""
         return user.is_authenticated and user.is_active and user.has_perm(area.permission)
 
     def may(self, user, right: str, where) -> bool:
@@ -211,14 +213,17 @@ def mentioned(scope: str, handles: set[str]) -> list:
     return [user for found, user in by_handle(scope).items() if found in handles]
 
 
-def may_use_required(scope: str):
+def may_use_required(scope: str, *, anonymous: bool = False):
     """Lets people who may use the area into a page; sends anyone not signed in to sign in, and refuses
-    everyone else."""
+    everyone else. With `anonymous`, for a page that only shows, someone not signed in comes in too when
+    `may_use` says yes to them, which by default it does not."""
 
     def check(user) -> bool:
-        if user.is_authenticated and not may_use(user, scope):
+        if (user.is_authenticated or anonymous) and may_use(user, scope):
+            return True
+        if user.is_authenticated:
             raise PermissionDenied
-        return user.is_authenticated
+        return False
 
     def decorator(view):
         @functools.wraps(view)

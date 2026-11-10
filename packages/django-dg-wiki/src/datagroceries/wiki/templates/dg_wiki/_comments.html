@@ -3,7 +3,7 @@ The comments on a page, oldest first, each with its replies, and the box for the
 {% endcomment %}<section class="wk-comments" id="comments" data-upload-url="{% url 'dg_wiki:page_upload' page.path %}">
   <div class="wk-comments-head">
     <h2 class="h5 mb-0">{% translate "Comments" %}</h2>
-    <form method="post" action="{% url 'dg_wiki:page_watch' page.path %}" class="ms-auto">
+    {% if user.is_authenticated %}<form method="post" action="{% url 'dg_wiki:page_watch' page.path %}" class="ms-auto">
       {% csrf_token %}
       {% if request.user in watchers %}
         <input type="hidden" name="watching" value="no">
@@ -12,12 +12,12 @@ The comments on a page, oldest first, each with its replies, and the box for the
         <input type="hidden" name="watching" value="yes">
         <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-bell"></i> {% translate "Watch" %}</button>
       {% endif %}
-    </form>
+    </form>{% endif %}
   </div>
-  <p class="wk-muted small">
-    {% if watchers %}{% translate "Watching:" %} {% for user in watchers %}{{ user|person_name }}{% if not forloop.last %}, {% endif %}{% endfor %}.{% endif %}
+  {% if user.is_authenticated %}<p class="wk-muted small">
+    {% if watchers %}{% translate "Watching:" %} {% for watcher in watchers %}{{ watcher|person_name }}{% if not forloop.last %}, {% endif %}{% endfor %}.{% endif %}
     {% translate "Watchers hear about new comments. Mention someone with @ to tell them." %}
-  </p>
+  </p>{% endif %}
 
   {% for comment in comments %}
     <article class="wk-comment" id="comment-{{ comment.pk }}">
@@ -52,5 +52,7 @@ The comments on a page, oldest first, each with its replies, and the box for the
       {{ comment_form.body }}
       <button type="submit" class="btn btn-sm btn-primary mt-2">{% translate "Comment" %}</button>
     </form>
+  {% elif not user.is_authenticated %}
+    <p class="wk-muted small"><a href="{% sign_in_url %}">{% translate "Sign in to comment" %}</a></p>
   {% endif %}
 </section>

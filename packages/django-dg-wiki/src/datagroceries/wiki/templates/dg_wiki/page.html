@@ -3,7 +3,7 @@
 
 {% block page_title %}{{ page.title }}{% endblock %}
 
-{% block wiki_head %}{% wiki_mention_people page %}{% include 'dg_core/_editor_assets.html' %}{% endblock %}
+{% block wiki_head %}{% if can.comment %}{% wiki_mention_people page %}{% include 'dg_core/_editor_assets.html' %}{% endif %}{% endblock %}
 
 {% block main %}
 {% include 'dg_wiki/_crumbs.html' %}
@@ -110,7 +110,7 @@
       <ul>{% for linking in backlinks %}<li><a href="{{ linking.get_absolute_url }}">{{ linking.title }}</a></li>{% endfor %}</ul>
     </section>
   {% endif %}
-  <section>
+  {% if attachments or can.write %}<section>
     <div class="wk-panel-title">{% translate "Files" %}</div>
     {% for attachment in attachments %}
       {% if attachment.is_image %}
@@ -132,7 +132,7 @@
         </div>
       </form>
     </details>{% endif %}
-  </section>
+  </section>{% endif %}
 </div>
 
 {% include 'dg_wiki/_comments.html' %}

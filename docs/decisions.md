@@ -360,3 +360,18 @@ in, and not every page is a folder.*
   download (`home.md`), though tools such as MkDocs look for `index.md`.
 - **No setting names it**: a setting would be a feature another way, and would stop counting when the page
   was renamed.
+
+## 2026-11-10: Reading the wiki without an account (G-66)
+
+- **Two levels, the first in the packages.** Without an account someone can read the pages a project
+  opens up; to comment, they make an account (G-67, for hq). Commenting without one was considered and
+  left out: a comment then needs a name of its own, protection against spam, and has nobody to tell about a
+  reply. An account, however easily made, answers all three.
+- **The project says who, through the hooks it already has.** `may_use` is asked about someone not signed
+  in too, on the pages that only show, and `may` says what they may read, as for anyone; no setting of
+  the wiki's own. By default `may_use` says no, so nothing changes for a project that does nothing.
+- **They can only read, whatever `may` says.** The wiki enforces it, not the project: a comment, a version
+  and a watcher need a person, and a `may` written for people should not open the wiki to everyone by an
+  oversight.
+- **The board stays closed**, also when `may_use` says yes: it has no public use yet, and its tickets name
+  the people working on them. The API and MCP tools keep needing a token.

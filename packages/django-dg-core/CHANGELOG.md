@@ -1,5 +1,11 @@
 # Changelog of django-dg-core
 
+## Unreleased
+
+- `may_use_required(scope, anonymous=True)` lets someone not signed in into a page when `People.may_use`
+  says yes to them, which by default it does not. The header offers whoever is not signed in to sign in
+  (`sign_in_url`).
+
 ## 1.3.0 (2026-11-09)
 
 Wiki 1.2.0 needs it.
