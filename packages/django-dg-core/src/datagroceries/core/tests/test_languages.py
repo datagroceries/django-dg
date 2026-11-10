@@ -1,5 +1,8 @@
 """Tests for the language switch in the layout's header."""
 
+import pathlib
+import tempfile
+
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.template.loader import render_to_string
@@ -30,6 +33,14 @@ class LanguageSwitchTests(TestCase):
     def test_only_the_languages_the_apps_speak_too(self):
         with self.settings(LANGUAGES=[('en', 'English'), ('nl', 'Dutch'), ('fr', 'French'), ('de-at', 'German')]):
             self.assertEqual(dg_languages(), [('en', 'English'), ('nl', 'Nederlands')])
+
+    def test_and_the_languages_the_project_translates_itself(self):
+        with tempfile.TemporaryDirectory() as folder:
+            catalog = pathlib.Path(folder) / 'fr' / 'LC_MESSAGES' / 'django.mo'
+            catalog.parent.mkdir(parents=True)
+            catalog.touch()
+            with self.settings(LANGUAGES=[('en', 'English'), ('nl', 'Dutch'), ('fr', 'French')], LOCALE_PATHS=[folder]):
+                self.assertEqual(dg_languages(), [('en', 'English'), ('nl', 'Nederlands'), ('fr', 'français')])
 
     def test_no_switch_with_one_language(self):
         with self.settings(LANGUAGES=[('en', 'English'), ('fr', 'French')]):

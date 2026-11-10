@@ -1,5 +1,10 @@
 # Changelog of django-dg-core
 
+## Unreleased
+
+- The language switch in the header also offers the languages a project translates in its own
+  `LOCALE_PATHS`, as well as the ones the DataGroceries apps have a translation for.
+
 ## 1.5.0 (2026-11-10)
 
 - **GitHub Flavored Markdown.** Every app's Markdown is GFM, as in a comment on GitHub, read by

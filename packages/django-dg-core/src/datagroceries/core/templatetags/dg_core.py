@@ -68,15 +68,19 @@ def markdown_help() -> dict:
     return {'references': parts.pop('', []), 'parts': [part for part in parts.items() if part[1]]}
 
 
-@functools.cache
 def translated() -> frozenset[str]:
-    """The languages the installed DataGroceries apps speak: English, in which they are written, and every
-    language one of them has a translation for."""
+    """The languages the installed DataGroceries apps speak: English, in which they are written, every
+    language one of them has a translation for, and every language the project translates in its own
+    LOCALE_PATHS, which Django reads first."""
+    return _translated(tuple(str(path) for path in settings.LOCALE_PATHS))
+
+
+@functools.cache
+def _translated(locale_paths: tuple[str, ...]) -> frozenset[str]:
+    ours = [config.path for config in apps.get_app_configs() if config.name.startswith('datagroceries.')]
     codes = {'en'}
-    for config in apps.get_app_configs():
-        if config.name.startswith('datagroceries.'):
-            catalogs = pathlib.Path(config.path).glob('locale/*/LC_MESSAGES/django.mo')
-            codes |= {catalog.parent.parent.name for catalog in catalogs}
+    for folder in [*(pathlib.Path(path) / 'locale' for path in ours), *map(pathlib.Path, locale_paths)]:
+        codes |= {catalog.parent.parent.name for catalog in folder.glob('*/LC_MESSAGES/django.mo')}
     return frozenset(codes)
 
 

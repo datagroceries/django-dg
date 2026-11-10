@@ -305,8 +305,10 @@ longer reach the person.
 The pages speak your project's language, the Django way: `LANGUAGE_CODE`, or the visitor's own with
 Django's `LocaleMiddleware`, which takes the browser's language and remembers a choice. With the
 middleware, DataGroceries' own layout has a language switch in its top bar, offering the languages of your
-`LANGUAGES` that DataGroceries speaks too; set `LANGUAGES`, or it offers every one DataGroceries has. DataGroceries ships English
-and Dutch; another language is one more `.po` file per package. The REST API and the MCP tools stay
+`LANGUAGES` that DataGroceries speaks too; set `LANGUAGES`, or it offers every one DataGroceries has.
+DataGroceries ships English and Dutch. Another language is one more `.po` file per package, best sent to us
+so that everyone has it, or one of your own in your `LOCALE_PATHS`, which Django reads first; the switch
+offers those too. The REST API and the MCP tools stay
 English whatever the language, as they are for programs and agents. A notification is in the language
 of the person it goes to, whatever language the change was made in: Django keeps no language per person,
 so it is what your `People` class's `language(user)` says (below), and `LANGUAGE_CODE` when it says
