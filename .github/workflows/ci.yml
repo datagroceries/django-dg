@@ -23,6 +23,17 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
 
+  translations:
+    # The compiled translations are in git, so that a checkout runs as it is: each must say what its .po says.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - run: sudo apt-get install -y gettext
+      - run: python .github/check_translations.py
+
   tests:
     name: Django ${{ matrix.django }}, Python ${{ matrix.python }}
     runs-on: ubuntu-latest

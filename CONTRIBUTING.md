@@ -72,7 +72,8 @@ One repository, a package per app, each released to PyPI on its own:
 - English everywhere: code, comments, docs and commit messages. Texts people see are marked for
   translation, and the Dutch translation is updated with them (`makemessages`, `compilemessages`). Run
   them from an app's folder as `python -P -m django …`, so that an app's own modules do not hide the
-  libraries of the same name.
+  libraries of the same name. The compiled `.mo` files are in git, as Django's own are, so that a
+  checkout runs as it is; CI checks that each says what its `.po` says (`.github/check_translations.py`).
 - A line in the `CHANGELOG.md` of each package a change touches, under "Unreleased".
 - The READMEs and docs say how it works now, never how it changed or what it was before: no "as before",
   "no longer" or "now" about a change. That is for the changelogs and the decisions.
