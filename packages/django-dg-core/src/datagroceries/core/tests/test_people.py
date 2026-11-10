@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
 
-from datagroceries.core import areas, people
+from datagroceries.core import areas, mentions, people
 from datagroceries.core.people import People
 from datagroceries.core.tests import person
 
@@ -22,6 +22,19 @@ class CustomerPeople(People):
 
     def handle(self, user):
         return {'customer-1': 'Kees', 'customer-2': 'not a handle!'}.get(user.username)
+
+
+class QuietCustomers(People):
+    """A project whose customers use the notes, where the editor suggests only Kees."""
+
+    def may_use(self, user, area):
+        return user.is_active and user.username.startswith('customer')
+
+    def handle(self, user):
+        return 'kees' if user.username == 'customer-1' else super().handle(user)
+
+    def suggested(self, area):
+        return self.members(area).filter(username='customer-1')
 
 
 @mock.patch.dict(areas.AREAS, {'notes': NOTES}, clear=True)
@@ -52,6 +65,16 @@ class MemberTests(TestCase):
         self.assertFalse(people.may_use(self.anna, 'notes'))
         self.assertEqual(people.by_handle('notes'), {'kees': self.customer})
         self.assertEqual(people.mentioned('notes', {'kees', 'anna'}), [self.customer])
+
+    def test_the_editor_suggests_everyone_a_mention_reaches_by_default(self):
+        self.assertEqual(people.suggested('notes'), {'anna': self.anna})
+
+    @override_settings(DG_PEOPLE='datagroceries.core.tests.test_people.QuietCustomers')
+    def test_a_mention_of_someone_the_editor_does_not_suggest_still_reaches_them(self):
+        self.assertEqual(people.suggested('notes'), {'kees': self.customer})
+        self.assertEqual(people.mentioned('notes', {'customer-2'}), [self.other_customer])
+        self.assertIn('"handle": "kees"', mentions.people_json('notes'))
+        self.assertNotIn('customer-2', mentions.people_json('notes'))
 
     def test_a_handle_is_the_username_by_default_whatever_the_email_domain(self):
         user_model = get_user_model()

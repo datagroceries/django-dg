@@ -3,7 +3,8 @@
 
 `mentioned(scope, text)` says whom a text mentions, for the app to tell them; `Mentions` marks them in
 Markdown (datagroceries.core.markdown), among the people of the scope the text belongs to (`context['scope']`), or
-of any area when it does not say; `{% mention_people scope %}` lists them for the editor's suggestions.
+of any area when it does not say; `{% mention_people scope %}` lists the ones the editor suggests, by
+default all of them.
 
 Where not everyone may see what a text is on, such as a ticket in a group of its own, the app says so with
 `visible_to`, a function of a person (`context['visible_to']` in Markdown): a mention of someone who cannot
@@ -42,10 +43,10 @@ def by_handle(scope: str | None) -> dict:
 
 
 def people_json(scope: str, visible_to=None) -> str:
-    """The people a mention in `scope` reaches, as the editor's suggestions read them (editor.js); those
-    for whom `visible_to` says no are marked unseen."""
+    """The people the editor suggests after an @ in `scope` (`People.suggested`), as editor.js reads
+    them; those for whom `visible_to` says no are marked unseen."""
     found = []
-    for handle, user in people.by_handle(scope).items():
+    for handle, user in people.suggested(scope).items():
         person = {'handle': handle, 'name': people.name(user)}
         if visible_to is not None and not visible_to(user):
             person['unseen'] = True

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `People.suggested(area)`: whom the editor suggests after an @, by default everyone a mention reaches
+  (`members`). A mention of someone it leaves out still reaches them, written by their handle.
 - `may_use_required(scope, anonymous=True)` lets someone not signed in into a page when `People.may_use`
   says yes to them, which by default it does not. The header offers whoever is not signed in to sign in
   (`sign_in_url`).

@@ -10,8 +10,8 @@ everything there; a project that wants less for some people says so in `may`.
 
 How the apps see a person comes from one class, `People`. A host project changes what differs in a
 subclass and names it in `DG_PEOPLE`, as allauth's adapters do: who may use an app, what they may do
-there, someone's name, their @-handle, their email address, their image, the language to write to them
-in. The defaults assume
+there, whom the editor suggests after an @, someone's name, their @-handle, their email address, their
+image, the language to write to them in. The defaults assume
 nothing about the user model beyond what Django's own `AbstractBaseUser` has: a username, and an email
 field only when the model names one.
 """
@@ -88,6 +88,12 @@ class People:
         else:
             users = manager.filter(pk__in=[user.pk for user in manager.all() if self.may_use(user, area)])
         return users.order_by(*self.ordering())
+
+    def suggested(self, area) -> QuerySet:
+        """Whom the editor suggests after an @ in `area`: by default everyone a mention reaches (`members`).
+        A mention of someone left out still reaches them, written by their handle, so a project can keep
+        a list of everyone from people who should not see it."""
+        return self.members(area)
 
     def ordering(self) -> tuple:
         """How `members` sorts: by the name fields the user model has, else the username."""
@@ -206,6 +212,11 @@ def language(user) -> str:
 def by_handle(scope: str) -> dict:
     """Everyone who may use the area and can be @-mentioned, by their handle."""
     return {found: user for user in members(scope) if (found := handle(user))}
+
+
+def suggested(scope: str) -> dict:
+    """Whom the editor suggests after an @ in the area, by their handle."""
+    return {found: user for user in _people().suggested(_area(scope)) if (found := handle(user))}
 
 
 def mentioned(scope: str, handles: set[str]) -> list:

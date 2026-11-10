@@ -228,6 +228,7 @@ DataGroceries sees your users through one class, `datagroceries.core.people.Peop
 | `may_use(user, area)` | an active user with the area's permission; nobody not signed in (above) |
 | `may(user, right, group)` | True: whoever may use the board may do everything in every group (above) |
 | `members(area)` | everyone who may use the area, sorted by name |
+| `suggested(area)` | whom the editor suggests after an @: `members(area)` |
 | `name(user)` | first and last name, or a `name` field, or else the username |
 | `short_name(user)` | the first name, or the first word of the name |
 | `handle(user)` | what follows the @ in a mention: the username, lowercased, with "-" for characters a handle cannot hold (`anna@example.com` becomes `anna-example.com`) |
@@ -270,6 +271,16 @@ class OurPeople(People):
     def members(self, area):
         users = get_user_model().objects.filter(is_active=True, profile__is_employee=True)
         return users.order_by('name')
+```
+
+An @-mention reaches the people of the area, `members`, and the editor suggests them as you type.
+To keep that list from some, such as people who signed up to comment and should not see who else did,
+override `suggested`: a mention of someone it leaves out still reaches them, written by their handle.
+
+```python
+class OurPeople(People):
+    def suggested(self, area):
+        return self.members(area).filter(groups__name='Team')
 ```
 
 A handle may hold letters, digits, ".", "_" and "-", and no two people may share one. A handle that
