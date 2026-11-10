@@ -1,6 +1,6 @@
 # Changelog of django-dg-core
 
-## Unreleased
+## 1.6.0 (2026-11-10)
 
 - **Notifications in Slack**, with one setting, `DG_SLACK_BOT_TOKEN`: a direct message instead of the
   email, to whoever Slack knows by their email address, and the email to the others and while Slack
