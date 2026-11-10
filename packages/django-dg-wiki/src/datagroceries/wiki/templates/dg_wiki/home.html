@@ -5,11 +5,11 @@
 
 {% block main %}
 <h1 class="h3 mb-3">{% wiki_name %}</h1>
-<p class="wk-muted small">
+{% if can_start %}<p class="wk-muted small">
   {% url 'dg_wiki:page' home as home_url %}
   {% blocktranslate %}A page called <code>{{ home }}</code> at the top of the wiki is shown here instead, as its start page.{% endblocktranslate %}
-  {% if can_start %}<a href="{{ home_url }}?title=Home">{% translate "Start it" %}</a>{% endif %}
-</p>
+  <a href="{{ home_url }}?title=Home">{% translate "Start it" %}</a>
+</p>{% endif %}
 {% if recent %}
   <div class="wk-panel-title">{% translate "Recently changed" %}</div>
   <ul class="wk-recent">

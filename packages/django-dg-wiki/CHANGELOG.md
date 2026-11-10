@@ -7,6 +7,7 @@
   only read, whatever `may` says, see no controls, watchers or people to mention, and are offered to sign
   in to comment. Needs django-dg-core with `may_use_required(scope, anonymous=True)`.
 - A page shows its files part only when it has files, or to whoever may add one.
+- The wiki's start without a page `home` says that one would show there only to whoever may start it.
 
 ## 1.2.0 (2026-11-09)
 

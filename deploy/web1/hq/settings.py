@@ -1,5 +1,5 @@
-"""DataGroceries' own instance on web1, hq.datagroceries.com: Jasper's tickets, and the first installation of
-DataGroceries outside the example project. How it runs is in README.md next to this project."""
+"""DataGroceries' own instance on web1, hq.datagroceries.com: Jasper's tickets and wiki, with a public part
+of the wiki. How it runs is in README.md next to this project."""
 
 import os
 import pathlib
@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'datagroceries.connect',
     'datagroceries.board',
     'datagroceries.wiki',
+    'allauth',
+    'allauth.account',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'hq.urls'
@@ -74,6 +77,8 @@ WSGI_APPLICATION = 'hq.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # hq's own: allauth's pages in DataGroceries' layout.
+        'DIRS': [BASE_DIR / 'hq' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,7 +107,31 @@ STORAGES = {
 }
 MEDIA_ROOT = HOME / 'media'
 
-LOGIN_URL = 'admin:login'
+# Anyone reads the wiki's public folders; to comment there, they make an account with their email address
+# and a name, and sign in with a code mailed to them, without a password (hq/people.py). So does Jasper,
+# or with his password in the admin.
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+LOGIN_URL = 'account_login'
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_ADAPTER = 'hq.accounts.AccountAdapter'
+ACCOUNT_SIGNUP_FORM_CLASS = 'hq.accounts.SignupForm'
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}
+ACCOUNT_SIGNUP_FIELDS = ['email*']
+ACCOUNT_LOGIN_BY_CODE_ENABLED = True
+# Signed in for as long as the session lasts, without a box to tick.
+ACCOUNT_SESSION_REMEMBER = True
+# An account works once its address is confirmed, with a code mailed to it.
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[DataGroceries] '
+# Against bots: a field people do not see, which bots fill in, and few sign-ups per address.
+ACCOUNT_SIGNUP_FORM_HONEYPOT_FIELD = 'website'
+ACCOUNT_RATE_LIMITS = {'signup': '5/h/ip', 'login': '20/m/ip', 'request_login_code': '10/h/ip,3/h/key'}
+# The rate limits count in a cache that every gunicorn worker shares.
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache', 'LOCATION': HOME / 'cache'}}
 
 # Mail through Hetzner's webhosting, from a mailbox of DataGroceries' own that only sends; datagroceries.com's SPF
 # and DKIM allow it. The server, the mailbox and its password are in /srv/gilde/.env, not in this public
@@ -127,6 +156,7 @@ LOGGING = {
     'loggers': {'django': {'handlers': ['console'], 'level': 'WARNING'}},
 }
 
+DG_PEOPLE = 'hq.people.HqPeople'
 DG_BOARD_KEY_PREFIX = 'G'
 # Commits, branches and pull requests that name a ticket show on it. GitHub's webhook proves itself with
 # the secret in /srv/gilde/.env; without one, the board accepts no delivery.

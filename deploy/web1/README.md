@@ -1,7 +1,7 @@
 # DataGroceries on web1
 
 DataGroceries' own instance, at https://hq.datagroceries.com: Jasper's tickets on the board and the wiki,
-with Claude connected, on PostgreSQL. It runs on web1, a small
+with Claude connected, and a part of the wiki anyone may read, on PostgreSQL. It runs on web1, a small
 Hetzner Cloud server with Ubuntu 26.04, next to other sites, behind Caddy. The server itself is described
 in its own documentation, which is not public; here is only what is DataGroceries'. `ssh web1` below is the
 server, as an SSH alias.
@@ -13,9 +13,11 @@ server, as an SSH alias.
 | `/srv/gilde/.env` | `DJANGO_SECRET_KEY`, made on the server; `EMAIL_HOST` and `EMAIL_HOST_USER`, the SMTP server and DataGroceries' mailbox; `EMAIL_HOST_PASSWORD`, the mailbox's password, put there by Jasper; `DG_BOARD_GITHUB_WEBHOOK_SECRET`, shared with the repository's webhook; and `SENTRY_DSN`; mode 600 |
 | `/srv/gilde/static`, `/srv/gilde/media` | `collectstatic`'s output, served by Caddy; uploaded attachments |
 | `/srv/gilde/backups` | The nightly dumps, 14 days |
+| `/srv/gilde/cache` | Django's cache, shared by the gunicorn workers: allauth counts sign-ups and sign-ins in it |
 | PostgreSQL 18, database `datagroceries` | Owned by the role `gilde`, reached through the socket as the system user `gilde`, without a password |
 
-The project in this folder, `hq`, is all the code of its own: settings, URLs and WSGI. The service runs
+The project in this folder, `hq`, is all the code of its own: settings, URLs and WSGI; who may do what
+(`people.py`) and making an account (`accounts.py`, and allauth's pages in `templates/`). The service runs
 gunicorn on `127.0.0.1:8002` ([gilde.service](gilde.service)); Caddy serves the site
 ([gilde.caddy](gilde.caddy)).
 
@@ -29,6 +31,7 @@ chmod 751 /srv/gilde
 install -d -o gilde -g gilde -m 755 /srv/gilde/static
 install -d -o gilde -g gilde -m 750 /srv/gilde/media
 install -d -o gilde -g gilde -m 700 /srv/gilde/backups
+install -d -o gilde -g gilde -m 700 /srv/gilde/cache
 sudo -u postgres createuser gilde
 sudo -u postgres createdb --owner gilde datagroceries
 sudo -u gilde -H git clone https://github.com/datagroceries/django-dg.git /srv/gilde/app
@@ -77,6 +80,19 @@ systemctl restart gilde
 
 The service and Caddy files are copied by hand when they change. `check --deploy` warns that only
 superusers may use the board until a group gets its permission (`dg.W003`).
+## Who may do what
+
+Jasper, and whoever else may use the board, the team, may do everything (`hq/people.py`). Everyone else
+reads the wiki's folders Board and Wiki, with what is in them, and nothing else of the wiki or the board:
+without an account, and with one, they comment there too. A folder is public by its address, so renamed
+or moved it is public no more. The team are the wiki's people as well: who signs up can be neither
+assigned nor @-mentioned, and sees nobody else who did.
+
+Anyone makes an account at `/accounts/signup/`, with django-allauth: an email address and a name, no
+password. The account works once a code mailed to the address is typed in, and signing in is with a code
+mailed too. Every new account joins the user group Readers, made with the first one, which may use the
+wiki. Against bots: the confirmed address, a field people do not see and bots fill in, and at most five
+sign-ups an hour from one address. Jasper signs in with a code too, or with his password in the admin.
 
 ## Backups
 
