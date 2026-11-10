@@ -5,6 +5,10 @@ A kanban ticket tracker for a Django project, that people and AI agents work on 
 [Eddy Grid](https://eddygrid.com) built for its own team, which kindly agreed to its release, and keeps its
 design.
 
+**Missing something?** A [feature request](https://github.com/datagroceries/django-dg/issues/new?labels=enhancement)
+or a word in [Discussions](https://github.com/datagroceries/django-dg/discussions) is very welcome: what
+people who would use it ask for comes first.
+
 ## What it does
 
 - A kanban board with drag and drop, groups per team or project with their own columns, and filters on

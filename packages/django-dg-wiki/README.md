@@ -3,6 +3,10 @@
 A wiki for a Django project, that people and AI agents write together, next to the board. Part of
 [DataGroceries](https://github.com/datagroceries/django-dg).
 
+**Missing something?** A [feature request](https://github.com/datagroceries/django-dg/issues/new?labels=enhancement)
+or a word in [Discussions](https://github.com/datagroceries/django-dg/discussions) is very welcome: what
+people who would use it ask for comes first.
+
 ## What it does
 
 - Pages in Markdown, in one tree of pages and folders, as files and folders are: a folder's text is the
