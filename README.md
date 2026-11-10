@@ -106,7 +106,7 @@ Each app does a few things one way, on purpose, so some things are left out:
   ([integrating.md](docs/integrating.md#per-group-of-the-board-per-page-of-the-wiki)).
 - **No live updates.** A page shows what was there when it loaded. In the wiki, a save made on top of
   someone else's is refused, naming them, rather than merged.
-- **English and Dutch only**, for now; another language is one more translation file.
+- **English and Dutch only**; another language is one more translation file.
 - **Notifications by email, out of the box.** Slack, Teams or anything else is a notifier of your own,
   a few lines ([integrating.md](docs/integrating.md#notifications)). Nothing comes in by email.
 

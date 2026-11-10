@@ -89,11 +89,9 @@ in it, and the editor says where the page's links start, with two addresses they
   in that are not there yet are made with it, titled from their address; only a page of its own above it
   stops it, to be made a folder first. It is renamed or moved once it is there, and the links follow. A link with no name to show, as `[[..]]` at the top, stays text.
 
-This rule was the last of three (G-61, G-62): every page a folder made a link to a page beside it
-`[[../Platform]]`; every page a file beside a folder of its name made a link to a page in it repeat the
-page's own name. With pages and folders, both are short where they are wanted, on a folder its pages and
-on a page its neighbours, and a link changes meaning only when someone makes a page a folder, which
-rewrites it.
+So links are short where they are wanted, on a folder to its pages and on a page to its neighbours, and
+a link changes meaning only when someone makes a page a folder, which rewrites it. Why this rule, and not
+the others weighed, is in [decisions.md](decisions.md).
 
 The editor's writing help (the "?") explains these in a part of its own, wherever the wiki is installed,
 so in a ticket's editor too: `PageLinks.help_heading` and `PageLinks.help`.
@@ -134,8 +132,8 @@ page now has. The pages so rewritten are saved, each with a version of its own. 
   its original says so. Deleting the original, or unlinking it, makes its first version the original of the
   others. The tree shows a page's language after its title.
 - One name per folder, as in a file system: a page whose title gives the slug of another in the same
-  folder is refused (`Page.clean`), on creating, renaming, moving and dragging; `platform-2` is only made
-  where nobody chose the name, as by the ORM.
+  folder is refused (`Page.clean`, and `Page.save` for whatever skips the forms), on creating, renaming,
+  moving and dragging.
 - An export (`export.py`) is one Markdown file, or a zip of files at their addresses with their images
   beside them; links between the files in it become relative links, other links the wiki's address.
 - The ticket's list of wiki pages comes through core's `backlinks` registry: the wiki registers its pages

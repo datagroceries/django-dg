@@ -1,14 +1,13 @@
 # Fitting DataGroceries into your Django project
 
 How to add the DataGroceries apps to a Django project you already have, whatever it uses for logins, users,
-API tokens and its front end. It describes what works today; the board is the only app so far.
+API tokens and its front end, for the board and the wiki.
 
-Status: tested once, on 6 November 2026, in a fresh [cookiecutter-django](https://cookiecutter-django.readthedocs.io/)
-project: Django 6.0, Python 3.14, allauth with sign-in by email, a user model with a single `name` field,
-and DRF with its own tokens. Following this guide, it took six lines in `INSTALLED_APPS`, one URL, and
-one setting to let its DRF tokens in; the pages, the API, the MCP endpoint, the "Connect an agent" page
-and the OAuth sign-in all worked. DataGroceries' own instance runs on PostgreSQL, and CI runs every test on
-PostgreSQL too. Until 1.0, anything may change.
+Tested in a fresh [cookiecutter-django](https://cookiecutter-django.readthedocs.io/) project: Django 6.0,
+Python 3.14, allauth with sign-in by email, a user model with a single `name` field, and DRF with its own
+tokens. Following this guide takes six lines in `INSTALLED_APPS`, one URL, and one setting to let its DRF
+tokens in; the pages, the API, the MCP endpoint, the "Connect an agent" page and the OAuth sign-in all
+work. DataGroceries' own instance runs on PostgreSQL, and CI runs every test on PostgreSQL too.
 
 ## In short: what you write
 
@@ -179,7 +178,7 @@ Someone not signed in can only read, whatever `may` says: a comment, a version a
 person. Where they would comment, the page offers to sign in, at your `LOGIN_URL`; whether they can make
 an account there is your project's. They see the names on what they read: who changed it, who commented,
 who is mentioned in it. The board stays closed to them, and so do the API and MCP tools, which need a
-token. By default `may_use` says no to them, and they are sent to sign in, as before.
+token. By default `may_use` says no to them, and they are sent to sign in.
 
 #### Your rules
 
@@ -496,7 +495,7 @@ Before you start:
 
 - **Make the groups and columns on the board first**, in the pages: the API and the tools do not make
   them. Tell the agent which old status goes to which column.
-- **Everything is done as the person who connected the agent**, today. The board's history shows that
+- **Everything is done as the person who connected the agent**. The board's history shows that
   person as the creator of every ticket and the writer of every comment, "via Claude". Ask the agent to
   start each description and comment with who wrote it and when, such as "Originally by Ann Smith, 3 March
   2025", so that stays known.

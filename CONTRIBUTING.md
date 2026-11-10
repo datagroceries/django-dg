@@ -74,6 +74,8 @@ One repository, a package per app, each released to PyPI on its own:
   them from an app's folder as `python -P -m django …`, so that core's own `markdown.py` does not hide
   the library of that name.
 - A line in the `CHANGELOG.md` of each package a change touches, under "Unreleased".
+- The READMEs and docs say how it works now, never how it changed or what it was before: no "as before",
+  "no longer" or "now" about a change. That is for the changelogs and the decisions.
 - A decision that shapes DataGroceries is a dated entry in [docs/decisions.md](docs/decisions.md). One that no
   longer holds keeps its text, with a note saying what replaced it.
 - Agents working in the repository read [CLAUDE.md](CLAUDE.md).

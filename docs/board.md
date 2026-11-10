@@ -72,7 +72,7 @@ holds replies, and `Comment.sets_blocked` marks the comments that switched block
 (on core's `attachments.Attachment`) is a file in the default storage, served through the board to the people on it only, so that storage
 must not publish it at an address of its own; only known image types are shown inline. Its address ends in its slugified file name (`attachments/143/screenshot.png`),
 because the Markdown editor inserts an upload as an image only when the URL ends in an image
-extension; the address without the name, which older text links to, still works.
+extension; the address without the name leads to the file too.
 
 **Behaviour worth knowing.**
 

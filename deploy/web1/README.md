@@ -1,7 +1,7 @@
 # DataGroceries on web1
 
 DataGroceries' own instance, at https://hq.datagroceries.com: Jasper's tickets on the board and the wiki,
-with Claude connected. The first installation outside the example project, on PostgreSQL. It runs on web1, a small
+with Claude connected, on PostgreSQL. It runs on web1, a small
 Hetzner Cloud server with Ubuntu 26.04, next to other sites, behind Caddy. The server itself is described
 in its own documentation, which is not public; here is only what is DataGroceries'. `ssh web1` below is the
 server, as an SSH alias.
@@ -78,20 +78,6 @@ systemctl restart gilde
 The service and Caddy files are copied by hand when they change. `check --deploy` warns that only
 superusers may use the board until a group gets its permission (`dg.W003`).
 
-## The move to DataGroceries (7 November 2026)
-
-Gilde became DataGroceries (docs/decisions.md). The data moved from the database `gilde`, on the old app
-labels, to `datagroceries`: dumped with the old code (`dumpdata --natural-foreign --natural-primary`, without
-content types, permissions, sessions and the admin log), relabelled `gilde_*` → `dg_*`, loaded with
-`SIMPLE_HISTORY_ENABLED=False` (or loading a ticket writes a history record of its own over the dumped ones),
-the sequences reset with `sqlsequencereset`, and every model's count compared. The settings in `.env` went
-from `GILDE_*` to `DG_*`.
-
-Afterwards, the same day: Claude was reconnected to hq.datagroceries.com, as OAuth clients registered on the
-old address no longer signed in there (the address they check ends in `/dg/` now). Then the old database
-`gilde`, the dumps and the backup from before the move were removed, and so were gilde.datagroceries.com and
-gildehq.com, with their DNS records. The server's own names (the user, folders and services) stay `gilde`.
-
 ## Backups
 
 [gilde-backup.timer](gilde-backup.timer) runs [gilde-backup.service](gilde-backup.service) at 03:30: a
@@ -116,8 +102,8 @@ details.
 Commits on `main`, branches and pull requests that name a `G-` ticket show in its Code panel (the board's
 README, "GitHub"). The repository has a webhook to `https://hq.datagroceries.com/dg/board/github/webhook/`:
 JSON, the events Pushes, Pull requests and Branch or tag creation, and the secret that is
-`DG_BOARD_GITHUB_WEBHOOK_SECRET` in `/srv/gilde/.env`. It was made with a fresh secret written to both
-at once, never printed. The webhook's Recent deliveries on GitHub show each delivery and the answer; one
+`DG_BOARD_GITHUB_WEBHOOK_SECRET` in `/srv/gilde/.env`; a new one is written to both at once, never
+printed. The webhook's Recent deliveries on GitHub show each delivery and the answer; one
 refused while the site was down or not yet deployed can be redelivered there.
 
 There is no `DG_BOARD_GITHUB_TOKEN`: only `manage.py backfill_github` needs one, to read history from
