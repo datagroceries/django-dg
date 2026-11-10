@@ -4,10 +4,11 @@ Who hears about what is the apps' to decide: the people watching a ticket or a p
 a new assignee, never whoever made the change. How it reaches them comes from one class, `Notifier`, which is
 handed each person and a `Message`: what happened (`kind`), who did it, what it is about, and a sentence
 saying so in the person's language. By default it is an email through Django's email settings, to the
-address `People` gives, from templates a project overrides as any other (`dg_core/notifications/`). A host
-project that reaches its people another way, such as in Slack or Teams, inside the project, in a daily
-digest or not at all when someone said so, names a subclass in `DG_NOTIFIER`; docs/integrating.md shows
-one for Slack.
+address `People` gives, from templates a project overrides as any other (`dg_core/notifications/`); with
+`DG_SLACK_BOT_TOKEN`, a direct message in Slack instead, to whom Slack knows by that address, and the email
+still to whom it does not or when Slack fails. A host project that reaches its people another way, such as
+in Teams, inside the project, in a daily digest or not at all when someone said so, names a subclass in
+`DG_NOTIFIER`; docs/integrating.md shows one.
 
 A message goes out once the change is committed, as a task on Django's task backend (`TASKS`), which runs
 it at once unless the host project sets up a worker. On Django 5.2 that takes the `django-tasks` backport;
@@ -17,13 +18,18 @@ raised, so the others still hear about it.
 
 import dataclasses
 import functools
+import hashlib
+import json
 import logging
+import urllib.parse
+import urllib.request
 from collections import defaultdict
 from urllib.parse import urlsplit
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.signals import setting_changed
 from django.db import transaction
@@ -48,6 +54,11 @@ except ImportError:
 from datagroceries.core import people
 
 logger = logging.getLogger(__name__)
+
+SLACK_API = 'https://slack.com/api/'
+# How long someone's Slack id is remembered, by their email address: a day.
+SLACK_ID_SECONDS = 24 * 60 * 60
+SLACK_TIMEOUT = 10
 
 
 @dataclasses.dataclass(frozen=True)
@@ -75,15 +86,18 @@ class Message:
 
 
 class Notifier:
-    """The default way people hear about a change: an email. Subclass it to reach them another way, and
-    name the subclass in `DG_NOTIFIER`."""
+    """The default way people hear about a change: an email, or a direct message in Slack. Subclass it to
+    reach them another way, and name the subclass in `DG_NOTIFIER`."""
 
     def send(self, user, message: Message):
         """Tell `user` the `message`: by default an email to their address (`people.email`), and nothing
         when they have none. It is written in their language, from the templates
         `dg_core/notifications/email_subject.txt`, `email.txt` and `email.html`, and every message about
-        one ticket or page is in one thread."""
+        one ticket or page is in one thread. With `DG_SLACK_BOT_TOKEN`, a direct message in Slack instead,
+        when Slack knows the address."""
         if not (address := people.email(user)):
+            return
+        if getattr(settings, 'DG_SLACK_BOT_TOKEN', '') and _to_slack(address, user, message):
             return
         context = {'user': user, 'message': message, 'about_url': message.url.split('#')[0]}
         with translation.override(people.language(user)):
@@ -103,6 +117,61 @@ class Notifier:
         domain = urlsplit(message.url).hostname or 'localhost'
         thread = f'<{message.about._meta.label_lower}.{message.about.pk}@{domain}>'
         return {'In-Reply-To': thread, 'References': thread}
+
+
+class _SlackError(Exception):
+    """What Slack answered instead of ok, such as `users_not_found` or `invalid_auth`."""
+
+
+def _slack(method: str, **fields) -> dict:
+    request = urllib.request.Request(  # noqa: S310 - Slack's own address
+        SLACK_API + method,
+        data=urllib.parse.urlencode(fields).encode(),
+        headers={'Authorization': f'Bearer {settings.DG_SLACK_BOT_TOKEN}'},
+    )
+    with urllib.request.urlopen(request, timeout=SLACK_TIMEOUT) as response:  # noqa: S310 - the same
+        answer = json.load(response)
+    if not answer.get('ok'):
+        raise _SlackError(answer.get('error', 'no error given'))
+    return answer
+
+
+def _slack_id(address: str) -> str:
+    """Whom Slack knows by `address`, remembered for a day; '' for nobody."""
+    key = f'dg-slack-id:{hashlib.sha256(address.lower().encode()).hexdigest()}'
+    found = cache.get(key)
+    if found is None:
+        try:
+            found = _slack('users.lookupByEmail', email=address)['user']['id']
+        except _SlackError as error:
+            if str(error) != 'users_not_found':
+                raise
+            found = ''
+        cache.set(key, found, SLACK_ID_SECONDS)
+    return found
+
+
+def _slack_text(message: Message) -> str:
+    """The message as Slack writes it: the sentence, linking to it, and the quote under it."""
+
+    def escape(text: str) -> str:
+        return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+    lines = [f'<{message.url}|{escape(message.summary)}>']
+    lines += [f'>{escape(line)}' for line in message.quote.splitlines()]
+    return '\n'.join(lines)
+
+
+def _to_slack(address: str, user, message: Message) -> bool:
+    """A direct message in Slack to whom it knows by `address`; False when there is none, for an email."""
+    try:
+        if not (slack_id := _slack_id(address)):
+            return False
+        _slack('chat.postMessage', channel=slack_id, text=_slack_text(message), unfurl_links='false')
+    except (OSError, ValueError, _SlackError) as error:
+        logger.warning('Slack did not reach %s (%s); an email instead.', user, error)
+        return False
+    return True
 
 
 @functools.cache

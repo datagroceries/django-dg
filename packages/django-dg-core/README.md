@@ -15,7 +15,8 @@ app, such as [django-dg-board](https://pypi.org/project/django-dg-board/), bring
   signed in may read, how DataGroceries names people, their @-handles, whom the editor suggests after an
   @, their email address and their image come from one class a project may subclass. No assumptions
   about the user model.
-- **Notifications** by email, or through a notifier of the project's own, once the change is committed.
+- **Notifications** by email, or in Slack with a bot token, or through a notifier of the project's own,
+  once the change is committed.
 - **A layout of its own**, with Bootstrap and Bootstrap Icons in the package, so the apps' pages work in
   any project; override one template to show them in yours.
 - **Markdown**: GitHub Flavored Markdown, as in a comment on GitHub, read by markdown-it-py and tested

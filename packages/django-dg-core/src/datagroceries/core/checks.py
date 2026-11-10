@@ -112,4 +112,13 @@ def check_notifier(app_configs, **kwargs):
                 id='dg.E003',
             )
         ]
+    token = getattr(settings, 'DG_SLACK_BOT_TOKEN', '')
+    if token and not token.startswith('xoxb-'):
+        return [
+            checks.Warning(
+                'DG_SLACK_BOT_TOKEN is not a bot token: Slack will refuse it, and everyone gets an email instead.',
+                hint="Use the Slack app's Bot User OAuth Token, which starts with xoxb- (OAuth & Permissions).",
+                id='dg.W004',
+            )
+        ]
     return []

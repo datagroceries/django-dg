@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **Notifications in Slack**, with one setting, `DG_SLACK_BOT_TOKEN`: a direct message instead of the
+  email, to whoever Slack knows by their email address, and the email to the others and while Slack
+  fails. `manage.py check` warns about a token that is not a bot's (`dg.W004`).
 - The language switch in the header also offers the languages a project translates in its own
   `LOCALE_PATHS`, as well as the ones the DataGroceries apps have a translation for.
 

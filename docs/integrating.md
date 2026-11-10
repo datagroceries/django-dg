@@ -421,7 +421,48 @@ any other Django template, to change only how it looks:
 
 Each gets `message`, `user` (whom it goes to) and `about_url` (the page, without the place on it).
 
-To reach people another way, such as in Slack or Teams, inside your project, in a daily digest, or not at
+### In Slack
+
+With a Slack bot token in your settings, everything that would be an email is a direct message in Slack
+instead, to whoever Slack knows by the same email address: the sentence, linking to it, and the text it
+quotes. Whoever Slack does not know gets the email, and so does everyone while Slack fails, which is
+logged. There is nothing to choose: for another way, write a notifier of your own (below).
+
+1. At [api.slack.com/apps](https://api.slack.com/apps), choose **Create New App**, **From a manifest**, and
+   your workspace, and paste:
+
+   ```yaml
+   display_information:
+     name: DataGroceries
+   features:
+     app_home:
+       messages_tab_enabled: true
+       messages_tab_read_only_enabled: true
+     bot_user:
+       display_name: DataGroceries
+   oauth_config:
+     scopes:
+       bot:
+         - chat:write
+         - users:read
+         - users:read.email
+   ```
+
+2. Choose **Install to Workspace**, and allow it.
+3. Under **OAuth & Permissions**, copy the **Bot User OAuth Token**, which starts with `xoxb-`, into your
+   settings, from wherever you keep secrets:
+
+   ```python
+   DG_SLACK_BOT_TOKEN = os.environ.get('DG_SLACK_BOT_TOKEN', '')
+   ```
+
+Someone's Slack id is looked up by their address once a day and remembered in Django's cache: with a
+cache your processes share, such as Redis or a file cache, once for all of them, and with Django's
+default, once in each. `manage.py check` warns about a token that is not a bot's.
+
+### Your own notifier
+
+To reach people another way, such as in Teams, inside your project, in a daily digest, or not at
 all when someone said so, subclass `datagroceries.core.notifications.Notifier` and name it in
 `DG_NOTIFIER`. Its one method, `send(user, message)`, is handed the user and a `Message`, the whole
 event:
@@ -437,8 +478,9 @@ event:
 | `quote` | the text it concerns, if any, such as the start of the comment |
 
 The apps still decide who hears about what, never tell the person who made the change, and leave out
-inactive users; your notifier decides how, and whether. A Slack direct message for being assigned or
-@-mentioned, and an email for the rest and for whoever Slack cannot reach, using
+inactive users; your notifier decides how, and whether, and Slack is then yours too. A Slack direct
+message only for being assigned or @-mentioned, and an email for the rest and for whoever Slack cannot
+reach, using
 [slack_sdk](https://pypi.org/project/slack-sdk/):
 
 ```python
