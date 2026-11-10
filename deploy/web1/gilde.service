@@ -11,12 +11,12 @@ EnvironmentFile=/srv/gilde/.env
 ExecStart=/srv/gilde/venv/bin/gunicorn hq.wsgi --bind 127.0.0.1:8002 --workers 2 --threads 2 --no-control-socket
 Restart=always
 
-# Read-only system; the app writes only its uploads. The database is PostgreSQL's.
+# Read-only system; the app writes only its uploads and its cache. The database is PostgreSQL's.
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/srv/gilde/media
+ReadWritePaths=/srv/gilde/media /srv/gilde/cache
 
 [Install]
 WantedBy=multi-user.target
