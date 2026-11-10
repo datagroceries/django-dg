@@ -4,8 +4,8 @@ A wiki for a Django project, that people and AI agents write together, next to t
 [DataGroceries](https://github.com/datagroceries/django-dg).
 
 **Missing something?** A [feature request](https://github.com/datagroceries/django-dg/issues/new?labels=enhancement)
-or a word in [Discussions](https://github.com/datagroceries/django-dg/discussions) is very welcome: what
-people who would use it ask for comes first.
+or a word in [Discussions](https://github.com/datagroceries/django-dg/discussions) is very welcome: we
+would rather build what people use, so feature requests come high on our list.
 
 ## What it does
 

@@ -17,8 +17,9 @@ it.
 > **Missing something? Please tell us.** DataGroceries is young, and we want it to become the board and
 > wiki you would choose. If a feature you need is missing, or something is in your way, say so in a
 > [feature request](https://github.com/datagroceries/django-dg/issues/new?labels=enhancement) or in
-> [Discussions](https://github.com/datagroceries/django-dg/discussions): a one-line wish helps too. What
-> people who would use it ask for comes first.
+> [Discussions](https://github.com/datagroceries/django-dg/discussions): a one-line wish helps too. We
+> would rather build what people use than what we guess they need, so feature requests come high on our
+> list.
 
 **Try it** at [demo.datagroceries.com](https://demo.datagroceries.com): an account with one click, a small
 team's board and wiki, and Claude connected in a minute. It starts again every night.
