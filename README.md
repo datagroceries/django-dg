@@ -116,9 +116,9 @@ Each app does a few things one way, on purpose, so some things are left out:
 - **No live updates.** A page shows what was there when it loaded. In the wiki, a save made on top of
   someone else's is refused, naming them, rather than merged.
 - **English and Dutch only**; another language is one more translation file.
-- **Notifications go by email or Slack**, and nowhere else by themselves: Teams or anything else is a
-  notifier of your own, a few lines ([integrating.md](docs/integrating.md#notifications)). Nothing comes
-  in by email.
+- **No Teams, and no replying by email.** Notifications go by email, or in Slack with one setting; Teams
+  or anything else is a notifier of your own, a few lines
+  ([integrating.md](docs/integrating.md#notifications)). An email cannot be answered to comment.
 
 ## Design principles
 
