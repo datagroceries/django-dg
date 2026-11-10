@@ -1,6 +1,6 @@
 # Changelog of django-dg-core
 
-## Unreleased
+## 1.5.0 (2026-11-10)
 
 - **GitHub's alerts** in every app's Markdown: a quote whose first line is `[!NOTE]`, `[!TIP]`,
   `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]` shows as a block in its colour, with its icon and title. The
