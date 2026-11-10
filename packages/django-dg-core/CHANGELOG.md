@@ -1,5 +1,12 @@
 # Changelog of django-dg-core
 
+## Unreleased
+
+- **GitHub's alerts** in every app's Markdown: a quote whose first line is `[!NOTE]`, `[!TIP]`,
+  `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]` shows as a block in its colour, with its icon and title. The
+  writing help says how.
+- Two quotes with an empty line between them are two, as on GitHub, no longer one.
+
 ## 1.4.0 (2026-11-10)
 
 Wiki 1.3.0 needs it.

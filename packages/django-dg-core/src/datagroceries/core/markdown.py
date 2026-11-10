@@ -1,9 +1,9 @@
 """Markdown as every DataGroceries app shows it, and what the apps recognise in each other's text.
 
 `render(text)` turns Markdown into safe HTML: lists read the way GitHub reads them, tables, fenced code,
-"- [ ]" items as checkboxes, bare addresses as links, and nothing of whatever raw HTML the text holds
-(nh3 strips it). `render_document(text)` does the same for a page of its own, such as a wiki page: with an
-anchor on each heading, and the headings for a table of contents.
+"- [ ]" items as checkboxes, bare addresses as links, GitHub's alerts ("> [!NOTE]"), and nothing of
+whatever raw HTML the text holds (nh3 strips it). `render_document(text)` does the same for a page of its
+own, such as a wiki page: with an anchor on each heading, and the headings for a table of contents.
 
 What an app recognises in text is a `Reference`, registered from its AppConfig.ready() with `register`:
 the board makes "see T-123" a link to that ticket and "@anna" a mention of that colleague. Every app's
@@ -19,6 +19,7 @@ import xml.etree.ElementTree as ET
 import markdown
 import nh3
 from django.utils.safestring import SafeString, mark_safe
+from django.utils.translation import gettext_lazy as _
 from markdown.extensions import Extension, toc
 from markdown.preprocessors import Preprocessor
 from markdown.treeprocessors import Treeprocessor
@@ -184,6 +185,83 @@ class _GitHubLists(Extension):
     def extendMarkdown(self, md):  # noqa: N802 - Markdown's name for it
         # After fenced_code (25) has set code blocks aside.
         md.preprocessors.register(_ListPreprocessor(md), 'github_lists', 15)
+        md.preprocessors.register(_QuotePreprocessor(md), 'github_quotes', 14)
+
+
+QUOTE_RE = re.compile(r'^ {0,3}>')
+# What ends a quote for Python-Markdown and leaves nothing behind: nh3 strips comments.
+QUOTE_END = '<!-- -->'
+
+
+class _QuotePreprocessor(Preprocessor):
+    """Ends a quote at an empty line, as GitHub does, so two quotes with an empty line between them are two,
+    such as two alerts; Python-Markdown would make them one."""
+
+    def run(self, lines: list[str]) -> list[str]:
+        result = []
+        # Whether the last line with text was a quote's, and whether an empty line came after it.
+        in_quote = ended = False
+        for line in lines:
+            quoted = bool(QUOTE_RE.match(line))
+            if quoted and in_quote and ended:
+                result.extend([QUOTE_END, ''])
+            if line.strip():
+                in_quote, ended = quoted, False
+            else:
+                ended = True
+            result.append(line)
+        return result
+
+
+# GitHub's alerts, each with its icon and title: a quote whose first line is "[!NOTE]" and so on.
+ALERTS = {
+    'note': ('info-circle', _('Note')),
+    'tip': ('lightbulb', _('Tip')),
+    'important': ('chat-square-text', _('Important')),
+    'warning': ('exclamation-triangle', _('Warning')),
+    'caution': ('exclamation-octagon', _('Caution')),
+}
+ALERT_RE = re.compile(rf'\s*\[!({"|".join(ALERTS)})\]\s*$', re.IGNORECASE)
+ALERT_CLASSES = {
+    'div': {'dg-alert', *(f'dg-alert-{kind}' for kind in ALERTS)},
+    'p': {'dg-alert-title'},
+    'i': {'bi', *(f'bi-{icon}' for icon, _title in ALERTS.values())},
+}
+
+
+class _AlertProcessor(Treeprocessor):
+    """A quote at the top level whose first line is one of GitHub's alerts, "[!NOTE]", "[!TIP]",
+    "[!IMPORTANT]", "[!WARNING]" or "[!CAUTION]", on a line of its own and with text after it, becomes
+    a block of that kind with its title, as on GitHub; anything else stays a quote."""
+
+    def run(self, root):
+        for quote in root.findall('blockquote'):
+            first = quote[0] if len(quote) else None
+            match = ALERT_RE.match(first.text or '') if first is not None and first.tag == 'p' else None
+            if match is None:
+                continue
+            if len(first) and first[0].tag == 'br':
+                # The text goes on in the same paragraph, after the line break nl2br made.
+                rest = first[0]
+                first.remove(rest)
+                first.text = (rest.tail or '').lstrip('\n')
+            elif not len(first) and len(quote) > 1:
+                quote.remove(first)
+            else:
+                continue
+            kind = match[1].lower()
+            icon, title = ALERTS[kind]
+            quote.tag = 'div'
+            quote.set('class', f'dg-alert dg-alert-{kind}')
+            head = ET.Element('p', {'class': 'dg-alert-title'})
+            ET.SubElement(head, 'i', {'class': f'bi bi-{icon}'}).tail = f' {title}'
+            quote.insert(0, head)
+
+
+class _Alerts(Extension):
+    def extendMarkdown(self, md):  # noqa: N802 - Markdown's name for it
+        # After the inline patterns (20), so the line breaks are there.
+        md.treeprocessors.register(_AlertProcessor(md), 'dg_alerts', 15)
 
 
 def _anchor(value: str, separator: str) -> str:
@@ -202,13 +280,14 @@ def _convert(text: str, references: bool, headings: bool, context: dict | None) 
             'pymdownx.tilde',
             'pymdownx.tasklist',
             _GitHubLists(),
+            _Alerts(),
             *([_References()] if references else []),
             *([toc.TocExtension(slugify=_anchor, toc_depth=HEADING_LEVELS)] if headings else []),
         ],
     )
     md.dg_context = context or {}
     html = md.convert(text)
-    classes = {'li': {'task-list-item'}}
+    classes = {'li': {'task-list-item'}, **ALERT_CLASSES}
     for reference in REFERENCES if references else ():
         for tag, names in reference.classes.items():
             classes[tag] = classes.get(tag, set()) | names

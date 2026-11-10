@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 08:55+0100\n"
+"POT-Creation-Date: 2026-11-10 10:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -17,13 +17,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: mentions.py:67
+#: markdown.py:192
+msgid "Note"
+msgstr "Opmerking"
+
+#: markdown.py:193
+msgid "Tip"
+msgstr "Tip"
+
+#: markdown.py:194
+msgid "Important"
+msgstr "Belangrijk"
+
+#: markdown.py:195
+msgid "Warning"
+msgstr "Waarschuwing"
+
+#: markdown.py:196
+msgid "Caution"
+msgstr "Pas op"
+
+#: mentions.py:68
 msgid "Type the start of a name to mention a colleague, who hears about it."
 msgstr ""
 "Typ het begin van een naam om een collega te noemen; die krijgt er bericht "
 "van."
 
-#: mentions.py:79
+#: mentions.py:80
 #, python-format
 msgid "%(person)s cannot see this"
 msgstr "%(person)s kan dit niet zien"
@@ -69,47 +89,55 @@ msgstr "Een citaat."
 
 #: templates/dg_core/_markdown_help.html:17
 msgid ""
+"A note in colour, with its title. Or [!TIP], [!IMPORTANT], [!WARNING] or [!"
+"CAUTION]."
+msgstr ""
+"Een opmerking in kleur, met een kopje erboven. Of [!TIP], [!IMPORTANT], [!WARNING] of "
+"[!CAUTION]."
+
+#: templates/dg_core/_markdown_help.html:19
+msgid ""
 "Code in a sentence; a line of three backticks above and below a block of "
 "code."
 msgstr ""
 "Code in een zin; een regel van drie backticks boven en onder een blok code."
 
-#: templates/dg_core/_markdown_help.html:18
+#: templates/dg_core/_markdown_help.html:20
 msgid "words"
 msgstr "woorden"
 
-#: templates/dg_core/_markdown_help.html:19
+#: templates/dg_core/_markdown_help.html:21
 msgid "A link. An address on its own becomes a link too."
 msgstr "Een link. Een los adres wordt ook een link."
 
-#: templates/dg_core/_markdown_help.html:20
+#: templates/dg_core/_markdown_help.html:22
 msgid "Name"
 msgstr "Naam"
 
-#: templates/dg_core/_markdown_help.html:20
+#: templates/dg_core/_markdown_help.html:22
 msgid "Role"
 msgstr "Rol"
 
-#: templates/dg_core/_markdown_help.html:21
+#: templates/dg_core/_markdown_help.html:23
 msgid "A table: a row per line, the second line under the heads."
 msgstr "Een tabel: een rij per regel, de tweede regel onder de koppen."
 
-#: templates/dg_core/_markdown_help.html:22
+#: templates/dg_core/_markdown_help.html:24
 msgid "description"
 msgstr "beschrijving"
 
-#: templates/dg_core/_markdown_help.html:23
+#: templates/dg_core/_markdown_help.html:25
 msgid ""
 "An image: paste or drop one into the text, and it is uploaded and put in."
 msgstr ""
 "Een afbeelding: plak of sleep er een in de tekst, dan wordt hij geüpload en "
 "ingevoegd."
 
-#: templates/dg_core/_markdown_help.html:24
+#: templates/dg_core/_markdown_help.html:26
 msgid "Enter"
 msgstr "Enter"
 
-#: templates/dg_core/_markdown_help.html:25
+#: templates/dg_core/_markdown_help.html:27
 msgid "A new line stays a new line; an empty line starts a new paragraph."
 msgstr ""
 "Een nieuwe regel blijft een nieuwe regel; een lege regel begint een nieuwe "

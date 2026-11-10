@@ -52,6 +52,46 @@ class RenderTests(SimpleTestCase):
         self.assertNotIn('onfocus', html)
 
 
+class AlertTests(SimpleTestCase):
+    def test_each_of_githubs_alerts_is_a_block_of_its_kind_with_its_title(self):
+        for kind, (icon, title) in markdown.ALERTS.items():
+            with self.subTest(kind):
+                html = markdown.render(f'> [!{kind.upper()}]\n> Read **this**.')
+
+                self.assertEqual(
+                    html,
+                    f'<div class="dg-alert dg-alert-{kind}">\n'
+                    f'<p class="dg-alert-title"><i class="bi bi-{icon}"></i> {title}</p>\n'
+                    '<p>Read <strong>this</strong>.</p>\n</div>',
+                )
+
+    def test_the_kind_may_be_in_small_letters_and_a_paragraph_of_its_own(self):
+        html = markdown.render('> [!tip]\n>\n> One.\n>\n> Two.')
+
+        self.assertIn('<div class="dg-alert dg-alert-tip">', html)
+        self.assertIn('<p>One.</p>\n<p>Two.</p>\n</div>', html)
+
+    def test_two_quotes_with_an_empty_line_between_them_are_two_as_on_github(self):
+        html = markdown.render('> [!NOTE]\n> One.\n\n> [!WARNING]\n> Two.\n\n> Three.')
+
+        self.assertEqual(html.count('<div class="dg-alert'), 2)
+        self.assertIn('<blockquote>\n<p>Three.</p>\n</blockquote>', html)
+        self.assertNotIn('<!--', html)
+
+    def test_anything_else_stays_a_quote(self):
+        for text in ('> [!NOTICE]\n> No such kind.', '> [!NOTE]', '> [!WARNING] On the same line.', '> A quote.'):
+            with self.subTest(text):
+                html = markdown.render(text)
+
+                self.assertTrue(html.startswith('<blockquote>'), html)
+                self.assertNotIn('dg-alert', html)
+
+    def test_an_alert_inside_a_list_or_another_quote_stays_a_quote_as_on_github(self):
+        for text in ('- One\n  > [!NOTE]\n  > Nested.', '> > [!NOTE]\n> > Nested.'):
+            with self.subTest(text):
+                self.assertNotIn('dg-alert', markdown.render(text))
+
+
 class Shout(markdown.Reference):
     """An app's reference, for the tests: a word in capitals between asterisks, which here are bangs."""
 
