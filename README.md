@@ -58,8 +58,8 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
   it goes in. A page lists the pages that link to it, and a ticket the pages that name it.
 - **History**: every version kept, with who made it and through which agent; two versions side by side,
   and an old one brought back.
-- **Comments, @-mentions and watchers**, images and files, search, a page's versions in other languages,
-  and pages downloaded as Markdown.
+- **Comments, @-mentions and watchers**, who hear about new comments by email or in Slack, images and
+  files, search, a page's versions in other languages, and pages downloaded as Markdown.
 - **Access per page**, as your project decides: who may read, comment on or write a page, and the pages
   under it, on the pages and for agents alike. A part of the wiki can be open to read without an account,
   such as your product's documentation.

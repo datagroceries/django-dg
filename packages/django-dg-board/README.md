@@ -17,7 +17,8 @@ would rather build what people use, so feature requests come high on our list.
   attachments dropped or pasted onto the page; parents and subtasks, blockers, duplicates and related
   tickets.
 - Every change kept, with who made it and through which agent, shown per ticket as one activity feed.
-- @-mentions and watchers, told by email, or any way the project's own notifier reaches them.
+- @-mentions and watchers, told by email, or in Slack with one setting, or any way the project's own
+  notifier reaches them.
 - Links to the GitHub commits, branches and pull requests that mention a ticket.
 - A REST API and MCP tools, so an agent works on tickets as the person who connected it.
 - English and Dutch, following the project's language.
@@ -104,8 +105,8 @@ by core (`datagroceries.core.markdown`), as in every DataGroceries app; the boar
   written, each `@handle` that reaches someone is marked, so a typo shows before saving.
 - Nobody hears about their own change. Only the views notify (`notifications.py`), never a model
   signal, so bulk changes stay quiet.
-- A message goes out once the change is committed, through `datagroceries.core.notifications`: by email, or as the
-  project's own notifier does it (`DG_NOTIFIER`).
+- A message goes out once the change is committed, through `datagroceries.core.notifications`: by email,
+  in Slack with `DG_SLACK_BOT_TOKEN`, or as the project's own notifier does it (`DG_NOTIFIER`).
 
 ## API for agents
 

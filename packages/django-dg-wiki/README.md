@@ -24,7 +24,8 @@ would rather build what people use, so feature requests come high on our list.
 - Every save kept, with who made it and through which agent; two versions compared side by side, and an
   earlier one brought back. A save is refused when someone else saved the page in the meantime.
 - Images in the text, pasted or dropped into the editor, and files beside a page.
-- Comments and replies, with @-mentions; the people watching a page hear about new comments.
+- Comments and replies, with @-mentions; the people watching a page hear about new comments, by email,
+  or in Slack with one setting.
 - Search through every page's title and text, and pages downloaded as Markdown: one page as a file, or
   a page with all under it, or the whole wiki, as a zip with their images, the links between them kept.
 - A page in several languages: each version beside it, new or linked from a page already there, and told
