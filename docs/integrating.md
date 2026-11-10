@@ -332,6 +332,20 @@ which Django searches before the apps' own. It must:
 
 Leave every other DataGroceries template alone; they change between versions.
 
+## The Markdown
+
+Every app writes GitHub Flavored Markdown (GFM, on CommonMark), as GitHub shows it in an issue or a
+comment: tables, task lists, struck text, bare addresses as links, alerts (`> [!NOTE]`) and footnotes, and
+a new line is a line break. markdown-it-py reads it, and core's tests run every example of the
+[GFM spec](https://github.github.com/gfm/): where the HTML differs, the test says why
+(`datagroceries/core/tests/test_gfm_spec.py`). Raw HTML stays only where nh3 knows it to be harmless,
+such as `<details>` or `<kbd>`, and the rest is dropped: stricter than the spec's list of disallowed tags.
+The editor's preview is EasyMDE's own, and may differ from the saved text in details.
+
+An app's references, such as the board's ticket keys, are `datagroceries.core.markdown.Reference`: a
+`pattern`, a `resolve` that looks up all matches at once, and an `element` for each, in the text outside
+code, links and images.
+
 ## Agents and the API
 
 Every app has a REST API and tools on the one MCP endpoint, and both act as the person who connected

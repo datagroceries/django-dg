@@ -9,7 +9,7 @@ would rather build what people use, so feature requests come high on our list.
 
 ## What it does
 
-- Pages in Markdown, in one tree of pages and folders, as files and folders are: a folder's text is the
+- Pages in GitHub Flavored Markdown, in one tree of pages and folders, as files and folders are: a folder's text is the
   index of the pages in it, and a page becomes a folder, or back, when someone says so. One name per
   folder. Addresses follow the tree (`dg/wiki/engineering/` for a folder, `dg/wiki/engineering/deploying`
   for a page), and a page renamed or moved keeps its old address leading to it. Pages are put in order,

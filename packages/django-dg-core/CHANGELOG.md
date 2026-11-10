@@ -2,10 +2,19 @@
 
 ## 1.5.0 (2026-11-10)
 
-- **GitHub's alerts** in every app's Markdown: a quote whose first line is `[!NOTE]`, `[!TIP]`,
-  `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]` shows as a block in its colour, with its icon and title. The
-  writing help says how.
-- Two quotes with an empty line between them are two, as on GitHub, no longer one.
+- **GitHub Flavored Markdown.** Every app's Markdown is GFM, as in a comment on GitHub, read by
+  markdown-it-py with mdit-py-plugins, instead of Python-Markdown and pymdown-extensions, which core no
+  longer needs. Its tests run every example of the GFM spec. Text written before reads the same in
+  nearly all of it; what can differ is where Python-Markdown and CommonMark disagree: an indent of two
+  spaces under a list item, raw HTML blocks, a quote that goes on after an empty line (now two quotes),
+  and nested strong emphasis. Struck text is `<del>`, a table's alignment shows, and a single `~` strikes
+  too, as on GitHub.
+- **Footnotes**, `[^1]`, and **GitHub's alerts**: a quote whose first line is `[!NOTE]`, `[!TIP]`,
+  `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]` shows as a block in its colour, with its icon and title, by
+  GitHub's own classes (`markdown-alert`). The writing help says how.
+- A `Reference` is no longer a Python-Markdown tree processor: one that sets a `pattern` and writes
+  `resolve` and `element`, as every reference of the apps does, works as before; one that used `self.md`
+  or overrode `run` needs `context` and `apply` instead.
 
 ## 1.4.0 (2026-11-10)
 

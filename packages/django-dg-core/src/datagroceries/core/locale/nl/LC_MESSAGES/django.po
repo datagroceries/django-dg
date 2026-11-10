@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-10 10:15+0100\n"
+"POT-Creation-Date: 2026-11-10 10:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: DataGroceries\n"
 "Language-Team: Dutch\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: markdown.py:192
+#: markdown.py:34
 msgid "Note"
 msgstr "Opmerking"
 
-#: markdown.py:193
+#: markdown.py:35
 msgid "Tip"
 msgstr "Tip"
 
-#: markdown.py:194
+#: markdown.py:36
 msgid "Important"
 msgstr "Belangrijk"
 
-#: markdown.py:195
+#: markdown.py:37
 msgid "Warning"
 msgstr "Waarschuwing"
 
-#: markdown.py:196
+#: markdown.py:38
 msgid "Caution"
 msgstr "Pas op"
 
@@ -92,8 +92,8 @@ msgid ""
 "A note in colour, with its title. Or [!TIP], [!IMPORTANT], [!WARNING] or [!"
 "CAUTION]."
 msgstr ""
-"Een opmerking in kleur, met een kopje erboven. Of [!TIP], [!IMPORTANT], [!WARNING] of "
-"[!CAUTION]."
+"Een opmerking in kleur, met een kopje erboven. Of [!TIP], [!IMPORTANT], [!"
+"WARNING] of [!CAUTION]."
 
 #: templates/dg_core/_markdown_help.html:19
 msgid ""
@@ -133,11 +133,15 @@ msgstr ""
 "Een afbeelding: plak of sleep er een in de tekst, dan wordt hij geüpload en "
 "ingevoegd."
 
-#: templates/dg_core/_markdown_help.html:26
+#: templates/dg_core/_markdown_help.html:27
+msgid "A footnote: a number in the text, and the note under it."
+msgstr "Een voetnoot: een nummer in de tekst, en de noot eronder."
+
+#: templates/dg_core/_markdown_help.html:28
 msgid "Enter"
 msgstr "Enter"
 
-#: templates/dg_core/_markdown_help.html:27
+#: templates/dg_core/_markdown_help.html:29
 msgid "A new line stays a new line; an empty line starts a new paragraph."
 msgstr ""
 "Een nieuwe regel blijft een nieuwe regel; een lege regel begint een nieuwe "

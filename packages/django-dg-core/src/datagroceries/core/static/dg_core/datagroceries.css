@@ -6,16 +6,21 @@
 /* Muted when the colleague cannot see what the text is on, so the writer feels it does not reach them. */
 .dg-mention.dg-mention-unseen { font-weight: 500; color: var(--bs-secondary-color); background: var(--bs-secondary-bg); }
 
-/* GitHub's alerts in rendered text (datagroceries.core.markdown): a quote of one kind, with its title. */
-.dg-alert { margin-bottom: 1rem; padding: .5rem 1rem; border-left: .25rem solid var(--dg-alert-border); }
-.dg-alert > :last-child { margin-bottom: 0; }
-.dg-alert .dg-alert-title { margin-bottom: .25rem; font-weight: 600; color: var(--dg-alert-title); }
-.dg-alert .dg-alert-title .bi { margin-right: .3rem; }
-.dg-alert-note { --dg-alert-border: var(--bs-primary); --dg-alert-title: var(--bs-primary-text-emphasis); }
-.dg-alert-tip { --dg-alert-border: var(--bs-success); --dg-alert-title: var(--bs-success-text-emphasis); }
-.dg-alert-important { --dg-alert-border: var(--bs-purple); --dg-alert-title: var(--bs-purple); }
-.dg-alert-warning { --dg-alert-border: var(--bs-warning); --dg-alert-title: var(--bs-warning-text-emphasis); }
-.dg-alert-caution { --dg-alert-border: var(--bs-danger); --dg-alert-title: var(--bs-danger-text-emphasis); }
+/* GitHub's alerts in rendered text (datagroceries.core.markdown), by GitHub's own classes: a quote of one kind, with its title. */
+.markdown-alert { margin-bottom: 1rem; padding: .5rem 1rem; border-left: .25rem solid var(--dg-alert-border); }
+.markdown-alert > :last-child { margin-bottom: 0; }
+.markdown-alert .markdown-alert-title { margin-bottom: .25rem; font-weight: 600; color: var(--dg-alert-title); }
+.markdown-alert .markdown-alert-title .bi { margin-right: .3rem; }
+.markdown-alert-note { --dg-alert-border: var(--bs-primary); --dg-alert-title: var(--bs-primary-text-emphasis); }
+.markdown-alert-tip { --dg-alert-border: var(--bs-success); --dg-alert-title: var(--bs-success-text-emphasis); }
+.markdown-alert-important { --dg-alert-border: var(--bs-purple); --dg-alert-title: var(--bs-purple); }
+.markdown-alert-warning { --dg-alert-border: var(--bs-warning); --dg-alert-title: var(--bs-warning-text-emphasis); }
+.markdown-alert-caution { --dg-alert-border: var(--bs-danger); --dg-alert-title: var(--bs-danger-text-emphasis); }
+
+/* Footnotes in rendered text: small, under a line. */
+.footnotes { font-size: .875em; color: var(--bs-secondary-color); }
+.footnotes-sep { margin: 1.5rem 0 .75rem; }
+.footnote-backref { text-decoration: none; }
 
 /* The switch between the DataGroceries apps at the top of every page (dg_core/base.html). */
 .dg-apps { display: flex; gap: .15rem; margin: 0; padding: .1rem; list-style: none; border-radius: .4rem; background: var(--bs-tertiary-bg); }

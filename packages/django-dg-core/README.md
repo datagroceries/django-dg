@@ -18,8 +18,9 @@ app, such as [django-dg-board](https://pypi.org/project/django-dg-board/), bring
 - **Notifications** by email, or through a notifier of the project's own, once the change is committed.
 - **A layout of its own**, with Bootstrap and Bootstrap Icons in the package, so the apps' pages work in
   any project; override one template to show them in yours.
-- **Markdown**, rendered and sanitised the same way in every app (GitHub's lists, tables, task lists and
-  alerts), with the Markdown editor, and **references between apps**: an app registers what it recognises
+- **Markdown**: GitHub Flavored Markdown, as in a comment on GitHub, read by markdown-it-py and tested
+  against every example of its spec, rendered and sanitised the same way in every app, with the Markdown
+  editor, and **references between apps**: an app registers what it recognises
   in text, such as the board's ticket keys, and every app's Markdown links it while that app is installed.
 - **One URL include** for every app, and **system checks** that say what a project still has to add.
 

@@ -13,7 +13,7 @@ would rather build what people use, so feature requests come high on our list.
 
 - A kanban board with drag and drop, groups per team or project with their own columns, and filters on
   assignee, creator, label, text, and a ticket with everything under it.
-- Tickets with a Markdown description, labels, a size, comments with one level of replies, and
+- Tickets with a description in GitHub Flavored Markdown, labels, a size, comments with one level of replies, and
   attachments dropped or pasted onto the page; parents and subtasks, blockers, duplicates and related
   tickets.
 - Every change kept, with who made it and through which agent, shown per ticket as one activity feed.

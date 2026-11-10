@@ -31,7 +31,7 @@ team's board and wiki, and Claude connected in a minute. It starts again every n
 
 - **A kanban board** with drag and drop, groups per team or project, each with its own columns, and
   filters on assignee, creator, label and text.
-- **Tickets** with a Markdown description, labels, a size, comments with replies, and screenshots
+- **Tickets** with a description in GitHub Flavored Markdown, labels, a size, comments with replies, and screenshots
   dropped or pasted onto the page. Parents and subtasks, blockers, duplicates and related tickets.
 - **History**: every change to a ticket is kept, with who made it, and through which agent if one did.
   Each ticket shows it as one feed, with the comments and relations.
